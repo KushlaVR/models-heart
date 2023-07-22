@@ -5,8 +5,10 @@
   (paper "A3")
 
   (title_block
-    (title "Model Heart")
+    (title "Model's Heart")
     (rev "1")
+    (company "kushlavr@gmail.com")
+    (comment 1 "https://github.com/KushlaVR/models-heart")
   )
 
   (lib_symbols
@@ -3717,8 +3719,8 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 097d5294-71ab-4ed8-8137-b6fcb2a33df2)
   )
-  (text "Model Heart" (at 312.42 265.43 0)
-    (effects (font (size 8 8)) (justify left bottom))
+  (text "Model's Heart" (at 299.72 262.89 0)
+    (effects (font (size 7 7)) (justify left bottom))
     (uuid 0a57d263-12e7-4a2c-8cba-79ae409f3a73)
   )
   (text "0" (at 76.2 157.48 0)

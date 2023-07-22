@@ -1,6 +1,6 @@
 # Model's Heart
 
-Breathe life into your model
+## Breathe life into your model
 
 ![Model's Heart](<img/part 1-0.png>)
 
@@ -71,3 +71,8 @@ PURPOSE OF PAYMENT: for ac 47330992708
 
 
 ![Донатьте на ЗСУ](img/part-1-8.png)
+
+
+## Schematic
+
+![Model's Heart Schematic](img/schematic.png)
