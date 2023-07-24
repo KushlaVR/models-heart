@@ -82,3 +82,11 @@ PURPOSE OF PAYMENT: for ac 47330992708
 ## Schematic
 
 ![Model's Heart Schematic](img/schematic.png)
+
+## PCB
+
+![Model's Heart PCB](img/PCB.png)
+
+# Board
+
+![Alt text](img/3D.png)
