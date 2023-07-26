@@ -6013,7 +6013,7 @@
     (property "Value" "2.2uF" (at 271.78 210.82 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric" (at 268.9352 213.36 0)
+    (property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 268.9352 213.36 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 267.97 209.55 0)
