@@ -82,7 +82,7 @@ void motorTest()
   }
   else if ((millis() - motorTestStart) > 6000)
   {
-    motor->setSpeed(-100);
+    motor->setSpeed(-255);
   }
   else if ((millis() - motorTestStart) > 3000)
   {
@@ -90,7 +90,7 @@ void motorTest()
   }
   else
   {
-    motor->setSpeed(100);
+    motor->setSpeed(255);
   }
   motor->loop();
 }

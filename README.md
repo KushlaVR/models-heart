@@ -89,4 +89,76 @@ PURPOSE OF PAYMENT: for ac 47330992708
 
 # Board
 
-![Alt text](img/3D.png)
+![3D](img/3D.png)
+
+![Photo](img/Photo.png)
+
+# Елементи UI
+## Text
+''' 
+    {
+        "x": int,
+        "y": int,
+        "w": int,
+        "h": int,
+        "text":string,
+        "bg":string
+    }
+'''
+
+## Button
+'''
+    {
+        "x": int,
+        "y": int,
+        "w": int,
+        "h": int,
+        "text": string,
+        "cmd": string
+    }
+'''
+
+## Slider
+'''
+    {
+        "x": int,
+        "y": int,
+        "w": int,
+        "h": int,
+        "color": string,
+        "cmd": string,
+        "autoconter": bool,
+    }
+'''
+
+# Сценрій
+'''
+    {
+        "cmd": string,
+        "type": "tougle/click",
+        "actions": 
+            [
+                {
+                    "type": 
+                    "cmd": string,
+                },
+                {
+                    "type": "motor",
+                    "cmd": string (source of motor speed values),
+                    "a": string (source of A half bridge values),
+                    "b": string (source of B half bridge values),
+                    "weight": int (in grams)
+                },
+                {
+                    "type": "blink",
+                    "weight": [
+                        {"pin": "1", "offset":"0", "value":"0"},
+                        {"pin": "1", "offset":"500", "value":"255"},
+                        {"pin": "1", "offset":"1000", "value":"0"}
+                    ]
+                }
+            ...
+            ]
+
+    }
+'''
