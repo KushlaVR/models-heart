@@ -399,3 +399,9 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+
+Firmware/HTML-Remote/lib
+Firmware/HTML-Remote/fonts
+Firmware/HTML-Remote/js
+Firmware/HTML-Remote/Scripts

@@ -168,7 +168,7 @@ PURPOSE OF PAYMENT: for ac 47330992708
 
 
 ## Приклади сценаріїв
-### Керування моторчиком
+### Керування гвинтовим літаком
 
 UI
 ```
@@ -178,7 +178,7 @@ UI
                 "type":"text",
                 "x": 0,
                 "y": 0,
-                "text":"Motor example"
+                "text":"Aircraft example"
             },
             {
                 "type":"slider",
@@ -227,6 +227,11 @@ UI
     {
         "elements":
             [
+                {
+                    "cmd": "motor_y",
+                    "type": "motor",
+                    "weight": 10000
+                },
                 {
                     "cmd": "beacon",
                     "type": "tougle",
