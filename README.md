@@ -107,7 +107,7 @@ PURPOSE OF PAYMENT: for ac 47330992708
 ```
 
 ## Button
-'''
+```
     {
         "x": int,
         "y": int,
@@ -116,10 +116,10 @@ PURPOSE OF PAYMENT: for ac 47330992708
         "text": string,
         "cmd": string
     }
-'''
+```
 
 ## Slider
-'''
+```
     {
         "x": int,
         "y": int,
@@ -129,10 +129,10 @@ PURPOSE OF PAYMENT: for ac 47330992708
         "cmd": string,
         "autoconter": bool,
     }
-'''
+```
 
 # Сценрій
-'''
+```
     {
         "cmd": string,
         "type": "tougle/click",
@@ -161,4 +161,4 @@ PURPOSE OF PAYMENT: for ac 47330992708
             ]
 
     }
-'''
+```
