@@ -95,7 +95,7 @@ PURPOSE OF PAYMENT: for ac 47330992708
 
 # Елементи UI
 ## Text
-''' 
+`
     {
         "x": int,
         "y": int,
@@ -104,7 +104,7 @@ PURPOSE OF PAYMENT: for ac 47330992708
         "text":string,
         "bg":string
     }
-'''
+`
 
 ## Button
 '''
