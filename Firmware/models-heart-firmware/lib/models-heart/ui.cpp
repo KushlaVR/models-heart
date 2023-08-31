@@ -1,6 +1,6 @@
 #include "ui.h"
 
-bool UIElementProperty::load(File *f, int fromStage)
+bool JsonElementProperty::load(File *f, int fromStage)
 {
     // Serial.println("UIElementProperty::load");
     int stage = fromStage;
@@ -75,26 +75,26 @@ bool UIElementProperty::load(File *f, int fromStage)
         {
             // if (!(ui->isEmptyChar(c)))
             //{
-            if (valuType == UIElementPropertyValueTypes::empty)
+            if (valuType == JsonElementPropertyValueTypes::empty)
             {
                 if (c == '\'')
                 {
                     endToken = '\'';
-                    valuType = UIElementPropertyValueTypes::value;
+                    valuType = JsonElementPropertyValueTypes::value;
                     // Serial.println("st 4->value '");
                 }
                 else if (c == '"')
                 {
                     endToken = '"';
-                    valuType = UIElementPropertyValueTypes::value;
+                    valuType = JsonElementPropertyValueTypes::value;
                     // Serial.println("st 4->value \"");
                 }
                 else if (c == '{')
                 {
                     endToken = 0;
-                    valuType = UIElementPropertyValueTypes::object;
+                    valuType = JsonElementPropertyValueTypes::object;
                     f->seek(f->position() - 1);
-                    UIElement *el = new UIElement();
+                    JsonElement *el = new JsonElement();
                     el->ui = ui;
                     object = el;
                     // Serial.println("st 4->object");
@@ -103,9 +103,9 @@ bool UIElementProperty::load(File *f, int fromStage)
                 else if (c == '[')
                 {
                     endToken = 0;
-                    valuType = UIElementPropertyValueTypes::collection;
+                    valuType = JsonElementPropertyValueTypes::collection;
                     f->seek(f->position() - 1);
-                    UICollection *el = new UICollection();
+                    JsonCollection *el = new JsonCollection();
                     el->ui = ui;
                     collection = el;
                     // Serial.println("st 4->array");
@@ -115,13 +115,13 @@ bool UIElementProperty::load(File *f, int fromStage)
                 {
                     endToken = 0;
                     // Serial.println("st 4->value (empty end token)");
-                    valuType = UIElementPropertyValueTypes::value;
+                    valuType = JsonElementPropertyValueTypes::value;
                     value += (char)c;
                 }
             }
             else
             {
-                if (valuType == UIElementPropertyValueTypes::value)
+                if (valuType == JsonElementPropertyValueTypes::value)
                 {
                     if (endToken == 0)
                     {
@@ -170,34 +170,34 @@ bool UIElementProperty::load(File *f, int fromStage)
     return false;
 }
 
-void UIElementProperty::print(Print *p)
+void JsonElementProperty::print(Print *p)
 {
     if (!(name == ""))
     {
         p->print("\"");
         p->print(name);
         p->print("\"");
-        if (valuType != UIElementPropertyValueTypes::empty)
+        if (valuType != JsonElementPropertyValueTypes::empty)
             p->print(":");
     }
 
-    if (valuType == UIElementPropertyValueTypes::value)
+    if (valuType == JsonElementPropertyValueTypes::value)
     {
         p->print("\"");
         p->print(value);
         p->print("\"");
     }
-    else if (valuType == UIElementPropertyValueTypes::object)
+    else if (valuType == JsonElementPropertyValueTypes::object)
     {
         object->print(p);
     }
-    else if (valuType == UIElementPropertyValueTypes::collection)
+    else if (valuType == JsonElementPropertyValueTypes::collection)
     {
         collection->print(p);
     }
 }
 
-bool UICollection::load(File *f)
+bool JsonCollection::load(File *f)
 {
     // Serial.println("UICollection::load");
     int stage = 0;
@@ -222,7 +222,7 @@ bool UICollection::load(File *f)
             }
             // Serial.println("try load array item");
 
-            UIElementProperty *el = new UIElementProperty();
+            JsonElementProperty *el = new JsonElementProperty();
             el->ui = ui;
             if (el->load(f, 4))
             {
@@ -253,7 +253,7 @@ bool UICollection::load(File *f)
     return false;
 }
 
-void UICollection::print(Print *p)
+void JsonCollection::print(Print *p)
 {
     p->print("[");
     Item *itm = getFirst();
@@ -261,14 +261,14 @@ void UICollection::print(Print *p)
     {
         if (itm->Index > 0)
             p->print(",");
-        UIElementProperty *el = (UIElementProperty *)itm;
+        JsonElementProperty *el = (JsonElementProperty *)itm;
         el->print(p);
         itm = itm->next;
     }
     p->print("]");
 }
 
-bool UIElement::load(File *f)
+bool JsonElement::load(File *f)
 {
     Properties = new Collection();
     while (f->available())
@@ -296,7 +296,7 @@ bool UIElement::load(File *f)
                         else
                         {
                             f->seek(f->position() - 1);
-                            UIElementProperty *prop = new UIElementProperty();
+                            JsonElementProperty *prop = new JsonElementProperty();
                             prop->ui = ui;
                             if (prop->load(f))
                             {
@@ -317,13 +317,13 @@ bool UIElement::load(File *f)
     return false;
 }
 
-void UIElement::print(Print *p)
+void JsonElement::print(Print *p)
 {
     p->print("{");
     Item *itm = Properties->getFirst();
     while (itm != nullptr)
     {
-        UIElementProperty *prop = (UIElementProperty *)itm;
+        JsonElementProperty *prop = (JsonElementProperty *)itm;
         if (itm->Index > 0)
             p->print(",");
         prop->print(p);

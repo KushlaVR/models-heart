@@ -5,11 +5,11 @@
 #include <FS.h>
 #include <Print.h>
 
-class UI;
-class UIElement;
-class UICollection;
+class JsonObject;
+class JsonElement;
+class JsonCollection;
 
-enum UIElementPropertyValueTypes
+enum JsonElementPropertyValueTypes
 {
     empty = 0,
     value = 1,
@@ -17,55 +17,55 @@ enum UIElementPropertyValueTypes
     collection = 3
 };
 
-class UIElementProperty : public Item
+class JsonElementProperty : public Item
 {
 public:
-    UI *ui = nullptr;
-    UIElementProperty() {}
-    ~UIElementProperty() {}
+    JsonObject *ui = nullptr;
+    JsonElementProperty() {}
+    ~JsonElementProperty() {}
     String name = "";
 
-    UIElementPropertyValueTypes valuType = UIElementPropertyValueTypes::empty;
+    JsonElementPropertyValueTypes valuType = JsonElementPropertyValueTypes::empty;
 
     String value = "";
-    UICollection *collection = nullptr;
-    UIElement *object = nullptr;
+    JsonCollection *collection = nullptr;
+    JsonElement *object = nullptr;
 
     bool load(File *f, int fromStage = 0);
     void print(Print * p);
 };
 
-class UICollection : public Collection
+class JsonCollection : public Collection
 {
 public:
-    UI *ui = nullptr;
-    UICollection() {}
-    ~UICollection() {}
+    JsonObject *ui = nullptr;
+    JsonCollection() {}
+    ~JsonCollection() {}
 
     bool load(File *f);
     void print(Print * p);
 };
 
-class UIElement : public Item
+class JsonElement : public Item
 {
     Collection *Properties = nullptr;
 
 public:
-    UI *ui = nullptr;
-    UIElement() {}
-    ~UIElement() {}
+    JsonObject *ui = nullptr;
+    JsonElement() {}
+    ~JsonElement() {}
 
     bool load(File *f);
     void print(Print *p);
 };
 
-class UI
+class JsonObject
 {
-    UIElement *root = nullptr;
+    JsonElement *root = nullptr;
 
 public:
-    UI() {}
-    ~UI() {}
+    JsonObject() {}
+    ~JsonObject() {}
 
     String loadError = "";
     int position = 0;
@@ -79,7 +79,7 @@ public:
     {
         f->seek(0);
         position = 0;
-        root = new UIElement();
+        root = new JsonElement();
         root->ui = this;
         root->load(f);
     }

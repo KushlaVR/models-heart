@@ -13,7 +13,8 @@
 #include <ui.h>
 
 PowerManager powerManager(PIN_POWER_HOLD, PIN_POWER_SENSE, PIN_BATTERY_SENSE);
-UI ui;
+JsonObject ui;
+JsonObject scripts;
 
 int testNumber = 0;
 
@@ -75,17 +76,21 @@ void setup()
     if (SPIFFS.exists("/ui.json"))
     {
         Serial.println("Parsing ui.json");
-
         File f = SPIFFS.open("/ui.json", "r");
         ui.load(&f);
         f.close();
-        Serial.print("LoadError: ");
-        Serial.println(ui.loadError);
-        Serial.print("LoadErrorPos: ");
-        Serial.println(ui.position);
-        
         Serial.println("Print UI");
         ui.print(&Serial);
+    }
+
+    if (SPIFFS.exists("/scripts.json"))
+    {
+        Serial.println("Parsing scripts.json");
+        File f = SPIFFS.open("/scripts.json", "r");
+        scripts.load(&f);
+        f.close();
+        Serial.println("Print Scripts");
+        scripts.print(&Serial);
     }
 }
 
