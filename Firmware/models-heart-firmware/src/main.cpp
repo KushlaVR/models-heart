@@ -81,6 +81,7 @@ void setup()
         f.close();
         Serial.println("Print UI");
         ui.print(&Serial);
+        Serial.println("");
     }
 
     if (SPIFFS.exists("/scripts.json"))
@@ -91,6 +92,7 @@ void setup()
         f.close();
         Serial.println("Print Scripts");
         scripts.print(&Serial);
+        Serial.println("");
     }
 }
 

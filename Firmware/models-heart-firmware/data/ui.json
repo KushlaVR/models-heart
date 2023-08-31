@@ -14,7 +14,7 @@
             "h": "35",
             "color": "red",
             "cmd": "motor",
-            "autoconter": "1"
+            "autocenter": "1"
         },
         {
             "type": "button",
