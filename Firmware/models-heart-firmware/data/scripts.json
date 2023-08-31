@@ -1,0 +1,128 @@
+{
+    "elements": [
+        {
+            "cmd": "beacon",
+            "type": "tougle",
+            "actions": [
+                {
+                    "type": "blink",
+                    "points": [
+                        {
+                            "pin": "4",
+                            "offset": "0",
+                            "value": "0"
+                        },
+                        {
+                            "pin": "4",
+                            "offset": "0",
+                            "value": "255"
+                        },
+                        {
+                            "pin": "4",
+                            "offset": "500",
+                            "value": "0"
+                        },
+                        {
+                            "pin": "4",
+                            "offset": "1000",
+                            "value": "0"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cmd": "strobe",
+            "type": "tougle",
+            "actions": [
+                {
+                    "type": "blink",
+                    "points": [
+                        {
+                            "pin": "5",
+                            "offset": "0",
+                            "value": "0"
+                        },
+                        {
+                            "pin": "5",
+                            "offset": "0",
+                            "value": "255"
+                        },
+                        {
+                            "pin": "5",
+                            "offset": "200",
+                            "value": "0"
+                        },
+                        {
+                            "pin": "5",
+                            "offset": "400",
+                            "value": "255"
+                        },
+                        {
+                            "pin": "5",
+                            "offset": "600",
+                            "value": "0"
+                        },
+                        {
+                            "pin": "5",
+                            "offset": "1000",
+                            "value": "0"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cmd": "position",
+            "type": "tougle",
+            "actions": [
+                {
+                    "type": "blink",
+                    "points": [
+                        {
+                            "pin": "3",
+                            "offset": "0",
+                            "value": "0"
+                        },
+                        {
+                            "pin": "3",
+                            "offset": "0",
+                            "value": "255"
+                        },
+                        {
+                            "pin": "3",
+                            "offset": "1000",
+                            "value": "255"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cmd": "navigation",
+            "type": "tougle",
+            "actions": [
+                {
+                    "type": "blink",
+                    "points": [
+                        {
+                            "pin": "2",
+                            "offset": "0",
+                            "value": "0"
+                        },
+                        {
+                            "pin": "2",
+                            "offset": "0",
+                            "value": "255"
+                        },
+                        {
+                            "pin": "2",
+                            "offset": "1000",
+                            "value": "255"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -170,128 +170,186 @@ PURPOSE OF PAYMENT: for ac 47330992708
 ## Приклади сценаріїв
 ### Керування гвинтовим літаком
 
-UI
+ui.json
 ```
-    {
-        "elements":[
-            {
-                "type":"text",
-                "x": 0,
-                "y": 0,
-                "text":"Aircraft example"
-            },
-            {
-                "type":"slider",
-                "x": "2",
-                "y": "7",
-                "w": "35",
-                "h": "35",
-                "color": "red",
-                "cmd": "motor",
-                "autoconter": "1",
-            },
-            {
-                "type":"button",
-                "x": "45",
-                "y": "7",
-                "text": "Beacon",
-                "cmd": "beacon"
-            },
-            {
-                "type":"button",
-                "x": "45",
-                "y": "14",
-                "text": "Strobe lights",
-                "cmd": "strobe"
-            },
-            {
-                "type":"button",
-                "x": "45",
-                "y": "14",
-                "text": "Position lights",
-                "cmd": "position"
-            },
-            {
-                "type":"button",
-                "x": "45",
-                "y": "14",
-                "text": "Navigation light",
-                "cmd": "navigation"
-            }
-        ]
-    }
+{
+    "elements": [
+        {
+            "type": "text",
+            "x": 0,
+            "y": 0,
+            "text": "Motor example"
+        },
+        {
+            "type": "slider",
+            "x": "2",
+            "y": "7",
+            "w": "35",
+            "h": "35",
+            "color": "red",
+            "cmd": "motor",
+            "autoconter": "1"
+        },
+        {
+            "type": "button",
+            "x": "45",
+            "y": "7",
+            "text": "Beacon",
+            "cmd": "beacon"
+        },
+        {
+            "type": "button",
+            "x": "45",
+            "y": "14",
+            "text": "Strobe lights",
+            "cmd": "strobe"
+        },
+        {
+            "type": "button",
+            "x": "45",
+            "y": "14",
+            "text": "Position lights",
+            "cmd": "position"
+        },
+        {
+            "type": "button",
+            "x": "45",
+            "y": "14",
+            "text": "Navigation light",
+            "cmd": "navigation"
+        }
+    ]
+}
 ```
 
-Сценарій
+scripts.json
 ```
-    {
-        "elements":
-            [
+{
+    "elements": [
+        {
+            "cmd": "beacon",
+            "type": "tougle",
+            "actions": [
                 {
-                    "cmd": "motor_y",
-                    "type": "motor",
-                    "weight": 10000
-                },
-                {
-                    "cmd": "beacon",
-                    "type": "tougle",
-                    "actions": [
+                    "type": "blink",
+                    "points": [
                         {
-                            "type": "blink",
-                            "points": [
-                                {"pin": "4", "offset":"0", "value":"0"},
-                                {"pin": "4", "offset":"0", "value":"255"},
-                                {"pin": "4", "offset":"500", "value":"0"},
-                                {"pin": "4", "offset":"1000", "value":"0"}
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "cmd": "strobe",
-                    "type": "tougle",
-                    "actions": [
+                            "pin": "4",
+                            "offset": "0",
+                            "value": "0"
+                        },
                         {
-                            "type": "blink",
-                            "points": [
-                                {"pin": "5", "offset":"0", "value":"0"},
-                                {"pin": "5", "offset":"0", "value":"255"},
-                                {"pin": "5", "offset":"200", "value":"0"},
-                                {"pin": "5", "offset":"400", "value":"255"},
-                                {"pin": "5", "offset":"600", "value":"0"},
-                                {"pin": "5", "offset":"1000", "value":"0"}
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "cmd": "position",
-                    "type": "tougle",
-                    "actions": [
+                            "pin": "4",
+                            "offset": "0",
+                            "value": "255"
+                        },
                         {
-                            "type": "blink",
-                            "points": [
-                                {"pin": "3", "offset":"0", "value":"0"}
-                                {"pin": "3", "offset":"0", "value":"255"}
-                                {"pin": "3", "offset":"1000", "value":"255"}
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "cmd": "navigation",
-                    "type": "tougle",
-                    "actions": [
+                            "pin": "4",
+                            "offset": "500",
+                            "value": "0"
+                        },
                         {
-                            "type": "blink",
-                            "points": [
-                                {"pin": "2", "offset":"0", "value":"0"}
-                                {"pin": "2", "offset":"0", "value":"255"}
-                                {"pin": "2", "offset":"1000", "value":"255"}
-                            ]
+                            "pin": "4",
+                            "offset": "1000",
+                            "value": "0"
                         }
                     ]
                 }
             ]
-    }
+        },
+        {
+            "cmd": "strobe",
+            "type": "tougle",
+            "actions": [
+                {
+                    "type": "blink",
+                    "points": [
+                        {
+                            "pin": "5",
+                            "offset": "0",
+                            "value": "0"
+                        },
+                        {
+                            "pin": "5",
+                            "offset": "0",
+                            "value": "255"
+                        },
+                        {
+                            "pin": "5",
+                            "offset": "200",
+                            "value": "0"
+                        },
+                        {
+                            "pin": "5",
+                            "offset": "400",
+                            "value": "255"
+                        },
+                        {
+                            "pin": "5",
+                            "offset": "600",
+                            "value": "0"
+                        },
+                        {
+                            "pin": "5",
+                            "offset": "1000",
+                            "value": "0"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cmd": "position",
+            "type": "tougle",
+            "actions": [
+                {
+                    "type": "blink",
+                    "points": [
+                        {
+                            "pin": "3",
+                            "offset": "0",
+                            "value": "0"
+                        },
+                        {
+                            "pin": "3",
+                            "offset": "0",
+                            "value": "255"
+                        },
+                        {
+                            "pin": "3",
+                            "offset": "1000",
+                            "value": "255"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "cmd": "navigation",
+            "type": "tougle",
+            "actions": [
+                {
+                    "type": "blink",
+                    "points": [
+                        {
+                            "pin": "2",
+                            "offset": "0",
+                            "value": "0"
+                        },
+                        {
+                            "pin": "2",
+                            "offset": "0",
+                            "value": "255"
+                        },
+                        {
+                            "pin": "2",
+                            "offset": "1000",
+                            "value": "255"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
 ```
