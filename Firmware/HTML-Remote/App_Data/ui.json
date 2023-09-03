@@ -8,13 +8,13 @@
         },
         {
             "type": "slider",
-            "x": "2",
+            "x": "12",
             "y": "7",
-            "w": "35",
+            "w": "1",
             "h": "35",
             "color": "red",
             "cmd": "motor",
-            "autocenter": "1"
+            "autocenter": "x"
         },
         {
             "type": "button",
@@ -33,14 +33,14 @@
         {
             "type": "button",
             "x": "45",
-            "y": "14",
+            "y": "21",
             "text": "Position lights",
             "cmd": "position"
         },
         {
             "type": "button",
             "x": "45",
-            "y": "14",
+            "y": "28",
             "text": "Navigation light",
             "cmd": "navigation"
         }

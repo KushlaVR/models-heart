@@ -64,16 +64,68 @@ class WorkSpace {
             this.createSliderElement(<any>el);
         }
     }
-    createSliderElement(el: SliderConfig) {
-        //throw new Error("Method not implemented.");
-    }
-    createButtonElement(el: ButtonConfig) {
-        //throw new Error("Method not implemented.");
-    }
-    createTextElement(el: TextConfig) {
-        //throw new Error("Method not implemented.");
-        
 
+    createSliderElement(el: SliderConfig) {
+
+        let div = document.createElement("DIV");
+        div.setAttribute("href", "#");
+        div.classList.add("slider");
+        div.classList.add("input");
+        div.setAttribute("name", el.cmd);
+        div.style.position = "absolute"
+        if (el.x) div.style.left = `${el.x}vw`;
+        if (el.y) div.style.top = `${el.y}vw`;
+        if (el.w) div.style.width = `${el.w}vw`;
+        if (el.h) div.style.height = `${el.h}vw`;
+
+        let pot = document.createElement("DIV");
+        pot.classList.add("pot");
+
+        let handle = document.createElement("DIV");
+        handle.classList.add("handle");
+        if (el.color)
+            handle.classList.add(el.color);
+        if (el.autocenter == "1")
+            div.setAttribute("data-center", "1")
+        if (el.autocenter == "x")
+            div.setAttribute("data-center-x", "1")
+        if (el.autocenter == "y")
+            div.setAttribute("data-center-y", "1")
+
+        div.appendChild(pot);
+        div.appendChild(handle);
+        this.form.appendChild(div);
+    }
+
+    createButtonElement(el: ButtonConfig) {
+
+        let div = document.createElement("A");
+        div.setAttribute("href", "#");
+        div.classList.add("btn");
+        div.classList.add("btn-primary");
+        div.classList.add("input");
+        div.innerText = el.text;
+        div.setAttribute("name", el.cmd);
+        div.style.position = "absolute"
+        if (el.x) div.style.left = `${el.x}vw`;
+        if (el.y) div.style.top = `${el.y}vw`;
+        if (el.w) div.style.width = `${el.w}vw`;
+        if (el.h) div.style.height = `${el.h}vw`;
+
+        this.form.appendChild(div);
+    }
+
+    createTextElement(el: TextConfig) {
+
+        let div = document.createElement("LABEL");
+        div.innerText = el.text;
+        div.style.position = "absolute"
+        if (el.x) div.style.left = `${el.x}vw`;
+        if (el.y) div.style.top = `${el.y}vw`;
+        if (el.w) div.style.width = `${el.w}vw`;
+        if (el.h) div.style.height = `${el.h}vw`;
+
+        this.form.appendChild(div);
     }
 
     private ConnectAPI(): void {
@@ -805,6 +857,7 @@ interface ButtonConfig extends BaseConfig {
 }
 
 interface SliderConfig extends BaseConfig {
-    autocenter: boolean;
+    autocenter: string;
+    color: string;
 }
 
