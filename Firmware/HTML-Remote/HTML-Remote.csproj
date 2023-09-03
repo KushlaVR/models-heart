@@ -138,6 +138,13 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Client.cs" />
+    <Compile Include="Models\Config\Config.cs" />
+    <Compile Include="Models\Config\ScriptAction.cs" />
+    <Compile Include="Models\Config\ScriptActionPoint.cs" />
+    <Compile Include="Models\Config\ScriptElement.cs" />
+    <Compile Include="Models\Config\Scripts_Config.cs" />
+    <Compile Include="Models\Config\UIElement.cs" />
+    <Compile Include="Models\Config\UI_Config.cs" />
     <Compile Include="Models\Parcel.cs" />
     <Compile Include="Models\WorkSpace.cs" />
     <Compile Include="Pipe.ashx.cs">
@@ -146,6 +153,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="css\bootstrap.min.css">
+      <DependentUpon>bootstrap.css</DependentUpon>
+    </Content>
+    <Content Include="css\kvr_workspace.min.css">
+      <DependentUpon>kvr_workspace.css</DependentUpon>
+    </Content>
+    <Content Include="css\style.min.css">
+      <DependentUpon>style.css</DependentUpon>
+    </Content>
+    <Content Include="data\css\kvr_workspace.css" />
     <Content Include="data\img\afu-gf.svg" />
     <Content Include="data\img\arrow.svg" />
     <Content Include="data\img\bg.png" />
@@ -160,7 +177,8 @@
     <Content Include="data\img\sp.svg" />
     <Content Include="data\img\white.png" />
     <Content Include="data\img\yellow.png" />
-    <Content Include="data\mp3\click.mp3" />
+    <Content Include="data\js\kvr_setup.js" />
+    <Content Include="data\js\kvr_workspace.js" />
     <Content Include="img\afu-gf.svg" />
     <Content Include="img\arrow.svg" />
     <Content Include="img\bg.png" />
@@ -180,26 +198,14 @@
       <DependentUpon>control.html</DependentUpon>
     </Content>
     <Content Include="css\bootstrap.css" />
-    <Content Include="css\bootstrap.min.css">
-      <DependentUpon>bootstrap.css</DependentUpon>
-    </Content>
-    <Content Include="css\slider.css" />
-    <Content Include="css\slider.min.css">
-      <DependentUpon>slider.css</DependentUpon>
-    </Content>
+    <Content Include="css\kvr_workspace.css" />
     <Content Include="css\style.css" />
-    <Content Include="css\style.min.css">
-      <DependentUpon>style.css</DependentUpon>
-    </Content>
     <Content Include="data\control.html" />
     <Content Include="data\css\bootstrap.css" />
-    <Content Include="data\css\slider.css" />
     <Content Include="data\css\style.css" />
     <Content Include="data\index.html" />
     <Content Include="data\js\bootstrap.js" />
     <Content Include="data\js\jquery.js" />
-    <Content Include="data\js\kushlavr.js" />
-    <Content Include="data\js\slider.js" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -220,12 +226,10 @@
     <Content Include="js\jquery.min.js">
       <DependentUpon>jquery.js</DependentUpon>
     </Content>
-    <Content Include="js\kushlavr.js" />
-    <Content Include="js\kushlavr.min.js" />
-    <Content Include="js\slider.js" />
-    <Content Include="js\slider.min.js">
-      <DependentUpon>slider.js</DependentUpon>
-    </Content>
+    <Content Include="js\kvr_setup.js" />
+    <Content Include="js\kvr_setup.min.js" />
+    <Content Include="js\kvr_workspace.js" />
+    <Content Include="js\kvr_workspace.min.js" />
     <Content Include="lib\bootstrap\dist\css\bootstrap-grid.css" />
     <Content Include="lib\bootstrap\dist\css\bootstrap-grid.min.css" />
     <Content Include="lib\bootstrap\dist\css\bootstrap-reboot.css" />
@@ -514,12 +518,10 @@
     <Content Include="lib\jquery\jquery.min.map" />
     <Content Include="lib\jquery\jquery.slim.min.map" />
     <Content Include="libman.json" />
-    <Content Include="js\kushlavr.js.map" />
-    <Content Include="js\kushlavr.min.js.map" />
-    <Content Include="js\slider.js.map" />
     <Content Include="bundleconfig.json" />
+    <Content Include="App_Data\scripts.json" />
+    <Content Include="App_Data\ui.json" />
     <None Include="Scripts\jquery-3.5.0.intellisense.js" />
-    <Content Include="mp3\click.mp3" />
     <Content Include="Scripts\jquery-3.5.0.js" />
     <Content Include="Scripts\jquery-3.5.0.min.js" />
     <Content Include="Scripts\jquery-3.5.0.slim.js" />
@@ -540,12 +542,12 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\Chat.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="ts\tsconfig.json" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
+    <Folder Include="data\mp3\" />
+    <Folder Include="mp3\" />
     <Folder Include="Views\Api\" />
   </ItemGroup>
   <ItemGroup>
@@ -557,13 +559,12 @@
     <Content Include="data\manifest.json" />
     <None Include="packages.config" />
     <Content Include="Pipe.ashx" />
-    <Content Include="Views\Home\Stream.cshtml" />
     <Content Include="Scripts\jquery-3.5.0.slim.min.map" />
     <Content Include="Scripts\jquery-3.5.0.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="ts\kushlavr.ts" />
-    <TypeScriptCompile Include="ts\slider.ts" />
+    <TypeScriptCompile Include="ts\kvr_setup.ts" />
+    <TypeScriptCompile Include="ts\kvr_workspace.ts" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

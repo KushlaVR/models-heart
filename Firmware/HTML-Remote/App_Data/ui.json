@@ -1,0 +1,48 @@
+{
+    "elements": [
+        {
+            "type": "text",
+            "x": "0",
+            "y": "0",
+            "text": "Motor example"
+        },
+        {
+            "type": "slider",
+            "x": "2",
+            "y": "7",
+            "w": "35",
+            "h": "35",
+            "color": "red",
+            "cmd": "motor",
+            "autocenter": "1"
+        },
+        {
+            "type": "button",
+            "x": "45",
+            "y": "7",
+            "text": "Beacon",
+            "cmd": "beacon"
+        },
+        {
+            "type": "button",
+            "x": "45",
+            "y": "14",
+            "text": "Strobe lights",
+            "cmd": "strobe"
+        },
+        {
+            "type": "button",
+            "x": "45",
+            "y": "14",
+            "text": "Position lights",
+            "cmd": "position"
+        },
+        {
+            "type": "button",
+            "x": "45",
+            "y": "14",
+            "text": "Navigation light",
+            "cmd": "navigation"
+        }
+    ]
+}

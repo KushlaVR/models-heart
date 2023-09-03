@@ -13,10 +13,10 @@ namespace WebUI.Models
         private readonly Dictionary<string, string> currentValues = new Dictionary<string, string>();
         //private readonly Dictionary<string, string> sendValues = new Dictionary<string, string>();
 
-        // Список всех клиентов
+        // Перелік клієнтів
         private readonly List<Client> Clients = new List<Client>();
 
-        // Блокировка для обеспечения потокабезопасности
+        // Флажок для багатопотокових операцій
         readonly ReaderWriterLockSlim Locker = new ReaderWriterLockSlim();
 
         public WorkSpace()
@@ -40,8 +40,6 @@ namespace WebUI.Models
 
         public async Task<bool> sendAll()
         {
-
-            //Передаём сообщение всем клиентам
             for (int i = 0; i < Clients.Count; i++)
             {
                 Client nextClient = Clients[i];
@@ -53,7 +51,6 @@ namespace WebUI.Models
 
         public async Task<bool> SendOne(Client client)
         {
-            //Передаём сообщение всем клиентам
             Locker.EnterWriteLock();
             try
             {

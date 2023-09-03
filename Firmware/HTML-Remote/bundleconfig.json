@@ -66,10 +66,10 @@
   */
 
   {
-    "outputFileName": "css/slider.min.css",
+    "outputFileName": "css/kvr_workspace.min.css",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "css/slider.css"
+      "css/kvr_workspace.css"
     ],
     // Optionally specify minification options
     "minify": {
@@ -80,10 +80,23 @@
 
 
   {
-    "outputFileName": "js/slider.min.js",
+    "outputFileName": "js/kvr_workspace.min.js",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "js/slider.js"
+      "js/kvr_workspace.js"
+    ],
+    // Optionally specify minification options
+    "minify": {
+      "enabled": false
+    },
+    "sourceMap": false
+  },
+
+  {
+    "outputFileName": "js/kvr_setup.min.js",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "js/kvr_setup.js"
     ],
     // Optionally specify minification options
     "minify": {
@@ -192,10 +205,10 @@
   },
 
   {
-    "outputFileName": "data/js/kushlavr.js",
+    "outputFileName": "data/js/kvr_setup.js",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "js/kushlavr.min.js"
+      "js/kvr_setup.min.js"
     ],
     // Optionally specify minification options
     "minify": {
@@ -205,10 +218,10 @@
   },
 
   {
-    "outputFileName": "data/js/slider.js",
+    "outputFileName": "data/js/kvr_workspace.js",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "js/slider.min.js"
+      "js/kvr_workspace.min.js"
     ],
     // Optionally specify minification options
     "minify": {
@@ -218,10 +231,10 @@
   },
 
   {
-    "outputFileName": "data/css/slider.css",
+    "outputFileName": "data/css/kvr_workspace.css",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
-      "css/slider.min.css"
+      "css/kvr_workspace.min.css"
     ],
     // Optionally specify minification options
     "minify": {
@@ -267,102 +280,6 @@
       "enabled": false
     },
     "sourceMap": false
-  },
-
-  {
-    "outputFileName": "data/img/afu-gf.svg",
-    // An array of relative input file paths. Globbing patterns supported
-    "inputFiles": [
-      "img/afu-gf.svg"
-    ],
-    // Optionally specify minification options
-    "minify": {
-      "enabled": false
-    }
-  },
-
-  {
-    "outputFileName": "data/img/sp.svg",
-    // An array of relative input file paths. Globbing patterns supported
-    "inputFiles": [
-      "img/sp.svg"
-    ],
-    // Optionally specify minification options
-    "minify": {
-      "enabled": false
-    }
-  },
-
-  {
-    "outputFileName": "data/img/pl.svg",
-    // An array of relative input file paths. Globbing patterns supported
-    "inputFiles": [
-      "img/pl.svg"
-    ],
-    // Optionally specify minification options
-    "minify": {
-      "enabled": false
-    }
-  },
-
-  {
-    "outputFileName": "data/img/ll.svg",
-    // An array of relative input file paths. Globbing patterns supported
-    "inputFiles": [
-      "img/ll.svg"
-    ],
-    // Optionally specify minification options
-    "minify": {
-      "enabled": false
-    }
-  },
-
-  {
-    "outputFileName": "data/img/hl.svg",
-    // An array of relative input file paths. Globbing patterns supported
-    "inputFiles": [
-      "img/hl.svg"
-    ],
-    // Optionally specify minification options
-    "minify": {
-      "enabled": false
-    }
-  },
-
-  {
-    "outputFileName": "data/img/jp-l.svg",
-    // An array of relative input file paths. Globbing patterns supported
-    "inputFiles": [
-      "img/jp-l.svg"
-    ],
-    // Optionally specify minification options
-    "minify": {
-      "enabled": false
-    }
-  },
-
-  {
-    "outputFileName": "data/img/jp-r.svg",
-    // An array of relative input file paths. Globbing patterns supported
-    "inputFiles": [
-      "img/jp-r.svg"
-    ],
-    // Optionally specify minification options
-    "minify": {
-      "enabled": false
-    }
-  },
-
-  {
-    "outputFileName": "data/img/arrow.svg",
-    // An array of relative input file paths. Globbing patterns supported
-    "inputFiles": [
-      "img/arrow.svg"
-    ],
-    // Optionally specify minification options
-    "minify": {
-      "enabled": false
-    }
   }
 
 

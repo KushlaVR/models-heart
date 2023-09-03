@@ -37,7 +37,8 @@ namespace WebUI.Controllers
         /// When the user makes a GET request, 
         /// we’ll create a new HttpResponseMessage using PushStreamContent object 
         /// and text/event-stream content type. 
-        /// PushStreamContent takes an Action&lt;Stream, HttpContentHeaders, TransportContext&gt; onStreamAvailable parameter in the constructor, and that in turn allows us to manipulate the response stream.
+        /// PushStreamContent takes an Action&lt;Stream, HttpContentHeaders, TransportContext&gt; onStreamAvailable parameter in the constructor, 
+        /// and that in turn allows us to manipulate the response stream.
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -93,6 +94,45 @@ namespace WebUI.Controllers
             {
                 client.processParcel(m);
             }
+        }
+
+        private static Models.Config.Config config;
+
+        private static void initConfig(HttpServerUtilityBase server)
+        {
+            if (config == null)
+            {
+                config = new Models.Config.Config();
+                config.ui = JsonConvert.DeserializeObject<Models.Config.UI_Config>(System.IO.File.ReadAllText(server.MapPath("~/App_Data/ui.json")));
+                config.scripts = JsonConvert.DeserializeObject<Models.Config.Scripts_Config>(System.IO.File.ReadAllText(server.MapPath("~/App_Data/scripts.json")));
+            }
+        }
+
+        public ActionResult Setup()
+        {
+            initConfig(Server);
+            var o = new
+            {
+                ui = JsonConvert.SerializeObject(config.ui, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore }),
+                scripts = JsonConvert.SerializeObject(config.scripts, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore })
+            };
+            string ret = JsonConvert.SerializeObject(o, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+            return new ContentResult() { ContentType = "application/json", Content = ret };
+        }
+
+        public ActionResult ui()
+        {
+            initConfig(Server);
+            string ret = JsonConvert.SerializeObject(config.ui, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+            return new ContentResult() { ContentType = "application/json", Content = ret };
+        }
+
+
+        public ActionResult scripts()
+        {
+            initConfig(Server);
+            string ret = JsonConvert.SerializeObject(config.scripts, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+            return new ContentResult() { ContentType = "application/json", Content = ret };
         }
     }
 
