@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <Collection.h>
 #include <FS.h>
+//#include <LittleFS.h>
 #include <Print.h>
 
 class JsonObject;
@@ -32,7 +33,7 @@ public:
     JsonElement *object = nullptr;
 
     bool load(File *f, int fromStage = 0);
-    void print(Print * p);
+    void print(Print *p);
 };
 
 class JsonCollection : public Collection
@@ -43,7 +44,7 @@ public:
     ~JsonCollection() {}
 
     bool load(File *f);
-    void print(Print * p);
+    void print(Print *p);
 };
 
 class JsonElement : public Item
@@ -75,17 +76,8 @@ public:
         return (c == 10 || c == 13 || c == 9 || c == ' ');
     }
 
-    void load(File *f)
-    {
-        f->seek(0);
-        position = 0;
-        root = new JsonElement();
-        root->ui = this;
-        root->load(f);
-    }
+    void load(File *f);
 
-    void print(Print *p)
-    {
-        root->print(p);
-    }
+    void print(Print *p);
+
 };

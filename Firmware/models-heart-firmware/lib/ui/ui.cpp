@@ -201,7 +201,7 @@ bool JsonCollection::load(File *f)
 {
     // Serial.println("UICollection::load");
     int stage = 0;
-    int cnt = 0;
+    //int cnt = 0;
     while (f->available())
     {
         int c = f->read();
@@ -330,4 +330,18 @@ void JsonElement::print(Print *p)
         itm = itm->next;
     }
     p->print("}");
+}
+
+void JsonObject::load(File *f)
+{
+    f->seek(0);
+    position = 0;
+    root = new JsonElement();
+    root->ui = this;
+    root->load(f);
+}
+
+void JsonObject::print(Print *p)
+{
+    root->print(p);
 }
