@@ -2,8 +2,7 @@
 
 #include <Arduino.h>
 #include <Collection.h>
-#include <FS.h>
-//#include <LittleFS.h>
+#include <LittleFS.h>
 #include <Print.h>
 
 class JsonObject;
@@ -58,6 +57,11 @@ public:
 
     bool load(File *f);
     void print(Print *p);
+
+    JsonElementProperty *getPropertyByName(String name);
+
+    String getValue(String name);
+    
 };
 
 class JsonObject
@@ -80,4 +84,8 @@ public:
 
     void print(Print *p);
 
+    JsonElementProperty *getPropertyByName(String name)
+    {
+        return root->getPropertyByName(name);
+    }
 };

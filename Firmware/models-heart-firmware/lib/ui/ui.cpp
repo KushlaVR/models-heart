@@ -201,7 +201,7 @@ bool JsonCollection::load(File *f)
 {
     // Serial.println("UICollection::load");
     int stage = 0;
-    //int cnt = 0;
+    // int cnt = 0;
     while (f->available())
     {
         int c = f->read();
@@ -330,6 +330,35 @@ void JsonElement::print(Print *p)
         itm = itm->next;
     }
     p->print("}");
+}
+
+JsonElementProperty *JsonElement::getPropertyByName(String name)
+{
+    if (name == nullptr)
+        return nullptr;
+    if (Properties == nullptr)
+        return nullptr;
+    Item *itm = Properties->getFirst();
+    while (itm != nullptr)
+    {
+        JsonElementProperty *pr = (JsonElementProperty *)itm;
+        if (pr->name.equalsIgnoreCase(name))
+        {
+            return pr;
+        }
+        itm = itm->next;
+    }
+    return nullptr;
+}
+
+String JsonElement::getValue(String name)
+{
+    JsonElementProperty *p = getPropertyByName(name);
+    if (p == nullptr)
+        return "";
+    if (p->valuType != JsonElementPropertyValueTypes::value)
+        return "";
+    return p->value;
 }
 
 void JsonObject::load(File *f)

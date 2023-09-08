@@ -13,6 +13,7 @@
 #include <PowerManager.h>
 #include <Collection.h>
 #include <ui.h>
+#include <ScriptEngine.h>
 #include <WebUIController.h>
 #include <Joypad.h>
 #include <SetupController.h>
@@ -21,6 +22,8 @@ PowerManager powerManager(PIN_POWER_HOLD, PIN_POWER_SENSE, PIN_BATTERY_SENSE);
 
 JsonObject ui = JsonObject();
 JsonObject scripts = JsonObject();
+JoypadCollection joypads = JoypadCollection();
+ScriptEngine engine = ScriptEngine();
 
 char SSID[32] = "MODELS_HEART";
 char SSID_password[20] = "12345678";
@@ -45,8 +48,6 @@ static void onPowerOff(void *sender)
 {
     digitalWrite(LED_BUILTIN, HIGH);
 }
-
-JoypadCollection joypads = JoypadCollection();
 
 void EventSourceName()
 {
@@ -217,12 +218,13 @@ void setupController_saveParameter(String name, String value)
         f1.print(value);
         f1.flush();
         f1.close();
+        engine.build(&scripts);
     }
 }
 
 void ui_Get()
 {
-	webServer.handleFileRead("/ui.json", false);
+    webServer.handleFileRead("/ui.json", false);
 }
 
 void setup()
@@ -255,16 +257,16 @@ void setup()
         }
     }
 
-    if (LittleFS.exists("/intro.txt"))
-    {
-        File f = LittleFS.open("/intro.txt", "r");
-        String s = f.readString();
-        Serial.println(s.c_str());
-    }
-    else
-    {
-        Serial.println(("Starting..."));
-    }
+    // if (LittleFS.exists("/intro.txt"))
+    // {
+    //     File f = LittleFS.open("/intro.txt", "r");
+    //     String s = f.readString();
+    //     Serial.println(s.c_str());
+    // }
+    // else
+    // {
+    //     Serial.println(("Starting..."));
+    // }
 
     if (LittleFS.exists("/ui.json"))
     {
@@ -272,9 +274,9 @@ void setup()
         File f = LittleFS.open("/ui.json", "r");
         ui.load(&f);
         f.close();
-        Serial.println("Print UI");
-        ui.print(&Serial);
-        Serial.println("");
+        // Serial.println("Print UI");
+        // ui.print(&Serial);
+        // Serial.println("");
     }
 
     if (LittleFS.exists("/scripts.json"))
@@ -283,10 +285,12 @@ void setup()
         File f = LittleFS.open("/scripts.json", "r");
         scripts.load(&f);
         f.close();
-        Serial.println("Print Scripts");
-        scripts.print(&Serial);
-        Serial.println("");
+        // Serial.println("Print Scripts");
+        // scripts.print(&Serial);
+        // Serial.println("");
     }
+
+    engine.build(&scripts);
 
     WiFi.begin();
     WiFi.disconnect();
@@ -321,12 +325,21 @@ void loop()
     dnsServer.processNextRequest();
     joypads.loop();
     webServer.loop();
-    // if (joypads.getCount() > 0)
-    //{
-    //  Serial.println(".");
-    //}
-    // else
-    //{
-    // noone connected...
-    //}
+    engine.loop();
+    // engine.command("beacon", true);
+    if (joypads.getCount() > 0)
+    {
+        Item *itm = engine.elements->getFirst();
+        while (itm != nullptr)
+        {
+            ScriptElement *el = (ScriptElement *)itm;
+            int v = joypads.getValue(el->cmd);
+            engine.command(el->cmd, v);
+            itm = itm->next;
+        }
+    }
+    else
+    {
+        // noone connected...
+    }
 }

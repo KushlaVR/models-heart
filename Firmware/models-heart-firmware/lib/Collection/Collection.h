@@ -5,7 +5,7 @@
 class Item {
 public:
 	Item();
-	~Item();
+	virtual ~Item();
 	int Index = 0;
 	int sort;
 	Item * next;
