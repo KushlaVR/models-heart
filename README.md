@@ -224,6 +224,7 @@ ui.json
 
 scripts.json
 ```
+
 {
     "elements": [
         {
@@ -234,22 +235,47 @@ scripts.json
                     "type": "blink",
                     "points": [
                         {
-                            "pin": "4",
+                            "pin": "1",
                             "offset": "0",
                             "value": "0"
                         },
                         {
-                            "pin": "4",
+                            "pin": "1",
                             "offset": "0",
-                            "value": "255"
+                            "value": "0"
                         },
                         {
-                            "pin": "4",
+                            "pin": "1",
+                            "offset": "100",
+                            "value": "20"
+                        },
+                        {
+                            "pin": "1",
+                            "offset": "200",
+                            "value": "50"
+                        },
+                        {
+                            "pin": "1",
+                            "offset": "300",
+                            "value": "90"
+                        },
+                        {
+                            "pin": "1",
+                            "offset": "400",
+                            "value": "50"
+                        },
+                        {
+                            "pin": "1",
                             "offset": "500",
+                            "value": "20"
+                        },
+                        {
+                            "pin": "1",
+                            "offset": "600",
                             "value": "0"
                         },
                         {
-                            "pin": "4",
+                            "pin": "1",
                             "offset": "1000",
                             "value": "0"
                         }
@@ -265,32 +291,32 @@ scripts.json
                     "type": "blink",
                     "points": [
                         {
-                            "pin": "5",
+                            "pin": "4",
                             "offset": "0",
                             "value": "0"
                         },
                         {
-                            "pin": "5",
+                            "pin": "4",
                             "offset": "0",
                             "value": "255"
                         },
                         {
-                            "pin": "5",
-                            "offset": "200",
+                            "pin": "4",
+                            "offset": "100",
                             "value": "0"
                         },
                         {
-                            "pin": "5",
+                            "pin": "4",
+                            "offset": "300",
+                            "value": "255"
+                        },
+                        {
+                            "pin": "4",
                             "offset": "400",
-                            "value": "255"
-                        },
-                        {
-                            "pin": "5",
-                            "offset": "600",
                             "value": "0"
                         },
                         {
-                            "pin": "5",
+                            "pin": "4",
                             "offset": "1000",
                             "value": "0"
                         }
@@ -352,4 +378,6 @@ scripts.json
         }
     ]
 }
+
+
 ```
