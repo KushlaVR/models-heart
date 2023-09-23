@@ -67,7 +67,7 @@ void motorTest()
   if (motor == nullptr)
   {
     motorPhysics = new PhysicsEffects();
-    motor = new HBridge("motor", PIN_MOTOR_A_LIGHT, PIN_MOTOR_B_LIGHT, motorPhysics);
+    motor = new HBridge("motor", PIN_MOTOR_A, PIN_MOTOR_B, motorPhysics);
     motor->isEnabled = true;
     motor->responder = &Serial;
     motor->setWeight(80000);

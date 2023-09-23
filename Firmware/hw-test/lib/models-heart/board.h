@@ -7,8 +7,8 @@
 #define PIN_HEAD_LIGHT 2
 #define PIN_RIGHT_TURN_LIGHT 4
 #define PIN_LEFT_TURN_LIGHT 5
-#define PIN_MOTOR_A_LIGHT 12
-#define PIN_MOTOR_B_LIGHT 13
+#define PIN_MOTOR_A 12
+#define PIN_MOTOR_B 13
 #define PIN_SERVO 14
 #define PIN_POWER_HOLD 15
 #define PIN_POWER_SENSE 16

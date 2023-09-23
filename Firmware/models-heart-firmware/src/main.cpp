@@ -220,6 +220,14 @@ void setupController_saveParameter(String name, String value)
         f1.close();
         engine.build(&scripts);
     }
+
+    if ((name).equalsIgnoreCase("ssid")){
+        strncpy(SSID, value.c_str(), value.length());
+    }
+    
+    if ((name).equalsIgnoreCase("password")){
+        strncpy(SSID_password, value.c_str(), value.length());
+    }
 }
 
 void ui_Get()

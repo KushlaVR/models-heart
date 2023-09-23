@@ -1,6 +1,6 @@
 {
-  "short_name": "WIFI RC",
-  "name": "WIFI RC car remote controll by KushlaVR@gmail.com",
+  "short_name": "Models's heart",
+  "name": "Heart of your model. Powered by Web-Remote (KushlaVR@gmail.com)",
   "icons": [
     {
       "src": "img/person.svg",
@@ -8,7 +8,7 @@
       "type": "image/svg"
     }
   ],
-  "start_url": "/control.html",
+  "start_url": "/index.html",
   "display": "standalone",
   "orientation": "landscape"
 }

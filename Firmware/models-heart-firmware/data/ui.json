@@ -1,48 +1,60 @@
 {
-    "elements": [
-        {
-            "type": "text",
-            "x": "0",
-            "y": "0",
-            "text": "Motor example"
-        },
-        {
-            "type": "slider",
-            "x": "12",
-            "y": "7",
-            "w": "1",
-            "h": "35",
-            "color": "red",
-            "cmd": "motor",
-            "autocenter": "x"
-        },
-        {
-            "type": "button",
-            "x": "45",
-            "y": "7",
-            "text": "Beacon",
-            "cmd": "beacon"
-        },
-        {
-            "type": "button",
-            "x": "45",
-            "y": "14",
-            "text": "Strobe lights",
-            "cmd": "strobe"
-        },
-        {
-            "type": "button",
-            "x": "45",
-            "y": "21",
-            "text": "Position lights",
-            "cmd": "position"
-        },
-        {
-            "type": "button",
-            "x": "45",
-            "y": "28",
-            "text": "Navigation light",
-            "cmd": "navigation"
-        }
-    ]
+  "elements": [
+    {
+      "type": "text",
+      "x": "0",
+      "y": "0",
+      "text": "Motor example"
+    },
+    {
+      "type": "slider",
+      "x": "56",
+      "y": "36",
+      "w": "30",
+      "h": "5",
+      "color": "red",
+      "cmd": "motor",
+      "autocenter": "y"
+    },
+    {
+      "type": "button",
+      "x": "0",
+      "y": "10",
+      "w": "27",
+      "text": "Хвостовий маяк",
+      "cmd": "beacon"
+    },
+    {
+      "type": "button",
+      "x": "0",
+      "y": "15",
+      "w": "27",
+      "text": "Габаритні маяки",
+      "cmd": "strobe"
+    },
+    {
+      "type": "button",
+      "x": "0",
+      "y": "20",
+      "w": "27",
+      "text": "Габарити",
+      "cmd": "position"
+    },
+    {
+      "type": "button",
+      "x": "0",
+      "y": "25",
+      "w": "27",
+      "text": "Посадкові вогні",
+      "cmd": "navigation"
+    },
+    {
+      "type": "button",
+      "x": "0",
+      "y": "30",
+      "w": "27",
+      "text": "Двигуни",
+      "cmd": "ignition"
+    }
+  ]
 }

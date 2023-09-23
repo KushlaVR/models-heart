@@ -13,16 +13,28 @@
     <link href="css/style.css" rel="stylesheet" />
     <link href="css/kvr_workspace.css" rel="stylesheet" />
     <link rel="manifest" href="/manifest.json">
+    <style>
+        body{
+            background: white;
+        }
+        div.main{
+            background-image: url("img/bg.jpg");
+            background-size: cover;
+        }
+            div.main .screen {
+                background: none;
+            }
+    </style>
 </head>
 <body>
     <div class="main">
         <form class="screen grid">
-            <div id="message" class="msg"
-                 style="position:absolute; left: 5vw; bottom:0; width: 85vw;">
+            <div id="message" class="msg" style="position:absolute; left: 5vw; bottom:0; width: 85vw;">
             </div>
-
-            <a href="design.html" 
-               style="position: absolute; right: 5vw; bottom: 0;">design</a>
+            <button onclick="WorkSpace.toggleFullScreen(); return false;" class="btn btn-outline-secondary full-screen">
+                Full screen
+            </button>
+            <a href="design.html" style="position: absolute; right: 5vw; bottom: 0;">design</a>
         </form>
     </div>
 

@@ -138,7 +138,7 @@ PURPOSE OF PAYMENT: for ac 47330992708
 ```
     {
         "cmd": string,
-        "type": "tougle/click",
+        "type": "tougle/click/none",
         "actions": 
             [
                 {
@@ -147,7 +147,6 @@ PURPOSE OF PAYMENT: for ac 47330992708
                 },
                 {
                     "type": "motor",
-                    "cmd": string (source of motor speed values),
                     "a": string (source of A half bridge values),
                     "b": string (source of B half bridge values),
                     "weight": int (in grams)

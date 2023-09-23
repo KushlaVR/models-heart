@@ -9,8 +9,9 @@
 
 enum ScriptElementTypes
 {
-    click = 0,
-    tougle = 1
+    none = 0,
+    tougle = 1,
+    click = 2
 };
 
 class ActionElement : public Item
@@ -35,6 +36,21 @@ public:
     virtual void setState(bool state)
     {
     }
+
+    static int pinToGPIO(int pin)
+    {
+        if (pin == 1)
+            return 14;
+        if (pin == 2)
+            return 5;
+        if (pin == 3)
+            return 4;
+        if (pin == 4)
+            return 2;
+        if (pin == 5)
+            return 0;
+        return 14;
+    }
 };
 
 class BlinkActionElement : public ActionElement
@@ -51,21 +67,6 @@ public:
             return;
         blinker->loop();
     };
-
-    int pinToGPIO(int pin)
-    {
-        if (pin == 1)
-            return 14;
-        if (pin == 2)
-            return 5;
-        if (pin == 3)
-            return 4;
-        if (pin == 4)
-            return 2;
-        if (pin == 5)
-            return 0;
-        return 14;
-    }
 
     void build(JsonElement *src) override
     {
@@ -96,6 +97,59 @@ public:
         {
             if (blinker->isRunning())
                 blinker->end();
+        }
+    }
+};
+
+class MotorActionElement : public ActionElement
+{
+
+private:
+    PhysicsEffects *effect = nullptr;
+    HBridge *motor = nullptr;
+
+public:
+    MotorActionElement() : ActionElement(){};
+    ~MotorActionElement() {}
+
+    void loop() override
+    {
+        if (motor == nullptr)
+            return;
+        motor->loop();
+    };
+
+    void build(JsonElement *src) override
+    {
+        effect = new PhysicsEffects();
+        int pinA = PIN_MOTOR_A;
+        int pinB = PIN_MOTOR_B;
+        String v = src->getValue("a");
+        if (v.length() > 0)
+            pinA = v.toInt();
+        v = src->getValue("b");
+        if (v.length() > 0)
+            pinB = v.toInt();
+        motor = new HBridge("motor", pinA, pinB, effect);
+        v = src->getValue("weight");
+        if (v.length() > 0)
+            motor->setWeight(v.toInt());
+        motor->setSpeed(0);
+    }
+
+    virtual void setState(bool state) override
+    {
+        if (motor == nullptr)
+            return;
+        if (state)
+        {
+            if (!motor->isEnabled)
+                motor->isEnabled = true;
+        }
+        else
+        {
+            if (motor->isEnabled)
+                motor->isEnabled = false;
         }
     }
 };
@@ -138,9 +192,9 @@ public:
         }
     }
 
-    bool state = false;
+    int state = 0;
     String cmd = "";
-    ScriptElementTypes type = ScriptElementTypes::click;
+    ScriptElementTypes type = ScriptElementTypes::none;
     Collection *actions = nullptr;
 
     VirtualButton *btn = nullptr;
@@ -149,7 +203,9 @@ public:
     {
         if (typeName.equalsIgnoreCase("tougle"))
             return ScriptElementTypes::tougle;
-        return ScriptElementTypes::click;
+        if (typeName.equalsIgnoreCase("click"))
+            return ScriptElementTypes::click;
+        return ScriptElementTypes::none;
     }
 
     void build(JsonElementProperty *src)
@@ -162,7 +218,7 @@ public:
         JsonElement *el = src->object;
         cmd = el->getValue("cmd");
         String tp = el->getValue("type");
-        type = TypeNameToInt(tp);
+        if (tp.length() > 0) type = TypeNameToInt(tp);
         JsonElementProperty *act = el->getPropertyByName("actions");
         if (act == nullptr)
             return;
@@ -188,6 +244,13 @@ public:
             ba->build(act);
             actions->add((Item *)ba);
         }
+        else if (tp.equalsIgnoreCase("motor"))
+        {
+            MotorActionElement *ma = new MotorActionElement();
+            ma->type = tp;
+            ma->build(act);
+            actions->add((Item *)ma);
+        }
         else
         {
             Serial.println("ScriptElement.buil.addAction->unknown type");
@@ -212,7 +275,7 @@ public:
         el->refreshState();
     }
 
-    void OnCommand(bool state)
+    void OnCommand(int state)
     {
         if (this->state == state)
             return;
@@ -252,8 +315,10 @@ public:
             ActionElement *el = ((ActionElement *)itm);
             if (type == ScriptElementTypes::tougle)
                 el->setState(btn->isToggled);
-            else
+            else if (type == ScriptElementTypes::click)
                 el->setState(btn->isPressed());
+            else
+                el->setState(state);
             itm = itm->next;
         }
     }
@@ -331,7 +396,7 @@ public:
         return nullptr;
     }
 
-    void command(String cmd, bool state)
+    void command(String cmd, int state)
     {
         ScriptElement *el = getScriptElementByCmd(cmd);
         if (el != nullptr)

@@ -165,8 +165,7 @@
     <Content Include="data\css\kvr_workspace.css" />
     <Content Include="data\img\afu-gf.svg" />
     <Content Include="data\img\arrow.svg" />
-    <Content Include="data\img\bg.png" />
-    <Content Include="data\img\body.png" />
+    <Content Include="data\img\bg.jpg" />
     <Content Include="data\img\green.png" />
     <Content Include="data\img\hl.svg" />
     <Content Include="data\img\jp-l.svg" />
@@ -181,8 +180,7 @@
     <Content Include="data\js\kvr_workspace.js" />
     <Content Include="img\afu-gf.svg" />
     <Content Include="img\arrow.svg" />
-    <Content Include="img\bg.png" />
-    <Content Include="img\body.png" />
+    <Content Include="img\bg.jpg" />
     <Content Include="img\green.png" />
     <Content Include="img\hl.svg" />
     <Content Include="img\jp-l.svg" />
@@ -592,7 +590,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>50150</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:50155/</IISUrl>
+          <IISUrl>http://localhost:10200/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

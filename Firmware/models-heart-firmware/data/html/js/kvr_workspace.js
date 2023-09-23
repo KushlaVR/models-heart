@@ -50,6 +50,19 @@ var WorkSpace = (function () {
             console.log("error");
         });
     };
+    WorkSpace.design = function (form, elementSource) {
+        var workSpace = new WorkSpace((form[0]));
+        $.get(elementSource)
+            .done(function (data) {
+            for (var el in data.elements) {
+                workSpace.createElement(data.elements[el]);
+            }
+            workSpace.createConmponentsFrames();
+        })
+            .fail(function () {
+            console.log("error");
+        });
+    };
     WorkSpace.prototype.createElement = function (el) {
         if (el.type == "text") {
             this.createTextElement(el);
@@ -322,6 +335,17 @@ var WorkSpace = (function () {
         for (var i = 0; i < this.outputs.length; i++) {
             this.outputs[i].loadValue();
         }
+    };
+    WorkSpace.prototype.addConponentFrame = function (frame) {
+    };
+    WorkSpace.prototype.createConmponentsFrames = function () {
+        var _this = this;
+        var inputs = $(".input", this.form);
+        inputs.each(function (index, val) {
+            var element = val;
+            var frame = new ComponentFrame(element);
+            _this.addConponentFrame(frame);
+        });
     };
     return WorkSpace;
 }());
@@ -714,5 +738,12 @@ var Output = (function () {
         }
     };
     return Output;
+}());
+var ComponentFrame = (function () {
+    function ComponentFrame(element) {
+        this.element = element;
+        var div = document.createElement("DIV");
+    }
+    return ComponentFrame;
 }());
 //# sourceMappingURL=kvr_workspace.js.map
