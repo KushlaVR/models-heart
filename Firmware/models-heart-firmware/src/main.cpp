@@ -40,8 +40,8 @@ static void powerButton_Click(void *sender)
     testNumber++;
     if (testNumber == 10)
         testNumber = 0;
-    Serial.print("Test number ");
-    Serial.println(testNumber);
+    // Serial.print("Test number ");
+    // Serial.println(testNumber);
 }
 
 static void onPowerOff(void *sender)
@@ -221,11 +221,13 @@ void setupController_saveParameter(String name, String value)
         engine.build(&scripts);
     }
 
-    if ((name).equalsIgnoreCase("ssid")){
+    if ((name).equalsIgnoreCase("ssid"))
+    {
         strncpy(SSID, value.c_str(), value.length());
     }
-    
-    if ((name).equalsIgnoreCase("password")){
+
+    if ((name).equalsIgnoreCase("password"))
+    {
         strncpy(SSID_password, value.c_str(), value.length());
     }
 }
@@ -293,9 +295,9 @@ void setup()
         File f = LittleFS.open("/scripts.json", "r");
         scripts.load(&f);
         f.close();
-        // Serial.println("Print Scripts");
-        // scripts.print(&Serial);
-        // Serial.println("");
+        Serial.println("Print Scripts");
+        scripts.print(&Serial);
+        Serial.println("");
     }
 
     engine.build(&scripts);
@@ -334,16 +336,13 @@ void loop()
     joypads.loop();
     webServer.loop();
     engine.loop();
-    // engine.command("beacon", true);
     if (joypads.getCount() > 0)
     {
-        Item *itm = engine.elements->getFirst();
-        while (itm != nullptr)
+        Joypadfield *jp = joypads.getFirstField();
+        while (jp != nullptr)
         {
-            ScriptElement *el = (ScriptElement *)itm;
-            int v = joypads.getValue(el->cmd);
-            engine.command(el->cmd, v);
-            itm = itm->next;
+            engine.command(jp->name, jp->value);
+            jp = (Joypadfield *)(jp->next);
         }
     }
     else

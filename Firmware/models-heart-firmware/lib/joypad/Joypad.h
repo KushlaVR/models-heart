@@ -57,4 +57,10 @@ public:
 	double getValue(String name);
 	bool setValue(Collection *fields, String name, double value);
 	void loop();
+	Joypadfield *getFirstField()
+	{
+		if (fields == nullptr)
+			return nullptr;
+		return (Joypadfield *)(fields->getFirst());
+	}
 };

@@ -33,7 +33,11 @@ public:
         Serial.println();
     }
 
-    virtual void setState(bool state)
+    virtual void setState(int state)
+    {
+    }
+
+    virtual void OnCommand(String cmd, int state)
     {
     }
 
@@ -84,7 +88,7 @@ public:
         }
     }
 
-    virtual void setState(bool state) override
+    virtual void setState(int state) override
     {
         if (blinker == nullptr)
             return;
@@ -107,6 +111,9 @@ class MotorActionElement : public ActionElement
 private:
     PhysicsEffects *effect = nullptr;
     HBridge *motor = nullptr;
+    String speedCommand = "";
+    int currentState = 0;
+    int currentSpeed = 0;
 
 public:
     MotorActionElement() : ActionElement(){};
@@ -121,6 +128,7 @@ public:
 
     void build(JsonElement *src) override
     {
+        Serial.println("Motor build");
         effect = new PhysicsEffects();
         int pinA = PIN_MOTOR_A;
         int pinB = PIN_MOTOR_B;
@@ -131,25 +139,54 @@ public:
         if (v.length() > 0)
             pinB = v.toInt();
         motor = new HBridge("motor", pinA, pinB, effect);
+        motor->responder = &Serial;
+        motor->isEnabled = true;
+        // weight
         v = src->getValue("weight");
         if (v.length() > 0)
             motor->setWeight(v.toInt());
+        v = src->getValue("speed");
+        if (v.length() > 0)
+            speedCommand = v;
+        Serial.println(speedCommand);
         motor->setSpeed(0);
+        currentSpeed = 0;
     }
 
-    virtual void setState(bool state) override
+    virtual void OnCommand(String cmd, int state)
     {
         if (motor == nullptr)
             return;
-        if (state)
+
+        if (speedCommand.equalsIgnoreCase(cmd))
         {
-            if (!motor->isEnabled)
-                motor->isEnabled = true;
+            // Serial.println("motor");
+            if (motor->isEnabled)
+                currentSpeed = map(state, -100, 100, -255, 255);
+            if (currentState)
+            {
+                motor->setSpeed(currentSpeed);
+            }
+            else
+            {
+                motor->setSpeed(0);
+            }
+        }
+    }
+
+    virtual void setState(int state) override
+    {
+        if (motor == nullptr)
+            return;
+
+        currentState = state;
+        if (currentState)
+        {
+            motor->setSpeed(currentSpeed);
         }
         else
         {
-            if (motor->isEnabled)
-                motor->isEnabled = false;
+            motor->setSpeed(0);
         }
     }
 };
@@ -218,7 +255,8 @@ public:
         JsonElement *el = src->object;
         cmd = el->getValue("cmd");
         String tp = el->getValue("type");
-        if (tp.length() > 0) type = TypeNameToInt(tp);
+        if (tp.length() > 0)
+            type = TypeNameToInt(tp);
         JsonElementProperty *act = el->getPropertyByName("actions");
         if (act == nullptr)
             return;
@@ -275,32 +313,43 @@ public:
         el->refreshState();
     }
 
-    void OnCommand(int state)
+    void OnCommand(String cmd, int state)
     {
-        if (this->state == state)
-            return;
-        this->state = state;
-        if (btn == nullptr)
+        if (this->cmd != nullptr && this->cmd.equalsIgnoreCase(cmd) && this->state != state)
         {
-            btn = new VirtualButton(btn_Press, btn_Hold, btn_Release);
-            if (type == ScriptElementTypes::tougle)
+            this->state = state;
+            if (btn == nullptr)
             {
-                btn->isToggleMode = true;
+                btn = new VirtualButton(btn_Press, btn_Hold, btn_Release);
+                if (type == ScriptElementTypes::tougle)
+                {
+                    btn->isToggleMode = true;
+                }
+                else
+                {
+                    btn->isToggleMode = false;
+                }
+                btn->condition = HIGH;
+                btn->tag = this;
+            }
+            if (state)
+            {
+                btn->setValue(HIGH);
             }
             else
             {
-                btn->isToggleMode = false;
+                btn->setValue(LOW);
             }
-            btn->condition = HIGH;
-            btn->tag = this;
         }
-        if (state)
+
+        if (this->actions != nullptr)
         {
-            btn->setValue(HIGH);
-        }
-        else
-        {
-            btn->setValue(LOW);
+            ActionElement *ae = (ActionElement *)(this->actions->getFirst());
+            while (ae != nullptr)
+            {
+                ae->OnCommand(cmd, state);
+                ae = (ActionElement *)(ae->next);
+            }
         }
     }
 
@@ -398,8 +447,13 @@ public:
 
     void command(String cmd, int state)
     {
-        ScriptElement *el = getScriptElementByCmd(cmd);
-        if (el != nullptr)
-            el->OnCommand(state);
+        ScriptElement *el = nullptr;
+        Item *itm = elements->getFirst();
+        while (itm != nullptr)
+        {
+            el = ((ScriptElement *)itm);
+            el->OnCommand(cmd, state);
+            itm = itm->next;
+        }
     }
 };
