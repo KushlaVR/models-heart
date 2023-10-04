@@ -27,13 +27,3 @@ jobs:
         run: pio run --environment esp12e -d Firmware/models-heart-firmware/
 
 
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: Firmware/models-heart-firmware/.pio/build/esp12e/firmware.bin
-          asset_name: firmware
-          tag: ${{ github.ref }}
-          overwrite: true
-          body: "This is firmware build output"
-
