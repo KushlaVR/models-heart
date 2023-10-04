@@ -31,10 +31,9 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: .pio\build\esp12e\firmware.elf
-          asset_name: firmware.elf
+          file: .pio/build/esp12e/firmware.bin
+          asset_name: firmware
           tag: ${{ github.ref }}
           overwrite: true
-          body: "This is firmware.elf build output"
+          body: "This is firmware build output"
 
-          
