@@ -1,4 +1,4 @@
-name: PlatformIO Publish
+name: PlatformIO Publish (test)
 
 on:
   push:
