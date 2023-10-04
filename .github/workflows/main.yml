@@ -21,4 +21,4 @@ jobs:
         run: pip install --upgrade platformio
 
       - name: Build PlatformIO Project
-        run: pio run -d models-heart/Firmware/models-heart-firmware/
+        run: pio run -d Firmware/models-heart-firmware/
