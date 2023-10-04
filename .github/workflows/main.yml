@@ -31,7 +31,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: .pio/build/esp12e/firmware.bin
+          file: Firmware/models-heart-firmware/.pio/build/esp12e/firmware.bin
           asset_name: firmware
           tag: ${{ github.ref }}
           overwrite: true
