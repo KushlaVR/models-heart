@@ -21,4 +21,4 @@ jobs:
         run: pip install --upgrade platformio
 
       - name: Build PlatformIO Project
-        run: pio run -d Firmware/models-heart-firmware/
+        run: pio run --environment esp12e -d Firmware/models-heart-firmware/
