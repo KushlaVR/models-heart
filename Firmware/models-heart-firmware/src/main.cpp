@@ -17,6 +17,7 @@
 #include <WebUIController.h>
 #include <Joypad.h>
 #include <SetupController.h>
+#include <FileServer.h>
 
 PowerManager powerManager(PIN_POWER_HOLD, PIN_POWER_SENSE, PIN_BATTERY_SENSE);
 
@@ -134,93 +135,13 @@ void Post()
 void setupController_buildConfig(JsonString *json)
 {
     json->beginObject();
-
     json->AddValue("ssid", SSID);
     json->AddValue("password", SSID_password);
-
-    String ui_JsonValue = "";
-    File f = LittleFS.open("/ui.json", "r");
-    f.seek(0);
-    int lastChar = 0;
-    while (f.available())
-    {
-        int c = f.read();
-        if (c == '"')
-        {
-            ui_JsonValue += "\\\"";
-        }
-        else if (c == 10)
-        {
-            if (lastChar != 13)
-                ui_JsonValue += "\\n";
-        }
-        else if (c == 13)
-        {
-            if (lastChar != 10)
-                ui_JsonValue += "\\n";
-        }
-        else
-        {
-            ui_JsonValue += (char)c;
-        }
-        lastChar = c;
-    }
-    f.close();
-    json->AddValue("ui", ui_JsonValue);
-
-    ui_JsonValue = "";
-    File f1 = LittleFS.open("/scripts.json", "r");
-    f1.seek(0);
-    lastChar = 0;
-    while (f1.available())
-    {
-        int c = f1.read();
-        if (c == '"')
-        {
-            ui_JsonValue += "\\\"";
-        }
-        else if (c == 10)
-        {
-            if (lastChar != 13)
-                ui_JsonValue += "\\n";
-        }
-        else if (c == 13)
-        {
-            if (lastChar != 10)
-                ui_JsonValue += "\\n";
-        }
-        else
-        {
-            ui_JsonValue += (char)c;
-        }
-        lastChar = c;
-    }
-    f1.close();
-    json->AddValue("scripts", ui_JsonValue);
     json->endObject();
 }
 
 void setupController_saveParameter(String name, String value)
 {
-    if ((name).equalsIgnoreCase("ui"))
-    {
-        File f1 = LittleFS.open("/ui.json", "w");
-        f1.seek(0);
-        f1.print(value);
-        f1.flush();
-        f1.close();
-    }
-
-    if ((name).equalsIgnoreCase("scripts"))
-    {
-        File f1 = LittleFS.open("/scripts.json", "w");
-        f1.seek(0);
-        f1.print(value);
-        f1.flush();
-        f1.close();
-        engine.build(&scripts);
-    }
-
     if ((name).equalsIgnoreCase("ssid"))
     {
         strncpy(SSID, value.c_str(), value.length());
@@ -267,17 +188,6 @@ void setup()
         }
     }
 
-    // if (LittleFS.exists("/intro.txt"))
-    // {
-    //     File f = LittleFS.open("/intro.txt", "r");
-    //     String s = f.readString();
-    //     Serial.println(s.c_str());
-    // }
-    // else
-    // {
-    //     Serial.println(("Starting..."));
-    // }
-
     if (LittleFS.exists("/ui.json"))
     {
         Serial.println("Parsing ui.json");
@@ -295,9 +205,9 @@ void setup()
         File f = LittleFS.open("/scripts.json", "r");
         scripts.load(&f);
         f.close();
-        Serial.println("Print Scripts");
-        scripts.print(&Serial);
-        Serial.println("");
+        // Serial.println("Print Scripts");
+        // scripts.print(&Serial);
+        // Serial.println("");
     }
 
     engine.build(&scripts);
@@ -325,6 +235,8 @@ void setup()
     setupController.buildConfig = setupController_buildConfig;
     setupController.saveParameter = setupController_saveParameter;
     setupController.setup();
+
+    fileServer.setup();
 
     webServer.on("/api/ui", HTTPMethod::HTTP_GET, ui_Get);
 }

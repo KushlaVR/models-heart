@@ -153,6 +153,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\html\index.html" />
+    <Content Include="App_Data\html\index.min.html">
+      <DependentUpon>index.html</DependentUpon>
+    </Content>
     <Content Include="css\bootstrap.min.css">
       <DependentUpon>bootstrap.css</DependentUpon>
     </Content>
@@ -163,6 +167,7 @@
       <DependentUpon>style.css</DependentUpon>
     </Content>
     <Content Include="data\css\kvr_workspace.css" />
+    <Content Include="data\files.html" />
     <Content Include="data\img\afu-gf.svg" />
     <Content Include="data\img\arrow.svg" />
     <Content Include="data\img\bg.jpg" />
@@ -178,6 +183,9 @@
     <Content Include="data\img\yellow.png" />
     <Content Include="data\js\kvr_setup.js" />
     <Content Include="data\js\kvr_workspace.js" />
+    <Content Include="files.min.html">
+      <DependentUpon>files.html</DependentUpon>
+    </Content>
     <Content Include="img\afu-gf.svg" />
     <Content Include="img\arrow.svg" />
     <Content Include="img\bg.jpg" />
@@ -209,6 +217,7 @@
     <Content Include="Global.asax" />
     <Content Include="img\remote-control.svg" />
     <Content Include="design.html" />
+    <Content Include="files.html" />
     <Content Include="index - Copy.min.html">
       <DependentUpon>design.html</DependentUpon>
     </Content>

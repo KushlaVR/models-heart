@@ -1,0 +1,357 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=800, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Control</title>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/kvr_workspace.js"></script>
+    <script type="text/javascript" src="js/kvr_setup.js"></script>
+    <link href="css/bootstrap.css" rel="stylesheet" />
+    <link href="css/kvr_workspace.css" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        body {
+            background: white;
+        }
+
+        .fdir, .file, .level_up, .del {
+            cursor: pointer;
+        }
+
+
+        #files-col1 {
+            width: 55px;
+        }
+
+        #files-col2 {
+            width: 100%;
+        }
+
+        #files-col3, #files-col4 {
+            width: 100px;
+        }
+
+        .files th {
+            vertical-align: middle;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="card maxwidth900">
+            <div class="card-header h4" id="banner"><button class="level_up">&#129033;</button> Model's Heart&gt;<span class="h5" id="path"></span></div>
+            <div class="card-body files-card">
+                <table class="files table table-striped table-borderless" style="table-layout: fixed;">
+                    <colgroup>
+                        <col id="files-col1">
+                        <col id="files-col2">
+                        <col id="files-col3">
+                        <col id="files-col4">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Назва</th>
+                            <th>Розмір</th>
+                            <th>Зни&shy;щити</th>
+                        </tr>
+                    </thead>
+                    <tbody id="list" class="files"></tbody>
+                </table>
+
+                <div>
+                    <form class="m2" enctype="multipart/form-data" onsubmit="return false;">
+                        <h5>Завантажити файл</h5>
+                        <div class="input-group">
+                            <label class="input-group-btn">
+                                <span class="btn btn-primary">
+                                    Огляд&hellip; <input type="file" style="display: none;" id="file">
+                                </span>
+                            </label>
+                            <input id="fname" type="text" class="form-control" readonly>
+                            <input id="dir" type="hidden" class="form-control" readonly>
+                        </div>
+                        <span class="help-block">
+                            Виберіть файли і натисніть кнопку "Завантажити"
+                        </span>
+                        <button id="upload" type="submit" class="btn btn-primary float-right">Завантажити</button>
+                    </form>
+                    <br />
+                </div>
+
+            </div>
+
+
+            <script type="text/javascript">
+                function str(dbl) {
+                    return parseFloat(Math.round(dbl * 100) / 100).toFixed(2);
+                }
+                function formatBytes(v) {
+                    if (v < 1024)
+                        return v + " b";
+                    else if (v < (1024 * 1024))
+                        return str(v / 1024.0) + " Kb";
+                    else if (v < (1024 * 1024 * 1024))
+                        return str(v / 1024.0 / 1024.0) + " Mb";
+                    else
+                        return str(bytes / 1024.0 / 1024.0 / 1024.0) + " Gb";
+                };
+                var curPath = "/";
+                function parent() {
+                    var d = curPath;
+                    if (d.endsWith('/')) d = d.substring(0, d.length - 1);
+                    if (d != '')
+                        d = d.replace(d.split("/").pop(), "");
+                    return d;
+                }
+                function fileComparator(a, b) {
+                    return (a.dir < b.dir) ? 1 : ((a.dir > b.dir) ? -1 : (a.Name < b.Name) ? -1 : ((a.Name > b.Name) ? 1 : 0));
+                }
+                function download(uri, name) {
+                    var link = document.createElement("a");
+                    link.download = name;
+                    link.href = uri;
+                    link.click();
+                }
+                function getList(dir) {
+                    $.ajax({
+                        url: '/api/dir?path=' + dir,
+                        success: function (result) {
+                            curPath = dir;
+                            var arr = result;
+                            arr.sort(fileComparator);
+                            var s = "";
+                            $.each(arr, function (index, value) {
+                                s += "<tr><td><div class='";
+                                if (value.dir == false) {
+                                    s += "file";
+                                    s += "'>&#128463;</td><td class='fname'>";
+                                    s += value.Name;
+                                    s += "</td><td class='text-center'>";
+                                    s += formatBytes(value.Size);
+                                    s += "</td><td><button class='del' file='" + value.Name + "' >&#9003;</button>";
+                                }
+                                else {
+                                    s += "dir";
+                                    s += "'>&#128193;</td><td class='fdir'>";
+                                    s += value.Name;
+                                    s += "</td><td></td><td>";
+                                }
+                                s += "</td></tr>";
+                            });
+                            $('#path').text(curPath);
+                            $("#list").html(s);
+                            if (curPath == '/')
+                                $(".level_up").attr("disabled", "disabled");
+                            else
+                                $(".level_up").removeAttr("disabled");
+                            $(".del").on("click", function () {
+                                var file = curPath + this.getAttribute("file");
+                                fileDelete(this, file);
+                            });
+                            $(".fname").on("click", function () {
+                                download(curPath + this.innerText + "?download=1", this.innerText);
+                            });
+                            $(".fdir").on("click", function () {
+                                getList(curPath + this.innerText + "/");
+                            });
+                            $(".level_up").off("click");
+                            $(".level_up").on("click", function () {
+                                var d = parent();
+                                getList(d);
+                            });
+                        },
+                        error: function (result) {
+                            console.log(result);
+                        }
+                    })
+                };
+
+                function getUrlParameter(sParam) {
+                    var sPageURL = window.location.search.substring(1),
+                        sURLVariables = sPageURL.split('&'),
+                        sParameterName,
+                        i;
+
+                    for (i = 0; i < sURLVariables.length; i++) {
+                        sParameterName = sURLVariables[i].split('=');
+
+                        if (sParameterName[0] === sParam) {
+                            return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                        }
+                    }
+                };
+
+                $(function () {
+                    $(document).on('change', ':file', function () {
+                        var input = $(this),
+                            numFiles = input.get(0).files ? input.get(0).files.length : 1,
+                            label = input.val().replace(/\\/g, '/').replace(/.*\//, ''),
+                            path = label,
+                            dir = getUrlParameter("dir");
+
+                        if (dir != undefined) {
+                            path = dir + label;
+                            $("#dir").val(path);
+                        }
+                        input.trigger('fileselect', [numFiles, path]);
+                    });
+
+                    $(document).ready(function () {
+                        $(':file').on('fileselect', function (event, numFiles, label) {
+
+                            var input = $(this).parents('.input-group').find(':text'),
+                                log = numFiles > 1 ? numFiles + ' files selected' : label;
+                            if (input.length) {
+                                input.val(log);
+                            } else {
+                                if (log) alert(log);
+                            }
+                        });
+                    });
+                });
+
+                $("#upload").click(function () {
+                    var file = $('#file')[0].files[0];
+                    if (file == undefined) {
+                        ShowAlert("Завантаження файлу", "Файл не вибрано", null, "Ага. Зрозуміло.");
+                        return;
+                    }
+
+                    var formData = new FormData();
+                    formData.append('file', file);
+                    $.ajax({
+                        url: '/api/dir?path=' + curPath,
+                        type: 'POST',
+                        data: formData,
+                        processData: false,  // tell jQuery not to process the data
+                        contentType: false,  // tell jQuery not to set contentType
+                        statusCode: {
+                            200: function (data) {
+                                getList(curPath);
+                                $('#file').val(null);
+                                $("#fname").val(null);
+                                $("#dir").val(null);
+                                ShowAlert(
+                                    "Завантаження файлу",
+                                    'Файл "' + file.name + '" завантажено.',
+                                    function () {
+                                        getList($('#path').text());
+                                        Hide_Click();
+                                    }
+                                );
+                            }
+                        }
+                    })
+                });
+
+                function fileDelete(el, file) {
+
+                    ShowConfirm("Видалення файлу", "Файл \"" + file + "\" буде видалено.",
+                        function () {
+                            $.ajax({
+                                url: '/api/dir?path=' + file,
+                                type: 'DELETE',
+                                statusCode: {
+                                    200: function (result) {
+                                        var $tr = $(el).closest('tr');
+                                        $tr.find('td').fadeOut(300, function () {
+                                            $tr.remove();
+                                        });
+                                        Hide_Click();
+                                    }
+                                }
+                            });
+                        },
+                        "Так. Знищити", "Ні"
+                    );
+                }
+
+
+                function ShowAlert(title, msg, yes, yesText, noText, no) {
+                    $("#modalDialog .modal-title").html(title);
+                    $("#modalDialog .modal-msg").html(msg);
+
+                    let btnYes = $("#modalDialog .btn-yes");
+                    btnYes.off("click");
+                    btnYes.on("click", Hide_Click);
+                    if (yes) btnYes.on("click", yes); else btnYes.on("click", Hide_Click);
+                    if (yesText) btnYes.html(yesText); else btnYes.html("Так");
+
+                    let btnNo = $("#modalDialog .btn-no");
+                    btnNo.off("click");
+                    if (no) btnNo.on("click", no); else btnNo.on("click", Hide_Click);
+                    if (noText) btnNo.html(noText); else btnNo.html("Ні");
+                    btnNo.hide();
+
+                    $("#modalDialog").modal({ backdrop: true })
+                }
+
+                function ShowConfirm(title, msg, yes, yesText, noText, no) {
+                    $("#modalDialog .modal-title").html(title);
+                    $("#modalDialog .modal-msg").html(msg);
+
+                    let btnYes = $("#modalDialog .btn-yes");
+                    btnYes.off("click");
+                    btnYes.on("click", yes);
+                    if (yesText) btnYes.html(yesText); else btnYes.html("Так")
+
+                    let btnNo = $("#modalDialog .btn-no");
+                    btnNo.off("click");
+                    if (no) btnNo.on("click", no); else btnNo.on("click", Hide_Click);
+                    if (noText) btnNo.html(noText); else btnNo.html("Ні")
+                    btnNo.show();
+
+                    $("#modalDialog .modal-footer").show();
+                    $("#modalDialog").modal({ backdrop: "static" })
+                }
+
+                function Hide_Click() {
+                    $('#modalDialog').modal('hide');
+                }
+            </script>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalDialog" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Знищити файл</h4>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-msg">Знищити файл безповоротно?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-yes btn-default">Так. Знищити</button>
+                    <button type="button" class="btn btn-no btn-primary" data-dismiss="modal">Ні</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        ShowConfirm(
+            "Model's Heart",
+            "Зміни у файловій системі можуть зашкодити, або унеможливити роботу приладу. Всі зміни ви здійснюєте на власний ризик.",
+            function () {
+                $('#modalDialog').modal('hide')
+                //ShowAlert("Model's Heart", "Хай щастить ;-)", "Дякую");
+                getList("/");
+            },
+            "Так. Я розумію.",
+            "Та ну його...",
+            function () {
+                document.location.href = "/";
+            }
+        );
+    </script>
+</body>
+</html>

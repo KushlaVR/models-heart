@@ -140,6 +140,8 @@ void WebUIController::handleNotFound()
 	}
 	if (handleFileRead(webServer.uri())) {
 		return;
+	} else if (handleFileRead(webServer.uri(), false)){
+		return;
 	}
 	String message = "File Not Found\n\n";
 	message += "URI: ";

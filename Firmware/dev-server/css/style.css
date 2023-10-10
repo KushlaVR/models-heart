@@ -5,7 +5,6 @@
 body {
     padding: 0;
     margin: auto;
-    background: #383a21;
     width: 100vw;
     overflow: hidden;
 }
@@ -83,7 +82,7 @@ body {
 .plate {
     height: 6em;
     width: 100%;
-    margin: 1em;
+    margin: 1rem 0;
 }
 
     .plate img {
@@ -93,9 +92,3 @@ body {
         height: 3em;
     }
 
-
-.settings {
-    color: whitesmoke;
-    max-width: 500px;
-    margin: auto;
-}

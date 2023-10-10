@@ -11,6 +11,7 @@ using System.Security.Policy;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
+using WebGrease.Extensions;
 using WebUI.Models;
 
 namespace WebUI.Controllers
@@ -133,6 +134,104 @@ namespace WebUI.Controllers
             initConfig(Server);
             string ret = JsonConvert.SerializeObject(config.scripts, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
             return new ContentResult() { ContentType = "application/json", Content = ret };
+        }
+
+
+        public class LittleFSFile
+        {
+            [JsonIgnore]
+            public string Path;
+            public string Name { get; set; }
+            public long Size { get; set; }
+
+            public bool dir { get; set; }
+
+            [JsonIgnore]
+            public List<LittleFSFile> files;
+
+            public List<LittleFSFile> Dir(string path)
+            {
+                if (path == null || path == "/" || path == "")
+                {
+                    return files;
+                }
+                int i = 0;
+                if (path.StartsWith("/")) i = 1;
+                var parts = path.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                List<LittleFSFile> ret = new List<LittleFSFile>();
+                if (files != null)
+                {
+                    foreach (var itm in files)
+                    {
+                        if (itm.Name == parts[0])
+                        {
+                            ret.AddRange(itm.Dir(path.Substring(parts[0].Length + i)));
+                        }
+                    }
+                }
+
+                return ret;
+            }
+        }
+
+
+        private static LittleFSFile LittleFS;
+        private static List<LittleFSFile> InitDir(HttpServerUtilityBase server, string path)
+        {
+            string baseDir = server.MapPath("~/");
+            List<LittleFSFile> ret = new List<LittleFSFile>();
+            var dir = new System.IO.DirectoryInfo(path);
+            foreach (var file in dir.GetFiles())
+            {
+                ret.Add(new LittleFSFile() { Path = file.FullName.Replace("\\", "/"), Name = file.Name, Size = file.Length, dir = false });
+            }
+            foreach (var d in dir.GetDirectories())
+            {
+                var itm = new LittleFSFile() { Path = d.FullName.Replace("\\", "/"), Name = d.Name, Size = 0, dir = true };
+                ret.Add(itm);
+                itm.files = InitDir(server, d.FullName);
+            }
+            foreach (var file in ret)
+            {
+                file.Path = "/" + file.Path.Substring(baseDir.Length);
+            }
+            return ret;
+        }
+
+        private static void Inif_FS(HttpServerUtilityBase server)
+        {
+            LittleFS = new LittleFSFile() { Path = "/", Name = "", dir = true };
+            string baseDir = server.MapPath("~/");
+            LittleFS.files = InitDir(server, baseDir);
+        }
+
+        [HttpGet()]
+        [ActionName("dir")]
+        public ActionResult dir_Get(string path)
+        {
+            if (LittleFS == null)
+            {
+                Inif_FS(Server);
+            }
+            if (path == null) path = "";
+
+            var list = LittleFS.Dir(path);
+            string ret = JsonConvert.SerializeObject(list, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+            return new ContentResult() { ContentType = "application/json", Content = ret };
+        }
+
+        [HttpPost]
+        [ActionName("dir")]
+        public ActionResult dir_Post(string path)
+        {
+            return new ContentResult() { ContentType = "application/json", Content = "OK" };
+        }
+
+        [HttpDelete]
+        [ActionName("dir")]
+        public ActionResult dir_Delete(string path)
+        {
+            return new ContentResult() { ContentType = "application/json", Content = "OK" };
         }
     }
 
