@@ -451,6 +451,7 @@ scripts.json
 
 ![How to cut PCB Model's Heart in correct way](img/cutting-pcb.png)
 
+## Підключення окремих блоків плати Model's Heart
 ### Плата зарядки
 Плата зарядки - може використовуватись як зарядний пристрій Li-Ion акумуляторів.
 
@@ -472,3 +473,6 @@ scripts.json
 #### Підключення кнопки вкл/викл
 ![Alt text](img/btn.png)
 
+#### Підключення світлодіода до виходу #1
+
+![Alt text](img/led.png)
