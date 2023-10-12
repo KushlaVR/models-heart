@@ -462,3 +462,13 @@ scripts.json
 
 ![Alt text](img/programmer-pc.png)
 
+### Основна плата
+#### Підключення акамулятора
+![Alt text](img/bat.png)
+
+#### Підключення мотора
+![Alt text](img/dc-motpng.png)
+
+#### Підключення кнопки вкл/викл
+![Alt text](img/btn.png)
+
