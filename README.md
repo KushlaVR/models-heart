@@ -75,9 +75,7 @@ BENEFICIARY BANK ADDRESS: 125 London Wall, London EC2Y 5AJ, UK
 
 PURPOSE OF PAYMENT: for ac 47330992708
 
-
 ![Донатьте на ЗСУ](img/part-1-8.png)
-
 
 ## Schematic
 
@@ -86,7 +84,6 @@ PURPOSE OF PAYMENT: for ac 47330992708
 # Board
 
 ![Photo](img/Photo.png)
-
 
 ## Що необхідно?
 Базовий набір:
@@ -191,7 +188,7 @@ PURPOSE OF PAYMENT: for ac 47330992708
 
 ## Сценрій
 
-
+Сценарій визначає, як плата реагуватиме на команди користувача.
 
 ```
     {
@@ -231,52 +228,64 @@ PURPOSE OF PAYMENT: for ac 47330992708
 ui.json
 ```
 {
-    "elements": [
-        {
-            "type": "text",
-            "x": 0,
-            "y": 0,
-            "text": "Motor example"
-        },
-        {
-            "type": "slider",
-            "x": "2",
-            "y": "7",
-            "w": "35",
-            "h": "35",
-            "color": "red",
-            "cmd": "motor",
-            "autoconter": "1"
-        },
-        {
-            "type": "button",
-            "x": "45",
-            "y": "7",
-            "text": "Beacon",
-            "cmd": "beacon"
-        },
-        {
-            "type": "button",
-            "x": "45",
-            "y": "14",
-            "text": "Strobe lights",
-            "cmd": "strobe"
-        },
-        {
-            "type": "button",
-            "x": "45",
-            "y": "14",
-            "text": "Position lights",
-            "cmd": "position"
-        },
-        {
-            "type": "button",
-            "x": "45",
-            "y": "14",
-            "text": "Navigation light",
-            "cmd": "navigation"
-        }
-    ]
+  "elements": [
+    {
+      "type": "text",
+      "x": "0",
+      "y": "0",
+      "text": "Motor example"
+    },
+    {
+      "type": "slider",
+      "x": "56",
+      "y": "36",
+      "w": "30",
+      "h": "5",
+      "color": "red",
+      "cmd": "motor",
+      "autocenter": "y"
+    },
+    {
+      "type": "button",
+      "x": "0",
+      "y": "10",
+      "w": "27",
+      "text": "Хвостовий маяк",
+      "cmd": "beacon"
+    },
+    {
+      "type": "button",
+      "x": "0",
+      "y": "15",
+      "w": "27",
+      "text": "Габаритні маяки",
+      "cmd": "strobe"
+    },
+    {
+      "type": "button",
+      "x": "0",
+      "y": "20",
+      "w": "27",
+      "text": "Габарити",
+      "cmd": "position"
+    },
+    {
+      "type": "button",
+      "x": "0",
+      "y": "25",
+      "w": "27",
+      "text": "Посадкові вогні",
+      "cmd": "navigation"
+    },
+    {
+      "type": "button",
+      "x": "0",
+      "y": "30",
+      "w": "27",
+      "text": "Двигуни",
+      "cmd": "ignition"
+    }
+  ]
 }
 ```
 
@@ -284,157 +293,168 @@ scripts.json
 ```
 
 {
-    "elements": [
+  "elements": [
+    {
+      "cmd": "beacon",
+      "type": "tougle",
+      "actions": [
         {
-            "cmd": "beacon",
-            "type": "tougle",
-            "actions": [
-                {
-                    "type": "blink",
-                    "points": [
-                        {
-                            "pin": "1",
-                            "offset": "0",
-                            "value": "0"
-                        },
-                        {
-                            "pin": "1",
-                            "offset": "0",
-                            "value": "0"
-                        },
-                        {
-                            "pin": "1",
-                            "offset": "100",
-                            "value": "20"
-                        },
-                        {
-                            "pin": "1",
-                            "offset": "200",
-                            "value": "50"
-                        },
-                        {
-                            "pin": "1",
-                            "offset": "300",
-                            "value": "90"
-                        },
-                        {
-                            "pin": "1",
-                            "offset": "400",
-                            "value": "50"
-                        },
-                        {
-                            "pin": "1",
-                            "offset": "500",
-                            "value": "20"
-                        },
-                        {
-                            "pin": "1",
-                            "offset": "600",
-                            "value": "0"
-                        },
-                        {
-                            "pin": "1",
-                            "offset": "1000",
-                            "value": "0"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "cmd": "strobe",
-            "type": "tougle",
-            "actions": [
-                {
-                    "type": "blink",
-                    "points": [
-                        {
-                            "pin": "4",
-                            "offset": "0",
-                            "value": "0"
-                        },
-                        {
-                            "pin": "4",
-                            "offset": "0",
-                            "value": "255"
-                        },
-                        {
-                            "pin": "4",
-                            "offset": "100",
-                            "value": "0"
-                        },
-                        {
-                            "pin": "4",
-                            "offset": "300",
-                            "value": "255"
-                        },
-                        {
-                            "pin": "4",
-                            "offset": "400",
-                            "value": "0"
-                        },
-                        {
-                            "pin": "4",
-                            "offset": "1000",
-                            "value": "0"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "cmd": "position",
-            "type": "tougle",
-            "actions": [
-                {
-                    "type": "blink",
-                    "points": [
-                        {
-                            "pin": "3",
-                            "offset": "0",
-                            "value": "0"
-                        },
-                        {
-                            "pin": "3",
-                            "offset": "0",
-                            "value": "255"
-                        },
-                        {
-                            "pin": "3",
-                            "offset": "1000",
-                            "value": "255"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "cmd": "navigation",
-            "type": "tougle",
-            "actions": [
-                {
-                    "type": "blink",
-                    "points": [
-                        {
-                            "pin": "2",
-                            "offset": "0",
-                            "value": "0"
-                        },
-                        {
-                            "pin": "2",
-                            "offset": "0",
-                            "value": "255"
-                        },
-                        {
-                            "pin": "2",
-                            "offset": "1000",
-                            "value": "255"
-                        }
-                    ]
-                }
-            ]
+          "type": "blink",
+          "points": [
+            {
+              "pin": "1",
+              "offset": "0",
+              "value": "0"
+            },
+            {
+              "pin": "1",
+              "offset": "0",
+              "value": "0"
+            },
+            {
+              "pin": "1",
+              "offset": "100",
+              "value": "20"
+            },
+            {
+              "pin": "1",
+              "offset": "200",
+              "value": "50"
+            },
+            {
+              "pin": "1",
+              "offset": "300",
+              "value": "90"
+            },
+            {
+              "pin": "1",
+              "offset": "400",
+              "value": "50"
+            },
+            {
+              "pin": "1",
+              "offset": "500",
+              "value": "20"
+            },
+            {
+              "pin": "1",
+              "offset": "600",
+              "value": "0"
+            },
+            {
+              "pin": "1",
+              "offset": "1000",
+              "value": "0"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "cmd": "strobe",
+      "type": "tougle",
+      "actions": [
+        {
+          "type": "blink",
+          "points": [
+            {
+              "pin": "4",
+              "offset": "0",
+              "value": "0"
+            },
+            {
+              "pin": "4",
+              "offset": "0",
+              "value": "255"
+            },
+            {
+              "pin": "4",
+              "offset": "100",
+              "value": "0"
+            },
+            {
+              "pin": "4",
+              "offset": "300",
+              "value": "255"
+            },
+            {
+              "pin": "4",
+              "offset": "400",
+              "value": "0"
+            },
+            {
+              "pin": "4",
+              "offset": "1000",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cmd": "position",
+      "type": "tougle",
+      "actions": [
+        {
+          "type": "blink",
+          "points": [
+            {
+              "pin": "3",
+              "offset": "0",
+              "value": "0"
+            },
+            {
+              "pin": "3",
+              "offset": "0",
+              "value": "255"
+            },
+            {
+              "pin": "3",
+              "offset": "1000",
+              "value": "255"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cmd": "navigation",
+      "type": "tougle",
+      "actions": [
+        {
+          "type": "blink",
+          "points": [
+            {
+              "pin": "2",
+              "offset": "0",
+              "value": "0"
+            },
+            {
+              "pin": "2",
+              "offset": "0",
+              "value": "255"
+            },
+            {
+              "pin": "2",
+              "offset": "1000",
+              "value": "255"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cmd": "ignition",
+      "type": "tougle",
+      "actions": [
+        {
+          "type":"motor",
+          "speed":"motor_x",
+          "weight": "80000"
+        }
+      ]
+    }
+  ]
 }
 
 
