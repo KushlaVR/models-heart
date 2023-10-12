@@ -5,9 +5,15 @@
 ![Model's Heart](<img/part 1-0.png>)
 
 # Поки ти читаєш цей текст - українці гинуть від російських ракет.
+# While you are reading this text, Ukrainians are dying from russian missiles.
 
 Ти можеш перерахувати будь-яку суму на спеціальний рахунок Національного Банку України для допомоги збройним силам україни у протистоянні російському окупанту.
+
 Навть незначна сума може врятувати чиєсь життя!
+
+You can transfer any amount to a special account of the National Bank of Ukraine to help the armed forces of Ukraine in the fight against the Russian occupier.
+
+Even a small amount can save someone's life!
 
 ### Для зарахування коштів у національній валюті:
 
@@ -18,7 +24,7 @@
 код ЄДРПОУ 00032106
 Отримувач: Національний банк України 
 ```
-### Для зарахування коштів у USD: 
+### To deposit funds in USD: 
 ```
 BENEFICIARY: National Bank of Ukraine
 BENEFICIARY BIC: NBUA UA UX
@@ -30,7 +36,7 @@ ABA 0210 0002 1
 BENEFICIARY BANK ADDRESS: 383 Madison Avenue, New York, NY 10017, USA
 PURPOSE OF PAYMENT: for ac 47330992708 
 ```
-### Для зарахування коштів у EUR: 
+### To deposit funds in EUR: 
 ```
 BENEFICIARY: National Bank of Ukraine
 IBAN DE05504000005040040066
@@ -39,8 +45,7 @@ BENEFICIARY BANK NAME: DEUTSCHE  BUNDESBANK, Frankfurt
 BENEFICIARY BANK BIC: MARKDEFF
 BENEFICIARY BANK ADDRESS: Wilhelm-Epstein-Strasse 14, 60431 Frankfurt Am Main, Germany
 ```
-
-### Для зарахування коштів у GBP: 
+### To deposit funds in GBP: 
 ```
 BENEFICIARY/RECIPIENT NAME: National Bank of Ukraine
 ACCOUNT NUMBER: 80033041
