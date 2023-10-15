@@ -171,39 +171,92 @@ PURPOSE OF PAYMENT: for ac 47330992708
 
 ## Сценрій
 
-Сценарій визначає, як плата реагуватиме на команди користувача.
+Сценарій визначає, як плата реагуватиме на команди користувача. У сценарія є лише одна властивість - "elements" (містить перелік команд)
 
 ```
-    {
-        "cmd": string,
-        "type": "tougle/click/none",
-        "actions": 
-            [
-                {
-                    "type": 
-                    "cmd": string,
-                },
-                {
-                    "type": "motor",
-                    "speed": string (source of speed value for full H bridge). When set - a+b ignored
-                    "a": string (source of A half bridge values),
-                    "b": string (source of B half bridge values),
-                    "weight": int (in grams)
-                },
-                {
-                    "type": "blink",
-                    "points": [
-                        {"pin": "1", "offset":"0", "value":"0"},
-                        {"pin": "1", "offset":"500", "value":"255"},
-                        {"pin": "1", "offset":"1000", "value":"0"}
-                    ]
-                }
-            ...
-            ]
-
-    }
+{
+    "elements" : [ {"cmd": string, ..}, {..}, ..]
+}
 ```
 
+Команди активуються у результаті взаємодії користувач з UI. Поки команда активна - її дії обробляються, інакше - ігноруються.
+
+Структура команди:
+
+- cmd - назва команди.
+- type - тип команди
+  * tougle - кожна активація команди вмикає/вимика її стан
+  * click - команда активна поки користувач утримує її значення відмінним від 0
+  * none - команда не потребує активації. Вона активна завжди.
+- actions - перелік дій, що будуть виконуватись поки команда активна.
+
+```
+{
+    "cmd": string,
+    "type": "tougle/click/none",
+    "actions": 
+        [
+            {
+                "type": 
+                "cmd": string,
+            },
+            {
+                "type": "motor",
+                "speed": string (source of speed value for full H bridge). When set - a+b ignored
+                "a": string (source of A half bridge values),
+                "b": string (source of B half bridge values),
+                "weight": int (in grams)
+            },
+            {
+                "type": "blink",
+                "points": [
+                    {"pin": "1", "offset":"0", "value":"0"},
+                    {"pin": "1", "offset":"500", "value":"255"},
+                    {"pin": "1", "offset":"1000", "value":"0"}
+                ]
+            }
+        ...
+        ]
+}
+```
+### Дії сценаріїв
+
+#### Блінк
+Дія перемикає виходи у заданій часовій точці.
+
+- type - blink
+- points - масив точок
+
+Точка:
+- pin - номер виходу
+- offset - точка часу у мілічекундах. Відлік починаєьться від старту дії
+- value - PWM значення виходу
+
+```
+{
+    "type": "blink",
+    "points": [
+        {"pin": "1", "offset":"0", "value":"0"},
+        {"pin": "1", "offset":"500", "value":"255"},
+        {"pin": "1", "offset":"1000", "value":"0"}
+    ]
+}
+```
+
+#### Мотор
+Дія використовується для керування мотором.
+
+- type - motor
+- speed - назва команди яка використовуються для швидкості мотора
+- weight - вага уявного маховика мотора. Використовується для імітації інерції
+
+```
+{
+    "type":"motor",
+    "speed":"motor_x",
+    "weight": "80000"
+}
+```
 
 ## Приклади сценаріїв
 ### Керування гвинтовим літаком
@@ -274,7 +327,6 @@ ui.json
 
 scripts.json
 ```
-
 {
   "elements": [
     {
@@ -439,10 +491,7 @@ scripts.json
     }
   ]
 }
-
-
 ```
-
 
 # Підключення
 
