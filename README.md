@@ -2,7 +2,7 @@
 
 ## Breathe life into your model
 
-![Model's Heart](<img/part 1-0.png>)
+![Model's Heart View](<img/part 1-0.png>)
 
 # Поки ти читаєш цей текст - українці гинуть від російських ракет.
 # While you are reading this text, Ukrainians are dying from russian missiles.
