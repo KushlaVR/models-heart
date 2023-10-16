@@ -1,0 +1,3 @@
+interface TextConfig extends BaseConfig {
+
+}

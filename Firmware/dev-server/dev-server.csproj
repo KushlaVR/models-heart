@@ -554,7 +554,8 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="ts\tsconfig.json" />
+    <Content Include="ts\setup\tsconfig.json" />
+    <Content Include="ts\workspace\tsconfig.json" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="data\mp3\" />
@@ -574,8 +575,18 @@
     <Content Include="Scripts\jquery-3.5.0.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="ts\kvr_setup.ts" />
-    <TypeScriptCompile Include="ts\kvr_workspace.ts" />
+    <TypeScriptCompile Include="ts\workspace\Design\BaseConfig.ts" />
+    <TypeScriptCompile Include="ts\workspace\Design\ButtonConfig.ts" />
+    <TypeScriptCompile Include="ts\workspace\Design\ComponentFrame.ts" />
+    <TypeScriptCompile Include="ts\workspace\Design\SliderConfig.ts" />
+    <TypeScriptCompile Include="ts\workspace\Design\TextConfig.ts" />
+    <TypeScriptCompile Include="ts\workspace\Elements\Button.ts" />
+    <TypeScriptCompile Include="ts\workspace\Dictionary.ts" />
+    <TypeScriptCompile Include="ts\setup\kvr_setup.ts" />
+    <TypeScriptCompile Include="ts\workspace\Elements\Output.ts" />
+    <TypeScriptCompile Include="ts\workspace\Workspace.ts" />
+    <TypeScriptCompile Include="ts\workspace\Point.ts" />
+    <TypeScriptCompile Include="ts\workspace\Elements\Slider.ts" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

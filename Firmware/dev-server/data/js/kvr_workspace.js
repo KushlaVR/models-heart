@@ -1,18 +1,21 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+var Dictionary = (function () {
+    function Dictionary(init) {
+        if (init) {
+            for (var x = 0; x < init.length; x++) {
+                this[init[x].key] = init[x].value;
+            }
+        }
+    }
+    return Dictionary;
+}());
+var Point = (function () {
+    function Point() {
+        this.x = 0;
+        this.y = 0;
+    }
+    return Point;
+}());
+;
 var WorkSpace = (function () {
     function WorkSpace(form) {
         var _this = this;
@@ -28,6 +31,7 @@ var WorkSpace = (function () {
         this._readyToSend = true;
         this.form = form;
         window.addEventListener('resize', function (event) { return _this.UpdateLayout(); }, false);
+        console.log("=== begin ===");
     }
     WorkSpace.init = function (form) {
         var workSpace = new WorkSpace((form[0]));
@@ -349,23 +353,100 @@ var WorkSpace = (function () {
     };
     return WorkSpace;
 }());
-var Dictionary = (function () {
-    function Dictionary(init) {
-        if (init) {
-            for (var x = 0; x < init.length; x++) {
-                this[init[x].key] = init[x].value;
-            }
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var Button = (function (_super) {
+    __extends(Button, _super);
+    function Button(element) {
+        var _this = _super.call(this, element) || this;
+        _this.audio = null;
+        var sound = _this.jElement.data("sound");
+        if (sound) {
+            _this.audio = new Audio(sound);
+            _this.audio.load();
         }
+        _this.sound_duration = _this.jElement.data("sound-duration");
+        if ("ontouchstart" in document.documentElement) {
+            _this.element.addEventListener('touchstart', function (event) { return _this.onTouchStart(event); }, false);
+            _this.element.addEventListener('touchend', function (event) { return _this.onTouchEnd(event); }, false);
+        }
+        else {
+            _this.element.addEventListener('mousedown', function (event) { return _this.onMouseDown(event); }, false);
+            _this.element.addEventListener('mouseup', function (event) { return _this.onMouseUp(event); }, false);
+        }
+        return _this;
     }
-    return Dictionary;
-}());
-var Point = (function () {
-    function Point() {
-        this.x = 0;
-        this.y = 0;
-    }
-    return Point;
-}());
+    Button.prototype.onTouchStart = function (event) {
+        this.pressed = true;
+        this.saveValue();
+        this.Activate();
+        this.playSound();
+        event.preventDefault();
+    };
+    Button.prototype.onTouchEnd = function (event) {
+        this.pressed = false;
+        this.saveValue();
+        event.preventDefault();
+    };
+    Button.prototype.onMouseDown = function (event) {
+        this.pressed = true;
+        this.saveValue();
+        this.Activate();
+        this.playSound();
+        event.preventDefault();
+    };
+    Button.prototype.onMouseUp = function (event) {
+        this.pressed = false;
+        this.saveValue();
+        event.preventDefault();
+    };
+    Button.prototype.Activate = function () {
+        var _this = this;
+        this.jElement.addClass("active");
+        setTimeout(function () { _this.jElement.removeClass("active"); }, 200);
+    };
+    Button.prototype.playSound = function () {
+        var _this = this;
+        if (this.audio == null)
+            return;
+        if (!this.audio.paused)
+            return;
+        this.audio.currentTime = 0;
+        var playPromise = this.audio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(function (_) {
+                setTimeout(function () { _this.audio.pause(); }, _this.sound_duration);
+            });
+        }
+    };
+    Button.prototype.saveValue = function () {
+        if (!this.workSpace)
+            return;
+        this.workSpace.beginTransaction();
+        var key = this.name;
+        if (this.pressed) {
+            this.workSpace.values[key] = "1";
+        }
+        else {
+            this.workSpace.values[key] = "0";
+        }
+        this.workSpace.endTransaction();
+    };
+    return Button;
+}(Input));
 var Input = (function () {
     function Input(element) {
         this.element = element;
@@ -390,6 +471,64 @@ var Input = (function () {
     Input.prototype.initLayout = function () {
     };
     return Input;
+}());
+var Output = (function () {
+    function Output(element) {
+        this.audio = null;
+        this.element = element;
+        this.jElement = $(element);
+        this.name = this.jElement.data("input");
+        var sound = this.jElement.data("sound");
+        if (sound) {
+            this.audio = new Audio(sound);
+            this.audio.load();
+            this.sound_duration = this.jElement.data("sound-duration");
+        }
+    }
+    Output.prototype.loadValue = function () {
+        if (!(this.workSpace.values[this.name] == undefined)) {
+            var newValue = this.workSpace.values[this.name];
+            if (this.element.tagName.toUpperCase() == "INPUT") {
+                this.jElement.val(newValue);
+            }
+            if (this.element.tagName.toUpperCase() == "IMG") {
+                if (newValue == "0") {
+                    this.jElement.addClass("hidden");
+                }
+                else {
+                    this.jElement.removeClass("hidden");
+                }
+            }
+            if (this.element.classList.contains("progress-bar")) {
+                this.jElement.width((newValue) + "%");
+            }
+            else {
+                this.jElement.text(newValue);
+            }
+            if (this.value == "0" && !(newValue == "0")) {
+                this.playSound();
+            }
+            ;
+            this.value = newValue;
+        }
+    };
+    Output.prototype.initLayout = function () {
+    };
+    Output.prototype.playSound = function () {
+        var _this = this;
+        if (this.audio == null)
+            return;
+        if (!this.audio.paused)
+            return;
+        this.audio.currentTime = 0;
+        var playPromise = this.audio.play();
+        if (playPromise !== undefined && this.sound_duration !== undefined) {
+            playPromise.then(function (_) {
+                setTimeout(function () { _this.audio.pause(); }, _this.sound_duration);
+            });
+        }
+    };
+    return Output;
 }());
 var Slider = (function (_super) {
     __extends(Slider, _super);
@@ -602,143 +741,6 @@ var Slider = (function (_super) {
     };
     return Slider;
 }(Input));
-var Button = (function (_super) {
-    __extends(Button, _super);
-    function Button(element) {
-        var _this = _super.call(this, element) || this;
-        _this.audio = null;
-        var sound = _this.jElement.data("sound");
-        if (sound) {
-            _this.audio = new Audio(sound);
-            _this.audio.load();
-        }
-        _this.sound_duration = _this.jElement.data("sound-duration");
-        if ("ontouchstart" in document.documentElement) {
-            _this.element.addEventListener('touchstart', function (event) { return _this.onTouchStart(event); }, false);
-            _this.element.addEventListener('touchend', function (event) { return _this.onTouchEnd(event); }, false);
-        }
-        else {
-            _this.element.addEventListener('mousedown', function (event) { return _this.onMouseDown(event); }, false);
-            _this.element.addEventListener('mouseup', function (event) { return _this.onMouseUp(event); }, false);
-        }
-        return _this;
-    }
-    Button.prototype.onTouchStart = function (event) {
-        this.pressed = true;
-        this.saveValue();
-        this.Activate();
-        this.playSound();
-        event.preventDefault();
-    };
-    Button.prototype.onTouchEnd = function (event) {
-        this.pressed = false;
-        this.saveValue();
-        event.preventDefault();
-    };
-    Button.prototype.onMouseDown = function (event) {
-        this.pressed = true;
-        this.saveValue();
-        this.Activate();
-        this.playSound();
-        event.preventDefault();
-    };
-    Button.prototype.onMouseUp = function (event) {
-        this.pressed = false;
-        this.saveValue();
-        event.preventDefault();
-    };
-    Button.prototype.Activate = function () {
-        var _this = this;
-        this.jElement.addClass("active");
-        setTimeout(function () { _this.jElement.removeClass("active"); }, 200);
-    };
-    Button.prototype.playSound = function () {
-        var _this = this;
-        if (this.audio == null)
-            return;
-        if (!this.audio.paused)
-            return;
-        this.audio.currentTime = 0;
-        var playPromise = this.audio.play();
-        if (playPromise !== undefined) {
-            playPromise.then(function (_) {
-                setTimeout(function () { _this.audio.pause(); }, _this.sound_duration);
-            });
-        }
-    };
-    Button.prototype.saveValue = function () {
-        if (!this.workSpace)
-            return;
-        this.workSpace.beginTransaction();
-        var key = this.name;
-        if (this.pressed) {
-            this.workSpace.values[key] = "1";
-        }
-        else {
-            this.workSpace.values[key] = "0";
-        }
-        this.workSpace.endTransaction();
-    };
-    return Button;
-}(Input));
-var Output = (function () {
-    function Output(element) {
-        this.audio = null;
-        this.element = element;
-        this.jElement = $(element);
-        this.name = this.jElement.data("input");
-        var sound = this.jElement.data("sound");
-        if (sound) {
-            this.audio = new Audio(sound);
-            this.audio.load();
-            this.sound_duration = this.jElement.data("sound-duration");
-        }
-    }
-    Output.prototype.loadValue = function () {
-        if (!(this.workSpace.values[this.name] == undefined)) {
-            var newValue = this.workSpace.values[this.name];
-            if (this.element.tagName.toUpperCase() == "INPUT") {
-                this.jElement.val(newValue);
-            }
-            if (this.element.tagName.toUpperCase() == "IMG") {
-                if (newValue == "0") {
-                    this.jElement.addClass("hidden");
-                }
-                else {
-                    this.jElement.removeClass("hidden");
-                }
-            }
-            if (this.element.classList.contains("progress-bar")) {
-                this.jElement.width((newValue) + "%");
-            }
-            else {
-                this.jElement.text(newValue);
-            }
-            if (this.value == "0" && !(newValue == "0")) {
-                this.playSound();
-            }
-            ;
-            this.value = newValue;
-        }
-    };
-    Output.prototype.initLayout = function () {
-    };
-    Output.prototype.playSound = function () {
-        var _this = this;
-        if (this.audio == null)
-            return;
-        if (!this.audio.paused)
-            return;
-        this.audio.currentTime = 0;
-        var playPromise = this.audio.play();
-        if (playPromise !== undefined && this.sound_duration !== undefined) {
-            playPromise.then(function (_) {
-                setTimeout(function () { _this.audio.pause(); }, _this.sound_duration);
-            });
-        }
-    };
-    return Output;
-}());
 var ComponentFrame = (function () {
     function ComponentFrame(element) {
         this.element = element;

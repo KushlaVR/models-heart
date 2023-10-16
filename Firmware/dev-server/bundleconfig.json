@@ -83,6 +83,8 @@
     "outputFileName": "js/kvr_workspace.min.js",
     // An array of relative input file paths. Globbing patterns supported
     "inputFiles": [
+      "js/Dictionary.js",
+      "js/Point.js",
       "js/kvr_workspace.js"
     ],
     // Optionally specify minification options

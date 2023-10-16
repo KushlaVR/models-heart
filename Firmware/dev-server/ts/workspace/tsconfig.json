@@ -3,9 +3,10 @@
     "noImplicitAny": false,
     "noEmitOnError": true,
     "removeComments": true,
-    "sourceMap": true,
+    "sourceMap": false,
+    "module": "None",
     "target": "es5",
-    "outDir": "../js/",
+    "outFile": "../../js/kvr_workspace.js",
     "types": [
       "jquery"
     ],
