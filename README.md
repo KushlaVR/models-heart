@@ -60,7 +60,7 @@ PURPOSE OF PAYMENT: for ac 47330992708
 
 ![Донатьте на ЗСУ](img/part-1-8.png)
 
-## Schematic
+# Schematic
 
 ![Model's Heart Schematic](img/schematic.png)
 
@@ -68,10 +68,39 @@ PURPOSE OF PAYMENT: for ac 47330992708
 
 ![Photo](img/Photo.png)
 
-## Що необхідно?
+# Що обрати Model's Heart чи Arduino?
+
+Плата Model's Heart та Arduino  чи Wemos не є взаємозамінні. Вони схожі, проте мають і відмінності. Це як комп'ютери із різною комплектацією. 
+Для коащого розуміння ознайомтесь із порівняльоню таблицею.
+
+## Проівняльна таблиця Arduino Nano, Wemos D1, Model's Heart
+| Характеристика |Arduino Nano | Wemos D1 | Model's Heart |
+|---          |---|---|---|
+| Процесор    |Atmega 328| ESP8266  | ESP8266 |
+| Ядро        | 8-bit AVR RISC | Tensilica L106 32-bit RISC | Tensilica L106 32-bit RISC |
+| Тип         | Microcontroller| Soc  | SoC |
+|Оперативня пам'ять|2K bytes|50k bytes|50k bytes|
+|Постійна пам'ять|32K bytes інтергрована| - | - |
+|Зовнішня пам'ять| - | 16M bytes | 16M bytes |
+|Частота процесора| 16MHz | 52MHz | 52Mhz |
+|GPIO| 24 | 11 | 8 |
+|Analog Pins| 8 | 1 | 1 |
+|ADC| 1 | 1 | 1 |
+|Точність ADC | 10bit | 10bit | 10bit |
+|Wi-Fi | - | 2.4GHz | 2.4GHz |
+|USB Power | micro USB | micro USB | Type-C |
+|Живлення від Li-Ion | - | - | + |
+|Li-Ion BMS | - | - | + |
+|Li-Ion Charger | - | - | + |
+|Power switch | - | - | + |
+|H-Bridge | - | - | 3A (max) |
+
+
+
+## У мене вже є плата Model's Heart, що далі?
 Базовий набір:
 * Завантажена з GitHub копія проекту
-* Модуль, або відлагоджувальна плата на базі процесора ESP8266 (Наприклад Model's Heart, Wemos D1 mini, Lolin, або інша)
+* Модуль, або відлагоджувальна плата Model's Heart, або інша  на базі процесора ESP8266 (Наприклад Wemos D1 mini, Lolin, і т.п.)
 * Комп'ютер з USB
 * Веб-переглядач для налаштування (наприклад Edge, Chrome, Mozilla, Safari, Opera ...)
 
