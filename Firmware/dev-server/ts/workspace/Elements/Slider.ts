@@ -181,7 +181,7 @@ class Slider extends Input {
         return (Math.round(n * 100.0) / 100.0).toString(10);
     }
 
-    private static pointFromMouseEvent(container: HTMLElement, e: any): Point {
+    static pointFromMouseEvent(container: HTMLElement, e: any): Point {
         var m_posx = 0, m_posy = 0, e_posx = 0, e_posy = 0;
         //get mouse position on document crossbrowser
         if (!e) { e = window.event; }
@@ -209,7 +209,7 @@ class Slider extends Input {
 
     }
 
-    private static pointFromTouch(container: HTMLElement, e: Touch): Point {
+    static pointFromTouch(container: HTMLElement, e: Touch): Point {
 
         var m_posx = 0, m_posy = 0, e_posx = 0, e_posy = 0;
         //get mouse position on document crossbrowser

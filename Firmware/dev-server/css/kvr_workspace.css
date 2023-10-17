@@ -81,3 +81,124 @@
     width: 100%;
     height: 100%
 }
+
+
+.component-frame {
+    position: absolute;
+    display: block;
+    background-color: #FF0000AC;
+}
+
+    .component-frame .size-dot {
+        width: 1vw;
+        height: 1vw;
+        position: absolute;
+        background-color: black;
+        border-width: 1px;
+        border-style: solid;
+        border-color: white;
+    }
+
+        .component-frame .size-dot.left {
+            margin: auto;
+            left: -1vw;
+            right: auto;
+            top: 0;
+            bottom: 0;
+            cursor: ew-resize;
+        }
+
+        .component-frame .size-dot.right {
+            margin: auto;
+            left: auto;
+            right: -1vw;
+            top: 0;
+            bottom: 0;
+            cursor: ew-resize;
+        }
+
+        .component-frame .size-dot.top {
+            margin: auto;
+            left: 0;
+            right: 0;
+            top: -1vw;
+            bottom: auto;
+            cursor: ns-resize;
+        }
+
+        .component-frame .size-dot.bottom {
+            margin: auto;
+            left: 0;
+            right: 0;
+            top: auto;
+            bottom: -1vw;
+            cursor: ns-resize;
+        }
+
+        .component-frame .size-dot.top-left {
+            margin: auto;
+            left: -1vw;
+            right: auto;
+            top: -1vw;
+            bottom: auto;
+            cursor: nwse-resize;
+        }
+
+        .component-frame .size-dot.top-right {
+            margin: auto;
+            left: auto;
+            right: -1vw;
+            top: -1vw;
+            bottom: auto;
+            cursor: nesw-resize;
+        }
+
+        .component-frame .size-dot.bottom-left {
+            margin: auto;
+            left: -1vw;
+            right: auto;
+            top: auto;
+            bottom: -1vw;
+            cursor: nesw-resize;
+        }
+
+        .component-frame .size-dot.bottom-right {
+            margin: auto;
+            left: auto;
+            right: -1vw;
+            top: auto;
+            bottom: -1vw;
+            cursor: nwse-resize;
+        }
+
+        .component-frame .size-dot.current::after {
+            content: "";
+            display: block;
+            width: 200vw;
+            height: 200vw;
+            margin-left: -100vw;
+            margin-top: -100vw;
+            background: black;
+            opacity: 0.1;
+        }
+
+    .component-frame .move-dot {
+        position: absolute;
+        margin: 0;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        cursor: move;
+    }
+
+        .component-frame .move-dot.current::after {
+            content: "";
+            display: block;
+            width: 200vw;
+            height: 200vw;
+            margin-left: -100vw;
+            margin-top: -100vw;
+            background: black;
+            opacity: 0.1;
+        }

@@ -12,6 +12,7 @@ class WorkSpace {
 
     private inputs: Array<Input> = new Array<Input>();
     private outputs: Array<Output> = new Array<Output>();
+    private frames: Array<ComponentFrame> = new Array<ComponentFrame>();
     values: Dictionary<String> = new Dictionary<String>();
     sent: Dictionary<String> = new Dictionary<String>();
     tranCount: number = 0;
@@ -80,7 +81,11 @@ class WorkSpace {
         this.form.style.backgroundSize = "cover";
     }
 
+
+    private gridSize = new Point();
     createGrid(w: number, h: number) {
+        this.gridSize.x = w;
+        this.gridSize.y = h;
         let div: HTMLDivElement = document.createElement("div");
         div.style.position = "absolute";
         div.style.left = "0";
@@ -90,6 +95,13 @@ class WorkSpace {
         div.style.background = "conic-gradient(from 90deg at 0.05vw 0.05vw, rgba(0, 0, 0, 0) 90deg, rgba(1,1,1,0.1) 0deg) 0px 0px / 1vw 1vw";
         this.form.appendChild(div);
 
+    }
+
+    getPixelPerVW(): Point {
+        let ret = new Point();
+        ret.x = this.form.clientWidth / this.gridSize.x;
+        ret.y = this.form.clientHeight / this.gridSize.y;
+        return ret;
     }
 
     createElement(el: BaseConfig) {
@@ -332,6 +344,9 @@ class WorkSpace {
         for (let o = 0; o < this.outputs.length; o++) {
             this.outputs[o].initLayout();
         }
+        for (let o = 0; o < this.frames.length; o++) {
+            this.frames[o].UpdateLayout();
+        }
     }
 
     /**
@@ -428,8 +443,8 @@ class WorkSpace {
 
 
     private addConponentFrame(frame: ComponentFrame): void {
-
-
+        frame.Workspace = this;
+        this.frames.push(frame);
     }
 
 
