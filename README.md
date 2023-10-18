@@ -70,6 +70,15 @@ PURPOSE OF PAYMENT: for ac 47330992708
 
 ![Донатьте на ЗСУ](img/part-1-8.png)
 
+## Як створювалась ця плата
+
+https://www.youtube.com/watch?v=I-fucbyPBxc&list=PLNvbguf8aVrykSSVMaIyB5YiUsczeTyt5
+
+
+Цей список відтворення містить детальний опис процесу проектування, виготовлення та створення прошивки для цього проекту з чистого листка.
+
+
+
 # Schematic
 
 ![Model's Heart Schematic](img/schematic.png)
