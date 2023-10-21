@@ -148,6 +148,17 @@
           ]
         }
       ]
+    },
+    {
+      "cmd": "ignition",
+      "type": "tougle",
+      "actions": [
+        {
+          "type": "motor",
+          "speed": "motor_x",
+          "weight": "80000"
+        }
+      ]
     }
   ]
 }

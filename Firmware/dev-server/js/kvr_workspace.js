@@ -528,6 +528,7 @@ var ComponentFrame = (function () {
             this.sizeDot.classList.remove("current");
         this.sizeDot = null;
         this.div.style.zIndex = "0";
+        this.ApplyDimentionsToElement();
     };
     ComponentFrame.prototype.onTouchStart = function (event, sizeDot) {
         this.pressed = true;
@@ -637,6 +638,15 @@ var ComponentFrame = (function () {
         }
         this.ApplySizeToFrame(newSize.x, newSize.y);
         this.ApplyOffsetToFrame(newPos.x, newPos.y);
+    };
+    ComponentFrame.prototype.ApplyDimentionsToElement = function () {
+        var dpi = this.Workspace.getPixelPerVW();
+        var pos = new Point(this.div.offsetLeft / dpi.x, this.div.offsetTop / dpi.y);
+        var sz = new Point(this.div.offsetWidth / dpi.x, this.div.offsetHeight / dpi.y);
+        this.element.style.left = "".concat(pos.x, "vw");
+        this.element.style.top = "".concat(pos.y, "vw");
+        this.element.style.width = "".concat(sz.x, "vw");
+        this.element.style.height = "".concat(sz.y, "vw");
     };
     ComponentFrame.positionsTypes = [
         PositionsTypes.top,

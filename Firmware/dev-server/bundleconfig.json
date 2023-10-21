@@ -159,6 +159,18 @@
     "sourceMap": false
   },
 
+  {
+    "outputFileName": "design.min.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "design.html"
+    ],
+    // Optionally specify minification options
+    "minify": {
+      "enabled": true
+    },
+    "sourceMap": false
+  },
 
   /* 
     **********************************
@@ -308,7 +320,18 @@
       "enabled": false
     },
     "sourceMap": false
+  },
+  {
+    "outputFileName": "data/design.html",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "design.min.html"
+    ],
+    // Optionally specify minification options
+    "minify": {
+      "enabled": false
+    },
+    "sourceMap": false
   }
-
 
 ]

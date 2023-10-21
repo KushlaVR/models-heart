@@ -1,23 +1,31 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+var Dictionary = (function () {
+    function Dictionary(init) {
+        if (init) {
+            for (var x = 0; x < init.length; x++) {
+                this[init[x].key] = init[x].value;
+            }
+        }
+    }
+    return Dictionary;
+}());
+var Point = (function () {
+    function Point(x, y) {
+        this.x = 0;
+        this.y = 0;
+        if (x)
+            this.x = x;
+        if (y)
+            this.y = y;
+    }
+    return Point;
+}());
+;
 var WorkSpace = (function () {
     function WorkSpace(form) {
         var _this = this;
         this.inputs = new Array();
         this.outputs = new Array();
+        this.frames = new Array();
         this.values = new Dictionary();
         this.sent = new Dictionary();
         this.tranCount = 0;
@@ -25,9 +33,12 @@ var WorkSpace = (function () {
         this.reportInterval = 100;
         this.readonlyFields = new Array();
         this.tran = 0;
+        this.gridSize = new Point();
         this._readyToSend = true;
         this.form = form;
         window.addEventListener('resize', function (event) { return _this.UpdateLayout(); }, false);
+        console.log("=== ***  Model's Heart  *** ===");
+        console.log("===   kushlavr@gmail.com    ===");
     }
     WorkSpace.init = function (form) {
         var workSpace = new WorkSpace((form[0]));
@@ -39,6 +50,7 @@ var WorkSpace = (function () {
         var workSpace = new WorkSpace((form[0]));
         $.get(elementSource)
             .done(function (data) {
+            workSpace.setupBg(data.bg);
             for (var el in data.elements) {
                 workSpace.createElement(data.elements[el]);
             }
@@ -54,6 +66,8 @@ var WorkSpace = (function () {
         var workSpace = new WorkSpace((form[0]));
         $.get(elementSource)
             .done(function (data) {
+            workSpace.setupBg(data.bg);
+            workSpace.createGrid(100, 45);
             for (var el in data.elements) {
                 workSpace.createElement(data.elements[el]);
             }
@@ -62,6 +76,28 @@ var WorkSpace = (function () {
             .fail(function () {
             console.log("error");
         });
+    };
+    WorkSpace.prototype.setupBg = function (bgUrl) {
+        this.form.style.backgroundImage = bgUrl;
+        this.form.style.backgroundSize = "cover";
+    };
+    WorkSpace.prototype.createGrid = function (w, h) {
+        this.gridSize.x = w;
+        this.gridSize.y = h;
+        var div = document.createElement("div");
+        div.style.position = "absolute";
+        div.style.left = "0";
+        div.style.top = "0";
+        div.style.width = "".concat(w, "vw");
+        div.style.height = "".concat(h, "vw");
+        div.style.background = "conic-gradient(from 90deg at 0.05vw 0.05vw, rgba(0, 0, 0, 0) 90deg, rgba(1,1,1,0.1) 0deg) 0px 0px / 1vw 1vw";
+        this.form.appendChild(div);
+    };
+    WorkSpace.prototype.getPixelPerVW = function () {
+        var ret = new Point();
+        ret.x = this.form.clientWidth / this.gridSize.x;
+        ret.y = this.form.clientHeight / this.gridSize.y;
+        return ret;
     };
     WorkSpace.prototype.createElement = function (el) {
         if (el.type == "text") {
@@ -273,6 +309,9 @@ var WorkSpace = (function () {
         for (var o = 0; o < this.outputs.length; o++) {
             this.outputs[o].initLayout();
         }
+        for (var o = 0; o < this.frames.length; o++) {
+            this.frames[o].UpdateLayout();
+        }
     };
     WorkSpace.prototype.registerInputs = function () {
         var _this = this;
@@ -337,6 +376,8 @@ var WorkSpace = (function () {
         }
     };
     WorkSpace.prototype.addConponentFrame = function (frame) {
+        frame.Workspace = this;
+        this.frames.push(frame);
     };
     WorkSpace.prototype.createConmponentsFrames = function () {
         var _this = this;
@@ -348,23 +389,6 @@ var WorkSpace = (function () {
         });
     };
     return WorkSpace;
-}());
-var Dictionary = (function () {
-    function Dictionary(init) {
-        if (init) {
-            for (var x = 0; x < init.length; x++) {
-                this[init[x].key] = init[x].value;
-            }
-        }
-    }
-    return Dictionary;
-}());
-var Point = (function () {
-    function Point() {
-        this.x = 0;
-        this.y = 0;
-    }
-    return Point;
 }());
 var Input = (function () {
     function Input(element) {
@@ -388,8 +412,395 @@ var Input = (function () {
         }
     };
     Input.prototype.initLayout = function () {
+        console.log("Input.Init layout");
     };
     return Input;
+}());
+var PositionsTypes;
+(function (PositionsTypes) {
+    PositionsTypes["top"] = "top";
+    PositionsTypes["bottom"] = "bottom";
+    PositionsTypes["left"] = "left";
+    PositionsTypes["right"] = "right";
+    PositionsTypes["top_left"] = "top-left";
+    PositionsTypes["top_right"] = "top-right";
+    PositionsTypes["bottom_left"] = "bottom-left";
+    PositionsTypes["bottom_right"] = "bottom-right";
+})(PositionsTypes || (PositionsTypes = {}));
+var ComponentFrame = (function () {
+    function ComponentFrame(element) {
+        var _this = this;
+        this.dots = new Array();
+        this.pressed = false;
+        this.sizeDot = null;
+        this.startSize = new Point();
+        this.startPos = new Point();
+        this.cursorStart = new Point();
+        this.cursorCurrent = new Point();
+        this.snapSize_vw = new Point(0.5, 0.5);
+        this.snapSize_px = new Point();
+        this.frameMinimumSize_px = new Point();
+        this.frameMinimumSize_vw = new Point(3, 3);
+        this.element = element;
+        var div = document.createElement("DIV");
+        div.classList.add("component-frame");
+        var _loop_1 = function (i) {
+            var sizeDot = document.createElement("DIV");
+            sizeDot.classList.add("size-dot");
+            sizeDot.classList.add(ComponentFrame.positionsTypes[i]);
+            if ("ontouchstart" in document.documentElement) {
+                sizeDot.addEventListener('touchstart', function (event) { return _this.onTouchStart(event, sizeDot); }, false);
+                sizeDot.addEventListener('touchmove', function (event) { return _this.onTouchMove(event, sizeDot); }, false);
+                sizeDot.addEventListener('touchend', function (event) { return _this.onTouchEnd(event, sizeDot); }, false);
+            }
+            else {
+                sizeDot.addEventListener('mousedown', function (event) { return _this.onMouseDown(event, sizeDot); }, false);
+                sizeDot.addEventListener('mousemove', function (event) { return _this.onMouseMove(event, sizeDot); }, false);
+                sizeDot.addEventListener('mouseup', function (event) { return _this.onMouseUp(event, sizeDot); }, false);
+            }
+            this_1.dots.push(sizeDot);
+            div.appendChild(sizeDot);
+        };
+        var this_1 = this;
+        for (var i = 0; i < 8; i++) {
+            _loop_1(i);
+        }
+        this.moveDiv = document.createElement("DIV");
+        this.moveDiv.classList.add("move-dot");
+        if ("ontouchstart" in document.documentElement) {
+            this.moveDiv.addEventListener('touchstart', function (event) { return _this.onTouchStart(event, null); }, false);
+            this.moveDiv.addEventListener('touchmove', function (event) { return _this.onTouchMove(event, null); }, false);
+            this.moveDiv.addEventListener('touchend', function (event) { return _this.onTouchEnd(event, null); }, false);
+        }
+        else {
+            this.moveDiv.addEventListener('mousedown', function (event) { return _this.onMouseDown(event, null); }, false);
+            this.moveDiv.addEventListener('mousemove', function (event) { return _this.onMouseMove(event, null); }, false);
+            this.moveDiv.addEventListener('mouseup', function (event) { return _this.onMouseUp(event, null); }, false);
+        }
+        div.appendChild(this.moveDiv);
+        this.div = div;
+        this.ApplySizeToFrame(this.element.clientWidth, this.element.clientHeight);
+        this.ApplyOffsetToFrame(this.element.offsetLeft, this.element.offsetTop);
+        this.element.parentElement.appendChild(div);
+    }
+    ComponentFrame.prototype.UpdateLayout = function () {
+        this.ApplySizeToFrame(this.element.clientWidth, this.element.clientHeight);
+        this.ApplyOffsetToFrame(this.element.offsetLeft, this.element.offsetTop);
+    };
+    ComponentFrame.prototype.CalulateMinimumFrmaeSize = function () {
+        if (this.dots.length > 0) {
+            var dpi = this.Workspace.getPixelPerVW();
+            this.frameMinimumSize_px.x = dpi.x * this.frameMinimumSize_vw.x;
+            this.frameMinimumSize_px.y = dpi.y * this.frameMinimumSize_vw.y;
+        }
+    };
+    ComponentFrame.prototype.CalculateSnapSize = function () {
+        if (this.dots.length > 0) {
+            var dpi = this.Workspace.getPixelPerVW();
+            this.snapSize_px.x = dpi.x * this.snapSize_vw.x;
+            this.snapSize_px.y = dpi.y * this.snapSize_vw.y;
+        }
+    };
+    ComponentFrame.prototype.ApplyOffsetToFrame = function (x, y) {
+        this.div.style.left = "".concat(x, "px");
+        this.div.style.top = "".concat(y, "px");
+    };
+    ComponentFrame.prototype.ApplySizeToFrame = function (w, h) {
+        this.div.style.width = "".concat(w, "px");
+        this.div.style.height = "".concat(h, "px");
+    };
+    ComponentFrame.prototype.beginEdit = function () {
+        console.log("beginEdit");
+        this.CalulateMinimumFrmaeSize();
+        this.CalculateSnapSize();
+        if (this.sizeDot == null)
+            this.moveDiv.classList.add("current");
+        else
+            this.sizeDot.classList.add("current");
+        this.startPos = this.snapPoint(new Point(this.div.offsetLeft, this.div.offsetTop));
+        this.startSize = this.snapPoint(new Point(this.div.clientWidth, this.div.clientHeight));
+        this.div.style.zIndex = "100";
+    };
+    ComponentFrame.prototype.endEdit = function () {
+        if (this.sizeDot == null)
+            this.moveDiv.classList.remove("current");
+        else
+            this.sizeDot.classList.remove("current");
+        this.sizeDot = null;
+        this.div.style.zIndex = "0";
+    };
+    ComponentFrame.prototype.onTouchStart = function (event, sizeDot) {
+        this.pressed = true;
+        this.sizeDot = sizeDot;
+        this.beginEdit();
+        this.cursorStart = this.snapPoint(Slider.pointFromTouch(this.div, event.targetTouches[0]));
+    };
+    ComponentFrame.prototype.onTouchMove = function (event, sizeDot) {
+        event.preventDefault();
+        if (this.pressed === true) {
+            this.cursorCurrent = this.snapPoint(Slider.pointFromTouch(this.div, event.targetTouches[0]));
+            this.ResizeFrame();
+        }
+    };
+    ComponentFrame.prototype.onTouchEnd = function (event, sizeDot) {
+        this.pressed = false;
+        this.endEdit();
+    };
+    ComponentFrame.prototype.onMouseDown = function (event, sizeDot) {
+        this.pressed = true;
+        this.sizeDot = sizeDot;
+        this.beginEdit();
+        this.cursorStart = this.snapPoint(Slider.pointFromMouseEvent(this.div, event));
+        event.preventDefault();
+    };
+    ComponentFrame.prototype.onMouseMove = function (event, sizeDot) {
+        if (this.pressed === true) {
+            this.cursorCurrent = this.snapPoint(Slider.pointFromMouseEvent(this.div, event));
+            this.ResizeFrame();
+            event.preventDefault();
+        }
+    };
+    ComponentFrame.prototype.onMouseUp = function (event, sizeDot) {
+        event.preventDefault();
+        this.pressed = false;
+        this.endEdit();
+    };
+    ComponentFrame.prototype.snapPoint = function (pt) {
+        var ret = new Point();
+        ret.x = Math.round(pt.x / this.snapSize_px.x) * this.snapSize_px.x;
+        ret.y = Math.round(pt.y / this.snapSize_px.y) * this.snapSize_px.y;
+        return ret;
+    };
+    ComponentFrame.prototype.ResizeFrame = function () {
+        if (this.pressed != true)
+            return;
+        var delta = new Point();
+        delta.x = this.cursorCurrent.x - this.cursorStart.x;
+        delta.y = this.cursorCurrent.y - this.cursorStart.y;
+        var newPos = new Point();
+        newPos.x = this.startPos.x;
+        newPos.y = this.startPos.y;
+        var newSize = new Point();
+        newSize.x = this.startSize.x;
+        newSize.y = this.startSize.y;
+        if (this.sizeDot == null) {
+            this.startPos.x += delta.x;
+            newPos.x += delta.x;
+            this.startPos.y += delta.y;
+            newPos.y += delta.y;
+        }
+        else {
+            if (this.sizeDot.classList.contains(PositionsTypes.top)
+                || this.sizeDot.classList.contains(PositionsTypes.top_left)
+                || this.sizeDot.classList.contains(PositionsTypes.top_right)) {
+                this.startPos.y += delta.y;
+                this.startSize.y -= delta.y;
+                newPos.y += delta.y;
+                newSize.y += -delta.y;
+                if (newSize.y < this.frameMinimumSize_px.y) {
+                    var i = this.frameMinimumSize_px.y - newSize.y;
+                    this.startPos.y -= i;
+                    this.startSize.y += i;
+                    newPos.y -= i;
+                    newSize.y += i;
+                }
+            }
+            if (this.sizeDot.classList.contains(PositionsTypes.bottom)
+                || this.sizeDot.classList.contains(PositionsTypes.bottom_left)
+                || this.sizeDot.classList.contains(PositionsTypes.bottom_right)) {
+                newSize.y += delta.y;
+            }
+            if (this.sizeDot.classList.contains(PositionsTypes.left)
+                || this.sizeDot.classList.contains(PositionsTypes.top_left)
+                || this.sizeDot.classList.contains(PositionsTypes.bottom_left)) {
+                this.startPos.x += delta.x;
+                this.startSize.x -= delta.x;
+                newPos.x += delta.x;
+                newSize.x += -delta.x;
+                if (newSize.x < this.frameMinimumSize_px.x) {
+                    var i = this.frameMinimumSize_px.x - newSize.x;
+                    this.startPos.x -= i;
+                    this.startSize.x += i;
+                    newPos.x -= i;
+                    newSize.x += i;
+                }
+            }
+            if (this.sizeDot.classList.contains(PositionsTypes.right)
+                || this.sizeDot.classList.contains(PositionsTypes.top_right)
+                || this.sizeDot.classList.contains(PositionsTypes.bottom_right)) {
+                newSize.x += delta.x;
+            }
+            if (newSize.x < this.frameMinimumSize_px.x)
+                newSize.x = this.frameMinimumSize_px.x;
+            if (newSize.y < this.frameMinimumSize_px.y)
+                newSize.y = this.frameMinimumSize_px.y;
+        }
+        this.ApplySizeToFrame(newSize.x, newSize.y);
+        this.ApplyOffsetToFrame(newPos.x, newPos.y);
+    };
+    ComponentFrame.positionsTypes = [
+        PositionsTypes.top,
+        PositionsTypes.bottom,
+        PositionsTypes.left,
+        PositionsTypes.right,
+        PositionsTypes.top_left,
+        PositionsTypes.top_right,
+        PositionsTypes.bottom_left,
+        PositionsTypes.bottom_right
+    ];
+    return ComponentFrame;
+}());
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var Button = (function (_super) {
+    __extends(Button, _super);
+    function Button(element) {
+        var _this = _super.call(this, element) || this;
+        _this.audio = null;
+        var sound = _this.jElement.data("sound");
+        if (sound) {
+            _this.audio = new Audio(sound);
+            _this.audio.load();
+        }
+        _this.sound_duration = _this.jElement.data("sound-duration");
+        if ("ontouchstart" in document.documentElement) {
+            _this.element.addEventListener('touchstart', function (event) { return _this.onTouchStart(event); }, false);
+            _this.element.addEventListener('touchend', function (event) { return _this.onTouchEnd(event); }, false);
+        }
+        else {
+            _this.element.addEventListener('mousedown', function (event) { return _this.onMouseDown(event); }, false);
+            _this.element.addEventListener('mouseup', function (event) { return _this.onMouseUp(event); }, false);
+        }
+        return _this;
+    }
+    Button.prototype.onTouchStart = function (event) {
+        this.pressed = true;
+        this.saveValue();
+        this.Activate();
+        this.playSound();
+        event.preventDefault();
+    };
+    Button.prototype.onTouchEnd = function (event) {
+        this.pressed = false;
+        this.saveValue();
+        event.preventDefault();
+    };
+    Button.prototype.onMouseDown = function (event) {
+        this.pressed = true;
+        this.saveValue();
+        this.Activate();
+        this.playSound();
+        event.preventDefault();
+    };
+    Button.prototype.onMouseUp = function (event) {
+        this.pressed = false;
+        this.saveValue();
+        event.preventDefault();
+    };
+    Button.prototype.Activate = function () {
+        var _this = this;
+        this.jElement.addClass("active");
+        setTimeout(function () { _this.jElement.removeClass("active"); }, 200);
+    };
+    Button.prototype.playSound = function () {
+        var _this = this;
+        if (this.audio == null)
+            return;
+        if (!this.audio.paused)
+            return;
+        this.audio.currentTime = 0;
+        var playPromise = this.audio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(function (_) {
+                setTimeout(function () { _this.audio.pause(); }, _this.sound_duration);
+            });
+        }
+    };
+    Button.prototype.saveValue = function () {
+        if (!this.workSpace)
+            return;
+        this.workSpace.beginTransaction();
+        var key = this.name;
+        if (this.pressed) {
+            this.workSpace.values[key] = "1";
+        }
+        else {
+            this.workSpace.values[key] = "0";
+        }
+        this.workSpace.endTransaction();
+    };
+    return Button;
+}(Input));
+var Output = (function () {
+    function Output(element) {
+        this.audio = null;
+        this.element = element;
+        this.jElement = $(element);
+        this.name = this.jElement.data("input");
+        var sound = this.jElement.data("sound");
+        if (sound) {
+            this.audio = new Audio(sound);
+            this.audio.load();
+            this.sound_duration = this.jElement.data("sound-duration");
+        }
+    }
+    Output.prototype.loadValue = function () {
+        if (!(this.workSpace.values[this.name] == undefined)) {
+            var newValue = this.workSpace.values[this.name];
+            if (this.element.tagName.toUpperCase() == "INPUT") {
+                this.jElement.val(newValue);
+            }
+            if (this.element.tagName.toUpperCase() == "IMG") {
+                if (newValue == "0") {
+                    this.jElement.addClass("hidden");
+                }
+                else {
+                    this.jElement.removeClass("hidden");
+                }
+            }
+            if (this.element.classList.contains("progress-bar")) {
+                this.jElement.width((newValue) + "%");
+            }
+            else {
+                this.jElement.text(newValue);
+            }
+            if (this.value == "0" && !(newValue == "0")) {
+                this.playSound();
+            }
+            ;
+            this.value = newValue;
+        }
+    };
+    Output.prototype.initLayout = function () {
+    };
+    Output.prototype.playSound = function () {
+        var _this = this;
+        if (this.audio == null)
+            return;
+        if (!this.audio.paused)
+            return;
+        this.audio.currentTime = 0;
+        var playPromise = this.audio.play();
+        if (playPromise !== undefined && this.sound_duration !== undefined) {
+            playPromise.then(function (_) {
+                setTimeout(function () { _this.audio.pause(); }, _this.sound_duration);
+            });
+        }
+    };
+    return Output;
 }());
 var Slider = (function (_super) {
     __extends(Slider, _super);
@@ -425,6 +836,7 @@ var Slider = (function (_super) {
             _this.autoCenterX = true;
         }
         else if ($(element).data("center-y")) {
+            _this.autoCenterY = true;
             _this.autoCenterY = true;
         }
         _this.refreshLayout(true);
@@ -602,148 +1014,3 @@ var Slider = (function (_super) {
     };
     return Slider;
 }(Input));
-var Button = (function (_super) {
-    __extends(Button, _super);
-    function Button(element) {
-        var _this = _super.call(this, element) || this;
-        _this.audio = null;
-        var sound = _this.jElement.data("sound");
-        if (sound) {
-            _this.audio = new Audio(sound);
-            _this.audio.load();
-        }
-        _this.sound_duration = _this.jElement.data("sound-duration");
-        if ("ontouchstart" in document.documentElement) {
-            _this.element.addEventListener('touchstart', function (event) { return _this.onTouchStart(event); }, false);
-            _this.element.addEventListener('touchend', function (event) { return _this.onTouchEnd(event); }, false);
-        }
-        else {
-            _this.element.addEventListener('mousedown', function (event) { return _this.onMouseDown(event); }, false);
-            _this.element.addEventListener('mouseup', function (event) { return _this.onMouseUp(event); }, false);
-        }
-        return _this;
-    }
-    Button.prototype.onTouchStart = function (event) {
-        this.pressed = true;
-        this.saveValue();
-        this.Activate();
-        this.playSound();
-        event.preventDefault();
-    };
-    Button.prototype.onTouchEnd = function (event) {
-        this.pressed = false;
-        this.saveValue();
-        event.preventDefault();
-    };
-    Button.prototype.onMouseDown = function (event) {
-        this.pressed = true;
-        this.saveValue();
-        this.Activate();
-        this.playSound();
-        event.preventDefault();
-    };
-    Button.prototype.onMouseUp = function (event) {
-        this.pressed = false;
-        this.saveValue();
-        event.preventDefault();
-    };
-    Button.prototype.Activate = function () {
-        var _this = this;
-        this.jElement.addClass("active");
-        setTimeout(function () { _this.jElement.removeClass("active"); }, 200);
-    };
-    Button.prototype.playSound = function () {
-        var _this = this;
-        if (this.audio == null)
-            return;
-        if (!this.audio.paused)
-            return;
-        this.audio.currentTime = 0;
-        var playPromise = this.audio.play();
-        if (playPromise !== undefined) {
-            playPromise.then(function (_) {
-                setTimeout(function () { _this.audio.pause(); }, _this.sound_duration);
-            });
-        }
-    };
-    Button.prototype.saveValue = function () {
-        if (!this.workSpace)
-            return;
-        this.workSpace.beginTransaction();
-        var key = this.name;
-        if (this.pressed) {
-            this.workSpace.values[key] = "1";
-        }
-        else {
-            this.workSpace.values[key] = "0";
-        }
-        this.workSpace.endTransaction();
-    };
-    return Button;
-}(Input));
-var Output = (function () {
-    function Output(element) {
-        this.audio = null;
-        this.element = element;
-        this.jElement = $(element);
-        this.name = this.jElement.data("input");
-        var sound = this.jElement.data("sound");
-        if (sound) {
-            this.audio = new Audio(sound);
-            this.audio.load();
-            this.sound_duration = this.jElement.data("sound-duration");
-        }
-    }
-    Output.prototype.loadValue = function () {
-        if (!(this.workSpace.values[this.name] == undefined)) {
-            var newValue = this.workSpace.values[this.name];
-            if (this.element.tagName.toUpperCase() == "INPUT") {
-                this.jElement.val(newValue);
-            }
-            if (this.element.tagName.toUpperCase() == "IMG") {
-                if (newValue == "0") {
-                    this.jElement.addClass("hidden");
-                }
-                else {
-                    this.jElement.removeClass("hidden");
-                }
-            }
-            if (this.element.classList.contains("progress-bar")) {
-                this.jElement.width((newValue) + "%");
-            }
-            else {
-                this.jElement.text(newValue);
-            }
-            if (this.value == "0" && !(newValue == "0")) {
-                this.playSound();
-            }
-            ;
-            this.value = newValue;
-        }
-    };
-    Output.prototype.initLayout = function () {
-    };
-    Output.prototype.playSound = function () {
-        var _this = this;
-        if (this.audio == null)
-            return;
-        if (!this.audio.paused)
-            return;
-        this.audio.currentTime = 0;
-        var playPromise = this.audio.play();
-        if (playPromise !== undefined && this.sound_duration !== undefined) {
-            playPromise.then(function (_) {
-                setTimeout(function () { _this.audio.pause(); }, _this.sound_duration);
-            });
-        }
-    };
-    return Output;
-}());
-var ComponentFrame = (function () {
-    function ComponentFrame(element) {
-        this.element = element;
-        var div = document.createElement("DIV");
-    }
-    return ComponentFrame;
-}());
-//# sourceMappingURL=kvr_workspace.js.map

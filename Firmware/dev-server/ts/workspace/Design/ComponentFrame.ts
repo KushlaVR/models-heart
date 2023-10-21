@@ -141,6 +141,7 @@ class ComponentFrame {
             this.sizeDot.classList.remove("current");
         this.sizeDot = null;
         this.div.style.zIndex = "0";
+        this.ApplyDimentionsToElement();
     }
 
     private onTouchStart(event, sizeDot: HTMLElement): void {
@@ -268,5 +269,17 @@ class ComponentFrame {
         //console.log(newPos);
         this.ApplySizeToFrame(newSize.x, newSize.y);
         this.ApplyOffsetToFrame(newPos.x, newPos.y);
+    }
+
+    private ApplyDimentionsToElement(): void {
+        let dpi = this.Workspace.getPixelPerVW();
+        let pos = new Point(this.div.offsetLeft / dpi.x, this.div.offsetTop / dpi.y);
+        let sz = new Point(this.div.offsetWidth / dpi.x, this.div.offsetHeight / dpi.y);
+
+        this.element.style.left = `${pos.x}vw`;
+        this.element.style.top = `${pos.y}vw`;
+        this.element.style.width = `${sz.x}vw`;
+        this.element.style.height = `${sz.y}vw`;
+
     }
 }
