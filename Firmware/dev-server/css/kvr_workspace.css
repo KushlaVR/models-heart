@@ -1,7 +1,7 @@
 ﻿.slider {
     display: block;
     position: absolute;
-    border: 0.5vw solid transparent;
+    border: 0 solid transparent;
 }
 
     .slider::after {
@@ -86,10 +86,12 @@
 .component-frame {
     position: absolute;
     display: block;
-    background-color: #FF0000AC;
 }
 
     .component-frame .size-dot {
+    }
+
+    .component-frame.current .size-dot {
         width: 1vw;
         height: 1vw;
         position: absolute;
@@ -99,7 +101,7 @@
         border-color: white;
     }
 
-        .component-frame .size-dot.left {
+        .component-frame.current .size-dot.left {
             margin: auto;
             left: -1vw;
             right: auto;
@@ -108,7 +110,7 @@
             cursor: ew-resize;
         }
 
-        .component-frame .size-dot.right {
+        .component-frame.current .size-dot.right {
             margin: auto;
             left: auto;
             right: -1vw;
@@ -117,7 +119,7 @@
             cursor: ew-resize;
         }
 
-        .component-frame .size-dot.top {
+        .component-frame.current .size-dot.top {
             margin: auto;
             left: 0;
             right: 0;
@@ -126,7 +128,7 @@
             cursor: ns-resize;
         }
 
-        .component-frame .size-dot.bottom {
+        .component-frame.current .size-dot.bottom {
             margin: auto;
             left: 0;
             right: 0;
@@ -135,7 +137,7 @@
             cursor: ns-resize;
         }
 
-        .component-frame .size-dot.top-left {
+        .component-frame.current .size-dot.top-left {
             margin: auto;
             left: -1vw;
             right: auto;
@@ -144,7 +146,7 @@
             cursor: nwse-resize;
         }
 
-        .component-frame .size-dot.top-right {
+        .component-frame.current .size-dot.top-right {
             margin: auto;
             left: auto;
             right: -1vw;
@@ -153,7 +155,7 @@
             cursor: nesw-resize;
         }
 
-        .component-frame .size-dot.bottom-left {
+        .component-frame.current .size-dot.bottom-left {
             margin: auto;
             left: -1vw;
             right: auto;
@@ -162,24 +164,13 @@
             cursor: nesw-resize;
         }
 
-        .component-frame .size-dot.bottom-right {
+        .component-frame.current .size-dot.bottom-right {
             margin: auto;
             left: auto;
             right: -1vw;
             top: auto;
             bottom: -1vw;
             cursor: nwse-resize;
-        }
-
-        .component-frame .size-dot.current::after {
-            content: "";
-            display: block;
-            width: 200vw;
-            height: 200vw;
-            margin-left: -100vw;
-            margin-top: -100vw;
-            background: black;
-            opacity: 0.1;
         }
 
     .component-frame .move-dot {
@@ -190,15 +181,28 @@
         top: 0;
         bottom: 0;
         cursor: move;
+        transition: background-color 500ms linear;
     }
 
-        .component-frame .move-dot.current::after {
+        .component-frame .move-dot:hover {
+            background-color: #ffffff63;
+            transition: background-color 500ms linear;
+        }
+
+    .component-frame.current .move-dot {
+        border-block-color: black;
+        border-width: 1px;
+        border-style: solid;
+    }
+
+        .component-frame.current .size-dot.current::after,
+        .component-frame.current .move-dot.current::after {
             content: "";
             display: block;
-            width: 200vw;
-            height: 200vw;
-            margin-left: -100vw;
-            margin-top: -100vw;
+            width: 400vw;
+            height: 400vw;
+            margin-left: -200vw;
+            margin-top: -200vw;
             background: black;
             opacity: 0.1;
         }

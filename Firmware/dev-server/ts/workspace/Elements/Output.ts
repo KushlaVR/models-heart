@@ -12,7 +12,7 @@ class Output {
         this.element = element;
         this.jElement = $(element);
         this.name = this.jElement.data("input");
-
+        console.log(this.name);
         let sound: string = this.jElement.data("sound");
         if (sound) {
             this.audio = new Audio(sound);
@@ -24,6 +24,7 @@ class Output {
     }
 
     loadValue(): void {
+        if (this.name === undefined) return;
         if (!(this.workSpace.values[this.name] == undefined)) {
             let newValue = this.workSpace.values[this.name];
             if (this.element.tagName.toUpperCase() == "INPUT") {
@@ -34,8 +35,8 @@ class Output {
                 } else {
                     this.jElement.removeClass("hidden")
                 }
-            } if (this.element.classList.contains("progress-bar")) {
-                this.jElement.width(<string>(newValue) + "%");
+            } if (this.element.classList.contains("progress")) {
+                $(".progress-bar", this.jElement).width(<string>(newValue) + "%");
             }
             else {
                 this.jElement.text(newValue);

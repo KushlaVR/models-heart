@@ -7,4 +7,11 @@ class Point {
 
     x: number = 0;
     y: number = 0;
+
+    public Round(grid: Point): Point {
+        let ret = new Point();
+        ret.x = Math.round(this.x / grid.x) * grid.x;
+        ret.y = Math.round(this.y / grid.y) * grid.y;
+        return ret;
+    }
 };

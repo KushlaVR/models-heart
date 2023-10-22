@@ -13,6 +13,7 @@ using System.Web;
 using System.Web.Mvc;
 using WebGrease.Extensions;
 using WebUI.Models;
+using WebUI.Models.Config;
 
 namespace WebUI.Controllers
 {
@@ -200,8 +201,9 @@ namespace WebUI.Controllers
 
         private static void Inif_FS(HttpServerUtilityBase server)
         {
+            config = null;
             LittleFS = new LittleFSFile() { Path = "/", Name = "", dir = true };
-            string baseDir = server.MapPath("~/");
+            string baseDir = server.MapPath("~/App_Data/");
             LittleFS.files = InitDir(server, baseDir);
         }
 
@@ -224,13 +226,32 @@ namespace WebUI.Controllers
         [ActionName("dir")]
         public ActionResult dir_Post(string path)
         {
-            return new ContentResult() { ContentType = "application/json", Content = "OK" };
+            if (Request.Files.Count > 0)
+            {
+                HttpPostedFileBase postedFile = Request.Files["file"];
+                string filePath = Server.MapPath("~/App_Data" + path);
+                if (!Directory.Exists(filePath))
+                {
+                    Directory.CreateDirectory(filePath);
+                }
+                postedFile.SaveAs(filePath + Path.GetFileName(postedFile.FileName));
+                Inif_FS(Server);
+                return new ContentResult() { ContentType = "application/json", Content = "OK" };
+            }
+            return new ContentResult() { ContentType = "application/json", Content = "no file" };
+
         }
 
         [HttpDelete]
         [ActionName("dir")]
         public ActionResult dir_Delete(string path)
         {
+            string filePath = Server.MapPath("~/App_Data" + path);
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+                Inif_FS(Server);
+            }
             return new ContentResult() { ContentType = "application/json", Content = "OK" };
         }
     }

@@ -151,6 +151,9 @@
       <DependentUpon>Pipe.ashx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <TypeScriptCompile Include="ts\workspace\Elements\PropertyEditor.ts" />
+    <TypeScriptCompile Include="ts\workspace\Interfaces\ProgressConfig.ts" />
+    <TypeScriptCompile Include="ts\workspace\Interfaces\HTMLElementWithConfig.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\html\index.html" />
@@ -580,15 +583,18 @@
     <Content Include="Scripts\jquery-3.5.0.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="ts\workspace\Design\BaseConfig.ts" />
-    <TypeScriptCompile Include="ts\workspace\Design\ButtonConfig.ts" />
-    <TypeScriptCompile Include="ts\workspace\Design\ComponentFrame.ts" />
-    <TypeScriptCompile Include="ts\workspace\Design\SliderConfig.ts" />
-    <TypeScriptCompile Include="ts\workspace\Design\TextConfig.ts" />
+    <TypeScriptCompile Include="ts\workspace\Interfaces\BaseConfig.ts" />
+    <TypeScriptCompile Include="ts\workspace\Interfaces\ButtonConfig.ts" />
+    <TypeScriptCompile Include="ts\workspace\Elements\ComponentFrame.ts" />
+    <TypeScriptCompile Include="ts\workspace\Interfaces\ImageConfig.ts" />
+    <TypeScriptCompile Include="ts\workspace\Interfaces\Property.ts" />
+    <TypeScriptCompile Include="ts\workspace\Interfaces\SliderConfig.ts" />
+    <TypeScriptCompile Include="ts\workspace\Interfaces\TextConfig.ts" />
     <TypeScriptCompile Include="ts\workspace\Elements\Button.ts" />
     <TypeScriptCompile Include="ts\workspace\Dictionary.ts" />
     <TypeScriptCompile Include="ts\setup\kvr_setup.ts" />
     <TypeScriptCompile Include="ts\workspace\Elements\Output.ts" />
+    <TypeScriptCompile Include="ts\workspace\Services\Utils.ts" />
     <TypeScriptCompile Include="ts\workspace\Workspace.ts" />
     <TypeScriptCompile Include="ts\workspace\Point.ts" />
     <TypeScriptCompile Include="ts\workspace\Elements\Slider.ts" />

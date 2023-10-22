@@ -8,12 +8,13 @@ namespace WebUI.Models.Config
     public class UIElement
     {
         public string type {  get; set; }
-        public int? x { get; set; }
-        public int? y { get; set; }
-        public int? w { get; set; }
-        public int? h { get; set; }
+        public decimal? x { get; set; }
+        public decimal? y { get; set; }
+        public decimal? w { get; set; }
+        public decimal? h { get; set; }
         public string text { get; set; }
         public string cmd { get; set; }
+        public string src { get; set; }
         public string autocenter { get; set; }
 
     }

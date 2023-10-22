@@ -25,10 +25,10 @@ class ComponentFrame {
         PositionsTypes.bottom_right
     ];
 
-    private div: HTMLElement;
     private moveDiv: HTMLElement;
-    private element: HTMLElement;
-    Workspace: WorkSpace;
+    public element: HTMLElement;
+    public frameDiv: HTMLElement;
+    public Workspace: WorkSpace;
     private dots: Array<HTMLElement> = new Array<HTMLElement>();
 
     constructor(element: HTMLElement) {
@@ -71,16 +71,16 @@ class ComponentFrame {
         }
         div.appendChild(this.moveDiv);
 
-        this.div = div;
-        this.ApplySizeToFrame(this.element.clientWidth, this.element.clientHeight);
-        this.ApplyOffsetToFrame(this.element.offsetLeft, this.element.offsetTop);
+        this.frameDiv = div;
+        this.ApplySizeFromElement(this.element.clientWidth, this.element.clientHeight);
+        this.ApplyOffsetFromElement(this.element.offsetLeft, this.element.offsetTop);
 
         this.element.parentElement.appendChild(div);
     }
 
     UpdateLayout(): void {
-        this.ApplySizeToFrame(this.element.clientWidth, this.element.clientHeight);
-        this.ApplyOffsetToFrame(this.element.offsetLeft, this.element.offsetTop);
+        this.ApplySizeFromElement(this.element.clientWidth, this.element.clientHeight);
+        this.ApplyOffsetFromElement(this.element.offsetLeft, this.element.offsetTop);
     }
 
     CalulateMinimumFrmaeSize() {
@@ -100,14 +100,14 @@ class ComponentFrame {
         }
     }
 
-    ApplyOffsetToFrame(x: number, y: number): void {
-        this.div.style.left = `${x}px`;
-        this.div.style.top = `${y}px`;
+    ApplyOffsetFromElement(x: number, y: number): void {
+        this.frameDiv.style.left = `${x}px`;
+        this.frameDiv.style.top = `${y}px`;
     }
 
-    ApplySizeToFrame(w: number, h: number): void {
-        this.div.style.width = `${w}px`;
-        this.div.style.height = `${h}px`;
+    ApplySizeFromElement(w: number, h: number): void {
+        this.frameDiv.style.width = `${w}px`;
+        this.frameDiv.style.height = `${h}px`;
     }
 
     private pressed: boolean = false;
@@ -122,16 +122,16 @@ class ComponentFrame {
     private frameMinimumSize_vw = new Point(3, 3);
 
     private beginEdit() {
-        console.log("beginEdit");
+        //console.log("beginEdit");
         this.CalulateMinimumFrmaeSize();
         this.CalculateSnapSize();
         if (this.sizeDot == null)
             this.moveDiv.classList.add("current");
         else
             this.sizeDot.classList.add("current");
-        this.startPos = this.snapPoint(new Point(this.div.offsetLeft, this.div.offsetTop));
-        this.startSize = this.snapPoint(new Point(this.div.clientWidth, this.div.clientHeight))
-        this.div.style.zIndex = "100";
+        this.startPos = this.snapPoint(new Point(this.frameDiv.offsetLeft, this.frameDiv.offsetTop));
+        this.startSize = this.snapPoint(new Point(this.frameDiv.offsetWidth, this.frameDiv.offsetHeight))
+        this.frameDiv.style.zIndex = "100";
     }
 
     private endEdit() {
@@ -140,7 +140,7 @@ class ComponentFrame {
         else
             this.sizeDot.classList.remove("current");
         this.sizeDot = null;
-        this.div.style.zIndex = "0";
+        this.frameDiv.style.zIndex = "0";
         this.ApplyDimentionsToElement();
     }
 
@@ -148,12 +148,12 @@ class ComponentFrame {
         this.pressed = true;
         this.sizeDot = sizeDot;
         this.beginEdit();
-        this.cursorStart = this.snapPoint(Slider.pointFromTouch(this.div, event.targetTouches[0]));
+        this.cursorStart = this.snapPoint(Slider.pointFromTouch(this.frameDiv, event.targetTouches[0]));
     }
     private onTouchMove(event: TouchEvent, sizeDot: HTMLElement) {
         event.preventDefault();
         if (this.pressed === true) {
-            this.cursorCurrent = this.snapPoint(Slider.pointFromTouch(this.div, event.targetTouches[0]));
+            this.cursorCurrent = this.snapPoint(Slider.pointFromTouch(this.frameDiv, event.targetTouches[0]));
             this.ResizeFrame();
         }
     }
@@ -163,15 +163,16 @@ class ComponentFrame {
     }
 
     private onMouseDown(event, sizeDot: HTMLElement): void {
+        this.Workspace.SetCurrentFrame(this);
         this.pressed = true;
         this.sizeDot = sizeDot;
         this.beginEdit();
-        this.cursorStart = this.snapPoint(Slider.pointFromMouseEvent(this.div, event));
+        this.cursorStart = this.snapPoint(Slider.pointFromMouseEvent(this.frameDiv, event));
         event.preventDefault();
     }
     private onMouseMove(event, sizeDot: HTMLElement): void {
         if (this.pressed === true /*&& event.target === this.element*/) {
-            this.cursorCurrent = this.snapPoint(Slider.pointFromMouseEvent(this.div, event));
+            this.cursorCurrent = this.snapPoint(Slider.pointFromMouseEvent(this.frameDiv, event));
             this.ResizeFrame();
             event.preventDefault();
         }
@@ -180,6 +181,18 @@ class ComponentFrame {
         event.preventDefault();
         this.pressed = false;
         this.endEdit();
+    }
+
+    public Hide() {
+        if (this.frameDiv.classList.contains("current")) {
+            this.frameDiv.classList.remove("current")
+        }
+    }
+
+    public Show() {
+        if (!this.frameDiv.classList.contains("current")) {
+            this.frameDiv.classList.add("current")
+        }
     }
 
     private snapPoint(pt: Point): Point {
@@ -267,19 +280,25 @@ class ComponentFrame {
 
         }
         //console.log(newPos);
-        this.ApplySizeToFrame(newSize.x, newSize.y);
-        this.ApplyOffsetToFrame(newPos.x, newPos.y);
+        this.ApplySizeFromElement(newSize.x, newSize.y);
+        this.ApplyOffsetFromElement(newPos.x, newPos.y);
     }
 
     private ApplyDimentionsToElement(): void {
         let dpi = this.Workspace.getPixelPerVW();
-        let pos = new Point(this.div.offsetLeft / dpi.x, this.div.offsetTop / dpi.y);
-        let sz = new Point(this.div.offsetWidth / dpi.x, this.div.offsetHeight / dpi.y);
+        let pos = (new Point(this.frameDiv.offsetLeft / dpi.x, this.frameDiv.offsetTop / dpi.y)).Round(this.snapSize_vw);
+        let sz = new Point(this.frameDiv.offsetWidth / dpi.x, this.frameDiv.offsetHeight / dpi.y).Round(this.snapSize_vw);
 
         this.element.style.left = `${pos.x}vw`;
         this.element.style.top = `${pos.y}vw`;
         this.element.style.width = `${sz.x}vw`;
         this.element.style.height = `${sz.y}vw`;
+
+        let cfg = (<HTMLElementWithConfig><any>this.element).Config;
+        cfg.x = pos.x;
+        cfg.y = pos.y;
+        cfg.w = sz.x;
+        cfg.h = sz.y;
 
     }
 }

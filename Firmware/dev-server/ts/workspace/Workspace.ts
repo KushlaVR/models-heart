@@ -63,6 +63,7 @@ class WorkSpace {
 
         $.get(elementSource)
             .done(function (data) {
+                workSpace.RegisterToolbox();
                 workSpace.setupBg(data.bg);
                 workSpace.createGrid(100, 45);
                 for (let el in data.elements) {
@@ -75,6 +76,99 @@ class WorkSpace {
             });
     }
 
+    RegisterToolbox() {
+        let buttons = $("[data-command]");
+        buttons.each((index: number, val: any) => {
+            let element: HTMLElement = val;
+            element.addEventListener('click', (event: any) => this.CommandButton(element), false);
+        })
+    }
+
+    CommandButton(element: HTMLElement) {
+        this.ExecuteCommand(element.getAttribute("data-command"));
+    }
+
+    public ExecuteCommand(command: string) {
+        let element: HTMLElement;
+
+        if (command === "add-text") {
+            element = this.createElement(<TextConfig>{
+                text: "New text element",
+                cmd: undefined,
+                type: "text",
+                x: 0,
+                y: 0,
+                w: 20,
+                h: 4
+            });
+        } else if (command === "add-button") {
+            element = this.createElement(<ButtonConfig>{
+                text: "button",
+                cmd: "button",
+                type: "button",
+                x: 0,
+                y: 0,
+                w: 20,
+                h: 5
+            });
+        }
+        else if (command === "add-slider") {
+            element = this.createElement(<SliderConfig>{
+                text: undefined,
+                cmd: "slider",
+                type: "slider",
+                x: 0,
+                y: 0,
+                w: 40,
+                h: 8,
+                autocenter: "1",
+                color: "red"
+            });
+        }
+        else if (command === "add-progress") {
+            element = this.createElement(<ProgressConfig>{
+                text: undefined,
+                cmd: "progress",
+                type: "progress",
+                x: 0,
+                y: 0,
+                w: 40,
+                h: 4
+            });
+        }
+        else if (command === "add-image") {
+            element = this.createElement(<ImageConfig>{
+                text: undefined,
+                cmd: "image",
+                type: "image",
+                x: 0,
+                y: 0,
+                w: 10,
+                h: 10,
+                src: "img/green.png"
+            });
+        }
+        else if (command === "delete") {
+            this.DeleteCurrentElement();
+            return;
+        }
+        else if (command === "save") {
+            this.SaveWorkspace();
+            return;
+        }
+        else if (command === "edit") {
+            this.EditCurrentElement();
+            return;
+        }
+        else {
+            console.log(command);
+            return;
+        }
+
+        var frame: ComponentFrame = new ComponentFrame(element);
+        this.addConponentFrame(frame);
+
+    }
 
     setupBg(bgUrl: string) {
         this.form.style.backgroundImage = bgUrl;
@@ -86,14 +180,7 @@ class WorkSpace {
     createGrid(w: number, h: number) {
         this.gridSize.x = w;
         this.gridSize.y = h;
-        let div: HTMLDivElement = document.createElement("div");
-        div.style.position = "absolute";
-        div.style.left = "0";
-        div.style.top = "0";
-        div.style.width = `${w}vw`;
-        div.style.height = `${h}vw`;
-        div.style.background = "conic-gradient(from 90deg at 0.05vw 0.05vw, rgba(0, 0, 0, 0) 90deg, rgba(1,1,1,0.1) 0deg) 0px 0px / 1vw 1vw";
-        this.form.appendChild(div);
+        this.form.appendChild(Utils.CreateGrid(this.gridSize));
 
     }
 
@@ -104,30 +191,32 @@ class WorkSpace {
         return ret;
     }
 
-    createElement(el: BaseConfig) {
+    createElement(el: BaseConfig): HTMLElement {
         if (el.type == "text") {
-            this.createTextElement(<any>el);
+            return this.createTextElement(<any>el);
+        }
+        if (el.type == "progress") {
+            return this.createProgressElement(<any>el);
         }
         if (el.type == "button") {
-            this.createButtonElement(<any>el);
+            return this.createButtonElement(<any>el);
         }
         if (el.type == "slider") {
-            this.createSliderElement(<any>el);
+            return this.createSliderElement(<any>el);
+        }
+        if (el.type == "image") {
+            return this.createImageElement(<any>el);
         }
     }
 
-    createSliderElement(el: SliderConfig) {
+    createSliderElement(el: SliderConfig): HTMLElement {
 
         let div = document.createElement("DIV");
         div.setAttribute("href", "#");
         div.classList.add("slider");
         div.classList.add("input");
         div.setAttribute("name", el.cmd);
-        div.style.position = "absolute"
-        if (el.x) div.style.left = `${el.x}vw`;
-        if (el.y) div.style.top = `${el.y}vw`;
-        if (el.w) div.style.width = `${el.w}vw`;
-        if (el.h) div.style.height = `${el.h}vw`;
+        Utils.ApplyDimentionsProperties(div, el);
 
         let pot = document.createElement("DIV");
         pot.classList.add("pot");
@@ -146,37 +235,72 @@ class WorkSpace {
         div.appendChild(pot);
         div.appendChild(handle);
         this.form.appendChild(div);
+        (<any>div).Config = el;
+        return div;
     }
 
-    createButtonElement(el: ButtonConfig) {
+    createButtonElement(el: ButtonConfig): HTMLElement {
 
-        let div = document.createElement("A");
-        div.setAttribute("href", "#");
+        let div = document.createElement("BUTTON");
+        div.setAttribute("type", "button");
         div.classList.add("btn");
         div.classList.add("btn-primary");
         div.classList.add("input");
         div.innerText = el.text;
         div.setAttribute("name", el.cmd);
-        div.style.position = "absolute"
-        if (el.x) div.style.left = `${el.x}vw`;
-        if (el.y) div.style.top = `${el.y}vw`;
-        if (el.w) div.style.width = `${el.w}vw`;
-        if (el.h) div.style.height = `${el.h}vw`;
-
+        Utils.ApplyDimentionsProperties(div, el);
         this.form.appendChild(div);
+        (<any>div).Config = el;
+        return div;
     }
 
-    createTextElement(el: TextConfig) {
+    createTextElement(el: TextConfig): HTMLElement {
 
         let div = document.createElement("LABEL");
         div.innerText = el.text;
-        div.style.position = "absolute"
-        if (el.x) div.style.left = `${el.x}vw`;
-        if (el.y) div.style.top = `${el.y}vw`;
-        if (el.w) div.style.width = `${el.w}vw`;
-        if (el.h) div.style.height = `${el.h}vw`;
+        div.classList.add("output");
+        Utils.ApplyDimentionsProperties(div, el);
+        this.form.appendChild(div);
+        if (el.cmd) {
+            div.setAttribute("data-input", el.cmd);
+        }
+        (<HTMLElementWithConfig><any>div).Config = el;
+        return div;
+    }
+
+    createImageElement(el: ImageConfig): HTMLElement {
+        let div = document.createElement("IMG");
+        div.innerText = el.text;
+        div.classList.add("output");
+        Utils.ApplyDimentionsProperties(div, el);
+        if (el.cmd) {
+            div.setAttribute("data-input", el.cmd);
+        }
+        if (el.src) div.setAttribute("src", el.src);
 
         this.form.appendChild(div);
+        (<HTMLElementWithConfig><any>div).Config = el;
+        return div;
+    }
+
+    createProgressElement(el: BaseConfig): HTMLElement {
+
+        let div = document.createElement("DIV");
+        div.classList.add("output");
+        div.classList.add("progress");
+        if (el.cmd) {
+            div.setAttribute("data-input", el.cmd);
+        }
+        Utils.ApplyDimentionsProperties(div, el);
+
+        let progressBar = document.createElement("DIV");
+        progressBar.classList.add("progress-bar");
+        progressBar.style.width = "50%"
+        div.appendChild(progressBar);
+
+        this.form.appendChild(div);
+        (<HTMLElementWithConfig><any>div).Config = el;
+        return div;
     }
 
     private ConnectAPI(): void {
@@ -442,12 +566,6 @@ class WorkSpace {
     }
 
 
-    private addConponentFrame(frame: ComponentFrame): void {
-        frame.Workspace = this;
-        this.frames.push(frame);
-    }
-
-
     private createConmponentsFrames(): void {
         var inputs = $(".input", this.form);
 
@@ -456,7 +574,96 @@ class WorkSpace {
             var frame: ComponentFrame = new ComponentFrame(element);
             this.addConponentFrame(frame);
         })
+
+        var outputs = $(".output", this.form);
+
+        outputs.each((index: number, val: any) => {
+            let element: HTMLElement = val;
+            var frame: ComponentFrame = new ComponentFrame(element);
+            this.addConponentFrame(frame);
+        })
     }
+
+    private addConponentFrame(frame: ComponentFrame): void {
+        frame.Workspace = this;
+        this.frames.push(frame);
+    }
+
+    currentFrame: ComponentFrame = null;
+    PropertyEditor: PropertyEditor = null;
+    SetCurrentFrame(frame: ComponentFrame) {
+        if (this.currentFrame != null) {
+            this.currentFrame.Hide();
+        }
+        this.currentFrame = frame;
+        if (this.currentFrame != null) {
+            this.currentFrame.Show();
+        }
+    }
+
+    DeleteCurrentElement() {
+        if (this.currentFrame == null) return;
+        const div = this.currentFrame.element;
+        const index = this.frames.indexOf(this.currentFrame, 0);
+        if (index > -1) {
+            this.frames.splice(index, 1);
+            this.form.removeChild(this.currentFrame.frameDiv);
+            this.form.removeChild(div);
+            this.currentFrame = null
+        }
+    }
+
+    EditCurrentElement() {
+        if (this.currentFrame == null) return;
+        if (this.PropertyEditor == null) {
+            this.PropertyEditor = new PropertyEditor();
+        }
+        this.PropertyEditor.Show(this.currentFrame);
+    }
+
+    SaveWorkspace() {
+        const uiFileLocation = "/"
+        var formData = new FormData();
+        formData.append('file', new File([this.SerializeWorkspace()], "ui.json"));
+        $.ajax({
+            url: '/api/dir?path=' + uiFileLocation,
+            type: 'POST',
+            data: formData,
+            processData: false,  // tell jQuery not to process the data
+            contentType: false,  // tell jQuery not to set contentType
+            statusCode: {
+                200: function (data) {
+                    console.log("Saved");
+                }
+            }
+        })
+    }
+
+    SerializeWorkspace(): string {
+        let elements = new Array<BaseConfig>();
+
+        var inputs = $(".input", this.form);
+        inputs.each((index: number, val: any) => {
+            let element: HTMLElement = val;
+            elements.push(Utils.GetConfig(element));
+        })
+
+        var outputs = $(".output", this.form);
+        outputs.each((index: number, val: any) => {
+            let element: HTMLElement = val;
+            elements.push(Utils.GetConfig(element));
+        })
+
+        let ret = {
+            bg: Utils.GetBG(this.form),
+            elements: elements
+        }
+        //console.log(ret);
+        return JSON.stringify(ret);
+    }
+
+
+
 }
 
 class Input {

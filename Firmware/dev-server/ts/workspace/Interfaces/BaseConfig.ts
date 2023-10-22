@@ -6,5 +6,4 @@ interface BaseConfig {
     h: number;
     cmd: string;
     text: string;
-
 }

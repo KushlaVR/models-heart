@@ -241,6 +241,7 @@ void setup()
     webServer.on("/api/ui", HTTPMethod::HTTP_GET, ui_Get);
 }
 
+double vBat = -1;
 void loop()
 {
     powerManager.loop();
@@ -250,6 +251,13 @@ void loop()
     engine.loop();
     if (joypads.getCount() > 0)
     {
+        double _vBat = ((double)powerManager.getBatteryADC() * 100.0) / 1024.0;
+        if (vBat != _vBat)
+        {
+            vBat = _vBat;
+            Serial.println(vBat);
+            joypads.setValue("bat", vBat);
+        }
         Joypadfield *jp = joypads.getFirstField();
         while (jp != nullptr)
         {
