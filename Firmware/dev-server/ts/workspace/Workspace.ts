@@ -621,7 +621,18 @@ class WorkSpace {
         this.PropertyEditor.Show(this.currentFrame);
     }
 
+    private _bg_Loading: HTMLElement = null;
+
     SaveWorkspace() {
+        if (this._bg_Loading == null) {
+            this._bg_Loading = document.createElement("DIV");
+            this._bg_Loading.classList.add("loading");
+            this._bg_Loading.classList.add("fade");
+            this._bg_Loading.appendChild(Utils.CreateSpinner());
+            document.body.appendChild(this._bg_Loading)
+        }
+        this._bg_Loading.classList.add("show");
+        this._bg_Loading.style.display = "block"
         const uiFileLocation = "/"
         var formData = new FormData();
         formData.append('file', new File([this.SerializeWorkspace()], "ui.json"));
@@ -632,7 +643,9 @@ class WorkSpace {
             processData: false,  // tell jQuery not to process the data
             contentType: false,  // tell jQuery not to set contentType
             statusCode: {
-                200: function (data) {
+                200: (data) => {
+                    this._bg_Loading.classList.remove("show");
+                    this._bg_Loading.style.display = "none"
                     console.log("Saved");
                 }
             }

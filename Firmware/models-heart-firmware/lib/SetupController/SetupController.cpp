@@ -25,6 +25,16 @@ void SetupController::Setup_Post()
 {
 	int cnt = webServer.args();
 
+	if (setupController.saveParameter != nullptr)
+	{
+		for (int i = 0; i < cnt; i++)
+		{
+			String n = webServer.argName(i);
+			String v = webServer.arg(i);
+			setupController.saveParameter(n, v);
+		}
+	}
+
 	if (setupController.saveConfig != nullptr)
 	{
 		JsonString ret = JsonString();
@@ -37,19 +47,11 @@ void SetupController::Setup_Post()
 
 		setupController.saveConfig(&ret);
 	}
-	else if (setupController.saveParameter != nullptr)
-	{
-		for (int i = 0; i < cnt; i++)
-		{
-			String n = webServer.argName(i);
-			String v = webServer.arg(i);
-			setupController.saveParameter(n, v);
-		}
-	}
 
 	webServer.sendHeader("Location", String("http://") + WebUIController::ipToString(webServer.client().localIP()), true);
 	webServer.send(302, "text/plain", ""); // Empty content inhibits Content-length header so we have to close the socket ourselves.
 	webServer.client().stop();			   // Stop is needed because we sent no content length
+	
 }
 
 SetupController setupController;

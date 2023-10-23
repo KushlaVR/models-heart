@@ -21,7 +21,7 @@
 
 PowerManager powerManager(PIN_POWER_HOLD, PIN_POWER_SENSE, PIN_BATTERY_SENSE);
 
-JsonObject ui = JsonObject();
+// JsonObject ui = JsonObject();
 JsonObject scripts = JsonObject();
 JoypadCollection joypads = JoypadCollection();
 ScriptEngine engine = ScriptEngine();
@@ -144,18 +144,55 @@ void setupController_saveParameter(String name, String value)
 {
     if ((name).equalsIgnoreCase("ssid"))
     {
-        strncpy(SSID, value.c_str(), value.length());
+        strncpy(SSID, (value + "\0").c_str(), value.length() + 1);
     }
 
     if ((name).equalsIgnoreCase("password"))
     {
-        strncpy(SSID_password, value.c_str(), value.length());
+        strncpy(SSID_password, (value + "\0").c_str(), value.length() + 1);
     }
+}
+
+void SaveConfig()
+{
+    JsonString cfg = JsonString("");
+    setupController_buildConfig(&cfg);
+    File f = LittleFS.open("/settings.json", "w");
+    f.print(cfg);
+    f.flush();
+    f.close();
+    Serial.println(cfg);
+}
+
+void LoadConfig()
+{
+    File f = LittleFS.open("/settings.json", "r");
+    if (f)
+    {
+        JsonString cfg = JsonString(f.readString().c_str());
+        setupController_saveParameter("ssid", cfg.getValue("ssid"));
+        setupController_saveParameter("password", cfg.getValue("password"));
+        f.flush();
+        f.close();
+
+        cfg = JsonString("");
+        setupController_buildConfig(&cfg);
+        Serial.println(cfg);
+    }
+    else
+    {
+        Serial.println("load default config");
+    }
+}
+
+void setupController_saveConfig(JsonString *json)
+{
+    SaveConfig();
 }
 
 void ui_Get()
 {
-    webServer.handleFileRead("/ui.json", false);
+    webServer.handleFileRead("/ui.json", false, false);
 }
 
 void setup()
@@ -187,17 +224,17 @@ void setup()
                 ;
         }
     }
-
-    if (LittleFS.exists("/ui.json"))
-    {
-        Serial.println("Parsing ui.json");
-        File f = LittleFS.open("/ui.json", "r");
-        ui.load(&f);
-        f.close();
-        // Serial.println("Print UI");
-        // ui.print(&Serial);
-        // Serial.println("");
-    }
+    LoadConfig();
+    // if (LittleFS.exists("/ui.json"))
+    // {
+    //     Serial.println("Parsing ui.json");
+    //     File f = LittleFS.open("/ui.json", "r");
+    //     ui.load(&f);
+    //     f.close();
+    //     // Serial.println("Print UI");
+    //     // ui.print(&Serial);
+    //     // Serial.println("");
+    // }
 
     if (LittleFS.exists("/scripts.json"))
     {
@@ -234,6 +271,7 @@ void setup()
 
     setupController.buildConfig = setupController_buildConfig;
     setupController.saveParameter = setupController_saveParameter;
+    setupController.saveConfig = setupController_saveConfig;
     setupController.setup();
 
     fileServer.setup();

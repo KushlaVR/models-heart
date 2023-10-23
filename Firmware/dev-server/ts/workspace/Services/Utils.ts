@@ -1,6 +1,14 @@
 
 class Utils {
 
+    static CreateSpinner(): HTMLElement {
+        let ret = document.createElement("DIV");
+        ret.classList.add("spinner-border");
+        ret.classList.add("text-primary");
+        ret.innerHTML = '<span class="sr-only">Loading...</span>'
+        return ret;
+    }
+
     static CreateGrid(sz: Point): HTMLElement {
         let div: HTMLDivElement = document.createElement("div");
         div.style.position = "absolute";

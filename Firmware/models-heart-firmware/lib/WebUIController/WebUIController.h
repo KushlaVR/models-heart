@@ -23,7 +23,7 @@ public:
 	void loop();
 	void ssdp(const char* deviceName);
 	char * getContentType(String filename);
-	void sendFile(File file, char* contenttype, bool addGzHeader);
+	void sendFile(File file, char* contenttype, bool addGzHeader, bool cash = true);
 	/** Is this an IP? */
 	static boolean isIp(String str);
 
@@ -36,7 +36,7 @@ public:
 	
 	
 	
-	static bool handleFileRead(String path, bool html = true);
+	static bool handleFileRead(String path, bool html = true, bool cash = true);
 	static String getMinimizedPath(String path);
 	static bool replaceMin(String ext, String* path);
 

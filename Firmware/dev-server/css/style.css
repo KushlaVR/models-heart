@@ -14,7 +14,6 @@ body {
     background-size: 10vw 10vw;*/
 }
 
-
 .main {
 }
 
@@ -25,7 +24,6 @@ body {
         height: 45vw;
         background-color: #0e101717;
     }
-
 
         .main .screen label,
         .main .screen .form-control,
@@ -46,7 +44,7 @@ body {
 
     .main .msg,
     .main label {
-        color: #ffffff;
+        color: #e7e7e7;
     }
 
     .main .msg {

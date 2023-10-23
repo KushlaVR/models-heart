@@ -43,6 +43,7 @@ var WorkSpace = (function () {
         this._readyToSend = true;
         this.currentFrame = null;
         this.PropertyEditor = null;
+        this._bg_Loading = null;
         this.form = form;
         window.addEventListener('resize', function (event) { return _this.UpdateLayout(); }, false);
         console.log("=== ***  Model's Heart  *** ===");
@@ -538,6 +539,16 @@ var WorkSpace = (function () {
         this.PropertyEditor.Show(this.currentFrame);
     };
     WorkSpace.prototype.SaveWorkspace = function () {
+        var _this = this;
+        if (this._bg_Loading == null) {
+            this._bg_Loading = document.createElement("DIV");
+            this._bg_Loading.classList.add("loading");
+            this._bg_Loading.classList.add("fade");
+            this._bg_Loading.appendChild(Utils.CreateSpinner());
+            document.body.appendChild(this._bg_Loading);
+        }
+        this._bg_Loading.classList.add("show");
+        this._bg_Loading.style.display = "block";
         var uiFileLocation = "/";
         var formData = new FormData();
         formData.append('file', new File([this.SerializeWorkspace()], "ui.json"));
@@ -549,6 +560,8 @@ var WorkSpace = (function () {
             contentType: false,
             statusCode: {
                 200: function (data) {
+                    _this._bg_Loading.classList.remove("show");
+                    _this._bg_Loading.style.display = "none";
                     console.log("Saved");
                 }
             }
@@ -1229,6 +1242,13 @@ var ComponentFrame = (function () {
 var Utils = (function () {
     function Utils() {
     }
+    Utils.CreateSpinner = function () {
+        var ret = document.createElement("DIV");
+        ret.classList.add("spinner-border");
+        ret.classList.add("text-primary");
+        ret.innerHTML = '<span class="sr-only">Loading...</span>';
+        return ret;
+    };
     Utils.CreateGrid = function (sz) {
         var div = document.createElement("div");
         div.style.position = "absolute";
