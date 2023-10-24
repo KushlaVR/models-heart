@@ -19,6 +19,9 @@ void PowerManager::begin()
     powerButton->tag = this;
     powerButton->condition = LOW;
     powerButton->isEnabled = true;
+    powerButton->handle();
+
+    if (powerButton->isPressed()) this->powerButtonActivated = true;
 }
 
 void PowerManager::loop()
@@ -57,7 +60,7 @@ void PowerManager::powerButtonPressed()
 
 void PowerManager::powerButtonHold()
 {
-    if (buttoneWasReleasedAtLeasOnce)
+    if (powerButtonActivated)
     {
         if (OnPowerOff != nullptr)
             OnPowerOff(this);
@@ -67,7 +70,7 @@ void PowerManager::powerButtonHold()
 
 void PowerManager::powerButtonRelease()
 {
-    buttoneWasReleasedAtLeasOnce = true;
+    powerButtonActivated = true;
 }
 
 void PowerManager::_powerButtonPressed(void *sender)

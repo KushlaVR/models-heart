@@ -166,9 +166,9 @@ void SaveConfig()
 
 void LoadConfig()
 {
-    File f = LittleFS.open("/settings.json", "r");
-    if (f)
+    if (LittleFS.exists("/settings.json"))
     {
+        File f = LittleFS.open("/settings.json", "r");
         JsonString cfg = JsonString(f.readString().c_str());
         setupController_saveParameter("ssid", cfg.getValue("ssid"));
         setupController_saveParameter("password", cfg.getValue("password"));

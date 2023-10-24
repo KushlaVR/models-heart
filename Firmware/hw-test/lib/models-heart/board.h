@@ -28,7 +28,7 @@ private:
     unsigned long lastVoltageRead = 0;
     unsigned long voltageReadInterval = 1000;
     int battery_adc_value = 0;
-    bool buttoneWasReleasedAtLeasOnce = false;
+    bool powerButtonActivated = false;
 
     Button *powerButton = nullptr;
 
@@ -40,7 +40,7 @@ private:
 
     void powerButtonHold()
     {
-        if (buttoneWasReleasedAtLeasOnce)
+        if (powerButtonActivated)
         {
             if (OnPowerOff != nullptr)
                 OnPowerOff(this);
@@ -50,7 +50,7 @@ private:
 
     void powerButtonRelease()
     {
-        buttoneWasReleasedAtLeasOnce = true;
+        powerButtonActivated = true;
     }
 
     static void _powerButtonPressed(void *sender)
