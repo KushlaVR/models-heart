@@ -47,6 +47,7 @@ static void powerButton_Click(void *sender)
 
 static void onPowerOff(void *sender)
 {
+    engine.SaveState("/state.json");
     digitalWrite(LED_BUILTIN, HIGH);
 }
 
@@ -248,6 +249,7 @@ void setup()
     }
 
     engine.build(&scripts);
+    engine.LoadState("/state.json");
 
     WiFi.begin();
     WiFi.disconnect();

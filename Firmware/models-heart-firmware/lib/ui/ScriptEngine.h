@@ -313,6 +313,21 @@ public:
         el->refreshState();
     }
 
+    void CreateButton()
+    {
+        btn = new VirtualButton(btn_Press, btn_Hold, btn_Release);
+        if (type == ScriptElementTypes::toggle)
+        {
+            btn->isToggleMode = true;
+        }
+        else
+        {
+            btn->isToggleMode = false;
+        }
+        btn->condition = HIGH;
+        btn->tag = this;
+    }
+
     void OnCommand(String cmd, int state)
     {
         if (this->cmd != nullptr && this->cmd.equalsIgnoreCase(cmd) && this->state != state)
@@ -320,17 +335,7 @@ public:
             this->state = state;
             if (btn == nullptr)
             {
-                btn = new VirtualButton(btn_Press, btn_Hold, btn_Release);
-                if (type == ScriptElementTypes::toggle)
-                {
-                    btn->isToggleMode = true;
-                }
-                else
-                {
-                    btn->isToggleMode = false;
-                }
-                btn->condition = HIGH;
-                btn->tag = this;
+                CreateButton();
             }
             if (state)
             {
@@ -370,6 +375,42 @@ public:
                 el->setState(state);
             itm = itm->next;
         }
+    }
+
+    int GetState()
+    {
+        if (btn == nullptr)
+            return 0;
+        if (type == ScriptElementTypes::toggle)
+            return btn->isToggled;
+        else if (type == ScriptElementTypes::click)
+            return btn->isPressed();
+        else
+            return state;
+    }
+
+    void loadState(int state)
+    {
+        if (state == 0)
+            return;
+        if (type == ScriptElementTypes::toggle)
+        {
+            if (btn == nullptr)
+                CreateButton();
+            btn->isToggled = (state != 0);
+        }
+        else if (type == ScriptElementTypes::click)
+        {
+            if (btn == nullptr)
+                CreateButton();
+            if (state == 0)
+                btn->setValue(0);
+            else
+                btn->setValue(state);
+        }
+        else
+            this->state = state;
+        this->refreshState();
     }
 };
 
@@ -454,6 +495,45 @@ public:
             el = ((ScriptElement *)itm);
             el->OnCommand(cmd, state);
             itm = itm->next;
+        }
+    }
+
+    void SaveState(String fileName)
+    {
+        JsonString state = JsonString();
+        state.beginObject();
+        Item *itm = elements->getFirst();
+        while (itm != nullptr)
+        {
+            ScriptElement *el = ((ScriptElement *)itm);
+            state.AddValue(el->cmd, String(el->GetState()));
+            itm = itm->next;
+        }
+        state.endObject();
+        Serial.println(state);
+        File f = LittleFS.open(fileName, "w");
+        f.print(state);
+        f.flush();
+        f.close();
+    }
+
+    void LoadState(String fileName)
+    {
+        if (LittleFS.exists(fileName))
+        {
+            File f = LittleFS.open(fileName, "r");
+            String s = f.readString();
+            JsonString json = JsonString(s.c_str());
+            Serial.println(json);
+
+            Item *itm = elements->getFirst();
+            while (itm != nullptr)
+            {
+                ScriptElement *el = ((ScriptElement *)itm);
+                int state = json.getInt((char *)el->cmd.c_str());
+                el->loadState(state);
+                itm = itm->next;
+            }
         }
     }
 };

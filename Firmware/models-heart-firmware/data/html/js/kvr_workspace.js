@@ -103,7 +103,7 @@ var WorkSpace = (function () {
         if (command === "add-text") {
             element = this.createElement({
                 text: "New text element",
-                cmd: undefined,
+                cmd: "",
                 type: "text",
                 x: 0,
                 y: 0,
@@ -124,7 +124,6 @@ var WorkSpace = (function () {
         }
         else if (command === "add-slider") {
             element = this.createElement({
-                text: undefined,
                 cmd: "slider",
                 type: "slider",
                 x: 0,
@@ -137,7 +136,6 @@ var WorkSpace = (function () {
         }
         else if (command === "add-progress") {
             element = this.createElement({
-                text: undefined,
                 cmd: "progress",
                 type: "progress",
                 x: 0,
@@ -148,7 +146,7 @@ var WorkSpace = (function () {
         }
         else if (command === "add-image") {
             element = this.createElement({
-                text: undefined,
+                text: null,
                 cmd: "image",
                 type: "image",
                 x: 0,
@@ -156,6 +154,18 @@ var WorkSpace = (function () {
                 w: 10,
                 h: 10,
                 src: "img/green.png"
+            });
+        }
+        else if (command === "add-toggle") {
+            element = this.createElement({
+                text: "Off|A|B|C",
+                values: "0|10|50|100",
+                cmd: "toggle",
+                type: "toggle",
+                x: 0,
+                y: 0,
+                w: 20,
+                h: 4,
             });
         }
         else if (command === "delete") {
@@ -207,6 +217,9 @@ var WorkSpace = (function () {
         }
         if (el.type == "image") {
             return this.createImageElement(el);
+        }
+        if (el.type == "toggle") {
+            return this.createToggleElement(el);
         }
     };
     WorkSpace.prototype.createSliderElement = function (el) {
@@ -285,6 +298,19 @@ var WorkSpace = (function () {
         progressBar.classList.add("progress-bar");
         progressBar.style.width = "50%";
         div.appendChild(progressBar);
+        this.form.appendChild(div);
+        div.Config = el;
+        return div;
+    };
+    WorkSpace.prototype.createToggleElement = function (el) {
+        var div = document.createElement("DIV");
+        div.classList.add("input");
+        div.classList.add("toggle");
+        div.classList.add("btn-group");
+        div.classList.add("btn-group-toggle");
+        div.setAttribute("name", el.cmd);
+        Utils.ApplyDimentionsProperties(div, el);
+        Utils.InitToggleElement(div, el);
         this.form.appendChild(div);
         div.Config = el;
         return div;
@@ -436,6 +462,9 @@ var WorkSpace = (function () {
             var input;
             if ($(element).hasClass("slider")) {
                 input = new Slider(element);
+            }
+            else if ($(element).hasClass("toggle")) {
+                input = new Toggle(element);
             }
             else if ($(element).hasClass("btn")) {
                 input = new Button(element);
@@ -849,6 +878,10 @@ var Slider = (function (_super) {
             this.handlePos.y = this.center.y;
         this.refreshLayout(true);
         this.saveValue();
+        var key_x = this.name + "_x";
+        var key_y = this.name + "_y";
+        this.workSpace.refreshInput(key_x, Slider.numToString(this.value.x));
+        this.workSpace.refreshInput(key_y, Slider.numToString(this.value.y));
         this.element.style.zIndex = "0";
     };
     Slider.prototype.refreshLayout = function (clip) {
@@ -1284,6 +1317,9 @@ var Utils = (function () {
         else if (source.type == "slider") {
             return;
         }
+        else if (source.type == "toggle") {
+            Utils.InitToggleElement(div, source);
+        }
         else {
             div.innerText = source.text;
         }
@@ -1349,6 +1385,32 @@ var Utils = (function () {
         btn.innerText = text;
         return btn;
     };
+    Utils.InitToggleElement = function (div, el) {
+        div.innerHTML = "";
+        var labels = el.text.split("|");
+        var values = el.values.split("|");
+        for (var i = 0; i < Math.max(labels.length, values.length); i++) {
+            var lbl = document.createElement("LABEL");
+            lbl.classList.add("btn");
+            lbl.classList.add("btn-outline-primary");
+            var input = document.createElement("INPUT");
+            input.setAttribute("type", "radio");
+            lbl.appendChild(input);
+            var span = document.createElement("SPAN");
+            lbl.appendChild(span);
+            var v = "0";
+            if (i < values.length)
+                v = values[i];
+            var s = "Off";
+            if (i < labels.length)
+                s = labels[i];
+            input.setAttribute("value", v);
+            span.innerText = s;
+            div.appendChild(lbl);
+        }
+    };
+    Utils.SetTougleValue = function (div, value) {
+    };
     return Utils;
 }());
 var PropertyEditor = (function () {
@@ -1370,7 +1432,9 @@ var PropertyEditor = (function () {
         this.frame = frame;
         this.element = frame.element;
         this.config = (this.element).Config;
+        console.log(this.config);
         this.PropertyWinodwBody.innerHTML = "";
+        this.fields = new Array();
         for (var key in this.config) {
             var inputGroup = document.createElement("DIV");
             inputGroup.classList.add("input-group");
@@ -1409,6 +1473,7 @@ var PropertyEditor = (function () {
         $(this.PropertyWindow).modal({ backdrop: 'static' });
     };
     PropertyEditor.prototype.Save_Click = function () {
+        console.log(this.config);
         for (var i = 0; i < this.fields.length; i++) {
             var fld = this.fields[i];
             if (fld.input != null) {
@@ -1426,3 +1491,71 @@ var PropertyEditor = (function () {
     PropertyEditor.readonlyProperties = ["type"];
     return PropertyEditor;
 }());
+var Toggle = (function (_super) {
+    __extends(Toggle, _super);
+    function Toggle(element) {
+        var _this = _super.call(this, element) || this;
+        _this.SetupEvents();
+        return _this;
+    }
+    Toggle.prototype.SetupEvents = function () {
+        var _this = this;
+        $(".btn", this.element).each(function (index, el) {
+            if ("ontouchstart" in document.documentElement) {
+                el.addEventListener('touchstart', function (event) { return _this.onTouchStart(el, event); }, false);
+                el.addEventListener('touchend', function (event) { return _this.onTouchEnd(el, event); }, false);
+            }
+            else {
+                el.addEventListener('mousedown', function (event) { return _this.onMouseDown(el, event); }, false);
+                el.addEventListener('mouseup', function (event) { return _this.onMouseUp(el, event); }, false);
+            }
+        });
+    };
+    Toggle.prototype.onTouchStart = function (el, event) {
+        console.log(el);
+        this.pressed = this.GetElementValue(el);
+        this.saveValue();
+        this.workSpace.refreshInput(this.name, this.pressed);
+        event.preventDefault();
+    };
+    Toggle.prototype.onTouchEnd = function (el, event) {
+        event.preventDefault();
+    };
+    Toggle.prototype.onMouseDown = function (el, event) {
+        console.log(el);
+        this.pressed = this.GetElementValue(el);
+        this.saveValue();
+        this.workSpace.refreshInput(this.name, this.pressed);
+        event.preventDefault();
+    };
+    Toggle.prototype.onMouseUp = function (el, event) {
+        event.preventDefault();
+    };
+    Toggle.prototype.saveValue = function () {
+        if (!this.workSpace)
+            return;
+        this.workSpace.beginTransaction();
+        var key = this.name;
+        this.workSpace.values[key] = this.pressed;
+        this.workSpace.endTransaction();
+    };
+    Toggle.prototype.loadValue = function (key, value) {
+        var _this = this;
+        var refresh = false;
+        if (key == this.name) {
+            $(".btn", this.element).each(function (index, el) {
+                if (_this.GetElementValue(el) == value) {
+                    el.classList.add("active");
+                }
+                else {
+                    el.classList.remove("active");
+                }
+            });
+        }
+    };
+    Toggle.prototype.GetElementValue = function (el) {
+        var input = $("input", el)[0];
+        return input.getAttribute("value");
+    };
+    return Toggle;
+}(Input));
