@@ -22,8 +22,9 @@
         this.frame = frame;
         this.element = frame.element;
         this.config = (<HTMLElementWithConfig><any>(this.element)).Config;
-
+        console.log(this.config);
         this.PropertyWinodwBody.innerHTML = "";
+        this.fields = new Array<Property>();
         for (var key in this.config) {
 
 
@@ -70,6 +71,7 @@
 
     }
     Save_Click() {
+        console.log(this.config);
         for (let i: number = 0; i < this.fields.length; i++) {
             let fld = this.fields[i];
             if (fld.input != null) {

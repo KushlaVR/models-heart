@@ -42,6 +42,9 @@ class Utils {
         else if (source.type == "slider") {
             return;
         }
+        else if (source.type == "toggle") {
+            Utils.InitToggleElement(div, <any>source);
+        }
         else {
             div.innerText = source.text;
         }
@@ -118,6 +121,41 @@ class Utils {
         btn.classList.add("btn");
         btn.innerText = text;
         return btn;
+    }
+
+    static InitToggleElement(div: HTMLElement, el: ToggleConfig) {
+        div.innerHTML = "";
+
+        let labels = el.text.split("|");
+        let values = el.values.split("|");
+
+        for (let i = 0; i < Math.max(labels.length, values.length); i++) {
+            let lbl = document.createElement("LABEL");
+            lbl.classList.add("btn");
+            lbl.classList.add("btn-outline-primary");
+
+            let input = document.createElement("INPUT");
+            input.setAttribute("type", "radio");
+            lbl.appendChild(input);
+
+            let span = document.createElement("SPAN");
+            lbl.appendChild(span);
+
+            let v = "0";
+            if (i < values.length) v = values[i];
+
+            let s = "Off";
+            if (i < labels.length) s = labels[i];
+
+            input.setAttribute("value", v);
+            span.innerText = s;
+
+            div.appendChild(lbl);
+        }
+    }
+
+    static SetTougleValue(div: HTMLElement, value: string) {
+
     }
 
 }

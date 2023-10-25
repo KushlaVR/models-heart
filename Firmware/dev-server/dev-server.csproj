@@ -152,6 +152,8 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <TypeScriptCompile Include="ts\workspace\Elements\PropertyEditor.ts" />
+    <TypeScriptCompile Include="ts\workspace\Elements\Toggle.ts" />
+    <TypeScriptCompile Include="ts\workspace\Interfaces\ToggleConfig.ts" />
     <TypeScriptCompile Include="ts\workspace\Interfaces\ProgressConfig.ts" />
     <TypeScriptCompile Include="ts\workspace\Interfaces\HTMLElementWithConfig.ts" />
   </ItemGroup>

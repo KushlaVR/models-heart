@@ -15,6 +15,7 @@ namespace WebUI.Models.Config
         public string text { get; set; }
         public string cmd { get; set; }
         public string src { get; set; }
+        public string values { get; set; }
         public string autocenter { get; set; }
 
     }

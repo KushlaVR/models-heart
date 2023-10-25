@@ -227,3 +227,9 @@
         left: 0;
         right: 0;
     }
+
+
+.toggle {
+    background-color: #808080a8;
+    overflow: hidden;
+}

@@ -2,7 +2,7 @@
   "elements": [
     {
       "cmd": "beacon",
-      "type": "tougle",
+      "type": "toggle",
       "actions": [
         {
           "type": "blink",
@@ -58,7 +58,7 @@
     },
     {
       "cmd": "strobe",
-      "type": "tougle",
+      "type": "toggle",
       "actions": [
         {
           "type": "blink",
@@ -99,7 +99,7 @@
     },
     {
       "cmd": "position",
-      "type": "tougle",
+      "type": "toggle",
       "actions": [
         {
           "type": "blink",
@@ -125,7 +125,7 @@
     },
     {
       "cmd": "navigation",
-      "type": "tougle",
+      "type": "toggle",
       "actions": [
         {
           "type": "blink",
@@ -151,7 +151,7 @@
     },
     {
       "cmd": "ignition",
-      "type": "tougle",
+      "type": "toggle",
       "actions": [
         {
           "type": "motor",

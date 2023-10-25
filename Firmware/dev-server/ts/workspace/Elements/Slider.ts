@@ -92,6 +92,12 @@ class Slider extends Input {
             this.handlePos.y = this.center.y;
         this.refreshLayout(true);
         this.saveValue();
+
+        let key_x = this.name + "_x";
+        let key_y = this.name + "_y";
+        this.workSpace.refreshInput(key_x, Slider.numToString(this.value.x));
+        this.workSpace.refreshInput(key_y, Slider.numToString(this.value.y));
+
         this.element.style.zIndex = "0";
     }
 

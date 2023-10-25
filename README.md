@@ -233,7 +233,7 @@ https://www.youtube.com/watch?v=I-fucbyPBxc&list=PLNvbguf8aVrykSSVMaIyB5YiUsczeT
 
 - cmd - назва команди.
 - type - тип команди
-  * tougle - кожна активація команди вмикає/вимикає її стан
+  * toggle - кожна активація команди вмикає/вимикає її стан
   * click - команда активна поки користувач утримує її значення відмінним від 0
   * none - команда не потребує активації. Вона активна завжди.
 - actions - перелік дій, що будуть виконуватись поки команда активна.
@@ -241,7 +241,7 @@ https://www.youtube.com/watch?v=I-fucbyPBxc&list=PLNvbguf8aVrykSSVMaIyB5YiUsczeT
 ```
 {
     "cmd": string,
-    "type": "tougle/click/none",
+    "type": "toggle/click/none",
     "actions": 
         [
             {
@@ -379,7 +379,7 @@ scripts.json
   "elements": [
     {
       "cmd": "beacon",
-      "type": "tougle",
+      "type": "toggle",
       "actions": [
         {
           "type": "blink",
@@ -435,7 +435,7 @@ scripts.json
     },
     {
       "cmd": "strobe",
-      "type": "tougle",
+      "type": "toggle",
       "actions": [
         {
           "type": "blink",
@@ -476,7 +476,7 @@ scripts.json
     },
     {
       "cmd": "position",
-      "type": "tougle",
+      "type": "toggle",
       "actions": [
         {
           "type": "blink",
@@ -502,7 +502,7 @@ scripts.json
     },
     {
       "cmd": "navigation",
-      "type": "tougle",
+      "type": "toggle",
       "actions": [
         {
           "type": "blink",
@@ -528,7 +528,7 @@ scripts.json
     },
     {
       "cmd": "ignition",
-      "type": "tougle",
+      "type": "toggle",
       "actions": [
         {
           "type":"motor",

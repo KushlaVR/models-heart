@@ -10,7 +10,7 @@
 enum ScriptElementTypes
 {
     none = 0,
-    tougle = 1,
+    toggle = 1,
     click = 2
 };
 
@@ -238,8 +238,8 @@ public:
 
     ScriptElementTypes TypeNameToInt(String typeName)
     {
-        if (typeName.equalsIgnoreCase("tougle"))
-            return ScriptElementTypes::tougle;
+        if (typeName.equalsIgnoreCase("toggle"))
+            return ScriptElementTypes::toggle;
         if (typeName.equalsIgnoreCase("click"))
             return ScriptElementTypes::click;
         return ScriptElementTypes::none;
@@ -321,7 +321,7 @@ public:
             if (btn == nullptr)
             {
                 btn = new VirtualButton(btn_Press, btn_Hold, btn_Release);
-                if (type == ScriptElementTypes::tougle)
+                if (type == ScriptElementTypes::toggle)
                 {
                     btn->isToggleMode = true;
                 }
@@ -362,7 +362,7 @@ public:
         while (itm != nullptr)
         {
             ActionElement *el = ((ActionElement *)itm);
-            if (type == ScriptElementTypes::tougle)
+            if (type == ScriptElementTypes::toggle)
                 el->setState(btn->isToggled);
             else if (type == ScriptElementTypes::click)
                 el->setState(btn->isPressed());

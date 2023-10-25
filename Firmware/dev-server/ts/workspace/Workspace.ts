@@ -94,7 +94,7 @@ class WorkSpace {
         if (command === "add-text") {
             element = this.createElement(<TextConfig>{
                 text: "New text element",
-                cmd: undefined,
+                cmd: "",
                 type: "text",
                 x: 0,
                 y: 0,
@@ -114,7 +114,6 @@ class WorkSpace {
         }
         else if (command === "add-slider") {
             element = this.createElement(<SliderConfig>{
-                text: undefined,
                 cmd: "slider",
                 type: "slider",
                 x: 0,
@@ -127,7 +126,6 @@ class WorkSpace {
         }
         else if (command === "add-progress") {
             element = this.createElement(<ProgressConfig>{
-                text: undefined,
                 cmd: "progress",
                 type: "progress",
                 x: 0,
@@ -138,7 +136,7 @@ class WorkSpace {
         }
         else if (command === "add-image") {
             element = this.createElement(<ImageConfig>{
-                text: undefined,
+                text: null,
                 cmd: "image",
                 type: "image",
                 x: 0,
@@ -146,6 +144,18 @@ class WorkSpace {
                 w: 10,
                 h: 10,
                 src: "img/green.png"
+            });
+        }
+        else if (command === "add-toggle") {
+            element = this.createElement(<ToggleConfig>{
+                text: "Off|A|B|C",
+                values: "0|10|50|100",
+                cmd: "toggle",
+                type: "toggle",
+                x: 0,
+                y: 0,
+                w: 20,
+                h: 4,
             });
         }
         else if (command === "delete") {
@@ -206,6 +216,9 @@ class WorkSpace {
         }
         if (el.type == "image") {
             return this.createImageElement(<any>el);
+        }
+        if (el.type == "toggle") {
+            return this.createToggleElement(<any>el);
         }
     }
 
@@ -301,6 +314,37 @@ class WorkSpace {
         this.form.appendChild(div);
         (<HTMLElementWithConfig><any>div).Config = el;
         return div;
+    }
+
+    createToggleElement(el: ToggleConfig): HTMLElement {
+        /**
+        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+          <label class="btn btn-secondary active">
+            <input type="radio" name="options" id="option1" autocomplete="off" checked> Active
+          </label>
+          <label class="btn btn-secondary">
+            <input type="radio" name="options" id="option2" autocomplete="off"> Radio
+          </label>
+          <label class="btn btn-secondary">
+            <input type="radio" name="options" id="option3" autocomplete="off"> Radio
+          </label>
+        </div>
+        */
+
+        let div = document.createElement("DIV");
+        div.classList.add("input");
+        div.classList.add("toggle");
+        div.classList.add("btn-group");
+        div.classList.add("btn-group-toggle");
+        div.setAttribute("name", el.cmd);
+        Utils.ApplyDimentionsProperties(div, el);
+
+        Utils.InitToggleElement(div, el);
+        
+        this.form.appendChild(div);
+        (<HTMLElementWithConfig><any>div).Config = el;
+        return div;
+
     }
 
     private ConnectAPI(): void {
@@ -484,6 +528,8 @@ class WorkSpace {
             var input: Input;
             if ($(element).hasClass("slider")) {
                 input = new Slider(element);
+            } else if ($(element).hasClass("toggle")) {
+                input = new Toggle(element);
             } else if ($(element).hasClass("btn")) {
                 input = new Button(element);
             } else {
@@ -550,7 +596,7 @@ class WorkSpace {
      * @param key назва значення
      * @param value значення
      */
-    private refreshInput(key: string, value: string): void {
+    public refreshInput(key: string, value: string): void {
         for (var i: number = 0; i < this.inputs.length; i++) {
             this.inputs[i].loadValue(key, value);
         }
