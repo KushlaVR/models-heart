@@ -54,7 +54,7 @@ namespace WebUI.Models
             Locker.EnterWriteLock();
             try
             {
-                if (!client.sendAsync(currentValues).Result)
+                if (!await client.sendAsync(currentValues))
                 {
                     Clients.Remove(client);
                 };
@@ -63,7 +63,7 @@ namespace WebUI.Models
             {
                 Locker.ExitWriteLock();
             }
-            return await Task.FromResult(true);
+            return true;
         }
 
         public void updateValues(Dictionary<string, string> received)

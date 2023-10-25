@@ -14,68 +14,6 @@ body {
     background-size: 10vw 10vw;*/
 }
 
-.main {
-}
-
-    .main .screen {
-        display: block;
-        position: relative;
-        width: 100vw;
-        height: 45vw;
-        background-color: #0e101717;
-    }
-
-        .main .screen label,
-        .main .screen .form-control,
-        .main .screen button,
-        .main .screen input,
-        .main .screen a {
-            font-size: 2vw;
-        }
-
-            .main .screen a.btn-p-0 {
-                padding: 0;
-            }
-
-    .main .form-control {
-        background-color: #032A42;
-        color: #ffe000;
-    }
-
-    .main .msg,
-    .main label {
-        color: #e7e7e7;
-    }
-
-    .main .msg {
-        opacity: 0.3;
-        font-size: 1vw;
-    }
-
-    .main .btn-round {
-        width: 9vw;
-        height: 9vw;
-        text-align: center;
-        border: 0.5vw solid #ffffff00;
-        border-radius: 50%;
-        color: #ffe000;
-        padding: 1vw;
-    }
-
-        .main .btn-round.active {
-            background-color: red;
-            transition: background-color linear 0.2s;
-        }
-
-    .main .hidden {
-        visibility: collapse;
-    }
-
-.full-screen {
-    position: absolute;
-    top: 0;
-    right: 0px;
-}
 
 .plate {
     height: 6em;

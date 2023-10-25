@@ -176,6 +176,7 @@ https://www.youtube.com/watch?v=I-fucbyPBxc&list=PLNvbguf8aVrykSSVMaIyB5YiUsczeT
     }
 ```
 
+## Елементи графічного інтерфейсу
 ## Text
 
 ```
@@ -216,6 +217,48 @@ https://www.youtube.com/watch?v=I-fucbyPBxc&list=PLNvbguf8aVrykSSVMaIyB5YiUsczeT
         "autocenter": bool,
     }
 ```
+
+## Image
+```
+    {
+        "type":"image",
+        "x": int,
+        "y": int,
+        "w": int,
+        "h": int,
+        "cmd": string,
+        "src": string,
+        "autocenter": bool,
+    }
+```
+
+## Toggle
+```
+    {
+        "type":"toggle",
+        "x": int,
+        "y": int,
+        "w": int,
+        "h": int,
+        "text": "Off|A|B|C",
+        "values": "0|30|60|90",
+        "cmd": string,
+        "autocenter": bool,
+    }
+```
+
+## Редактор графічного інтерфейсу
+Плата обладнана редактором інтерфейсу. З допомого якого можна вносити зміни в існуючий дизайн, або створититповністю новий унікальний вигляд на ваш смак.
+![Model's Heart GUI Designer](img/gui-designer.png)
+
+Для кожного елемента графічного інтерфейсу передбачено редактор властивостей.
+![Model's Heart GUI Designer](img/gui-designer-properties.png)
+
+
+## Графічний інтерфейс
+
+![Model's Heart GUI Designer](img/gui.png)
+
 
 ## Сценарій
 
@@ -312,62 +355,109 @@ https://www.youtube.com/watch?v=I-fucbyPBxc&list=PLNvbguf8aVrykSSVMaIyB5YiUsczeT
 ui.json
 ```
 {
+  "bg": "url('img/bg.jpg')",
   "elements": [
     {
-      "type": "text",
-      "x": "0",
-      "y": "0",
-      "text": "Motor example"
+      "type": "toggle",
+      "x": 31,
+      "y": 40.5,
+      "w": 42,
+      "h": 4,
+      "text": "Max|Mid|Min|Off|Min|Mid|Max",
+      "cmd": "motor_x",
+      "values": "100|60|30|0|-30|-60|-100"
     },
     {
       "type": "slider",
-      "x": "56",
-      "y": "36",
-      "w": "30",
-      "h": "5",
-      "color": "red",
+      "x": 57.5,
+      "y": 17.5,
+      "w": 26.5,
+      "h": 6,
       "cmd": "motor",
       "autocenter": "y"
     },
     {
       "type": "button",
-      "x": "0",
-      "y": "10",
-      "w": "27",
-      "text": "Хвостовий маяк",
+      "x": 0,
+      "y": 10,
+      "w": 27,
+      "h": 4,
+      "text": "Хвостовий маячок",
       "cmd": "beacon"
     },
     {
       "type": "button",
-      "x": "0",
-      "y": "15",
-      "w": "27",
+      "x": 0,
+      "y": 15,
+      "w": 27,
+      "h": 4,
       "text": "Габаритні маяки",
       "cmd": "strobe"
     },
     {
       "type": "button",
-      "x": "0",
-      "y": "20",
-      "w": "27",
+      "x": 0,
+      "y": 20,
+      "w": 27,
+      "h": 4,
       "text": "Габарити",
       "cmd": "position"
     },
     {
       "type": "button",
-      "x": "0",
-      "y": "25",
-      "w": "27",
+      "x": 0,
+      "y": 25,
+      "w": 27,
+      "h": 4,
       "text": "Посадкові вогні",
       "cmd": "navigation"
     },
     {
       "type": "button",
-      "x": "0",
-      "y": "30",
-      "w": "27",
+      "x": 0,
+      "y": 30,
+      "w": 27,
+      "h": 4,
       "text": "Двигуни",
       "cmd": "ignition"
+    },
+    {
+      "type": "text",
+      "x": 31,
+      "y": 37.5,
+      "w": 18,
+      "h": 3,
+      "text": "Forward speed",
+      "cmd": ""
+    },
+    {
+      "type": "text",
+      "x": 59.5,
+      "y": 37.5,
+      "w": 13.5,
+      "h": 3,
+      "text": "Reverse speed",
+      "cmd": ""
+    },
+    {
+      "text": "null",
+      "cmd": "motor_x",
+      "type": "image",
+      "x": 46.5,
+      "y": 14,
+      "w": 10,
+      "h": 10,
+      "src": "img/green.png"
+    },
+    {
+      "text": "null",
+      "cmd": "motor_x",
+      "type": "image",
+      "x": 78.5,
+      "y": 2,
+      "w": 10,
+      "h": 10,
+      "src": "img/green.png"
     }
   ]
 }
