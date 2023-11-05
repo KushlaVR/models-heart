@@ -151,13 +151,34 @@
       <DependentUpon>Pipe.ashx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <TypeScriptCompile Include="ts\workspace\Elements\ImageSelector.ts" />
     <TypeScriptCompile Include="ts\workspace\Elements\PropertyEditor.ts" />
+    <TypeScriptCompile Include="ts\workspace\Interfaces\FileRecord.ts" />
+    <TypeScriptCompile Include="ts\workspace\PropertySelector.ts" />
     <TypeScriptCompile Include="ts\workspace\Elements\Toggle.ts" />
+    <TypeScriptCompile Include="ts\workspace\Interfaces\ElementWithPropertySelector.ts" />
     <TypeScriptCompile Include="ts\workspace\Interfaces\ToggleConfig.ts" />
     <TypeScriptCompile Include="ts\workspace\Interfaces\ProgressConfig.ts" />
     <TypeScriptCompile Include="ts\workspace\Interfaces\HTMLElementWithConfig.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\html\css\bootstrap.css" />
+    <Content Include="App_Data\html\css\kvr_workspace.css" />
+    <Content Include="App_Data\html\css\style.css" />
+    <Content Include="App_Data\html\img\afu-gf.svg" />
+    <Content Include="App_Data\html\img\arrow.svg" />
+    <Content Include="App_Data\html\img\bg.jpg" />
+    <Content Include="App_Data\html\img\green.png" />
+    <Content Include="App_Data\html\img\hl.svg" />
+    <Content Include="App_Data\html\img\jp-l.svg" />
+    <Content Include="App_Data\html\img\jp-r.svg" />
+    <Content Include="App_Data\html\img\ll.svg" />
+    <Content Include="App_Data\html\img\pl.svg" />
+    <Content Include="App_Data\html\img\red.png" />
+    <Content Include="App_Data\html\img\rm-ctrl.svg" />
+    <Content Include="App_Data\html\img\sp.svg" />
+    <Content Include="App_Data\html\img\white.png" />
+    <Content Include="App_Data\html\img\yellow.png" />
     <Content Include="App_Data\html\index.html" />
     <Content Include="App_Data\html\index.min.html">
       <DependentUpon>index.html</DependentUpon>

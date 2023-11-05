@@ -9,7 +9,13 @@
     PropertyWinodwBody: HTMLElement = null;
 
     private static readonlyProperties = ["type"];
-
+    private static PropertySelectors = {
+        src: {
+            Invoke: (element: HTMLElement) => {
+                ImageSelector.Show(element);
+            }
+        }
+    }
 
     public Show(frame: ComponentFrame) {
         if (this.frame != null) {
@@ -43,14 +49,28 @@
             preffix.appendChild(span);
 
             let input: HTMLElement;
-            if (PropertyEditor.readonlyProperties.indexOf(key) == -1) {
+            if (PropertyEditor.readonlyProperties.indexOf(key) == -1) {//regular field
                 input = document.createElement("INPUT");
                 input.classList.add("form-control");
                 input.setAttribute("Name", key);
                 input.setAttribute("type", "text");
                 input.setAttribute("value", this.config[key]);
                 inputGroup.appendChild(input);
-            } else {
+                if (PropertyEditor.PropertySelectors[key]) {
+                    let btnDiv: HTMLElement = document.createElement("DIV");
+                    btnDiv.classList.add("input-group-append");
+                    let btn = document.createElement("BUTTON");
+                    btn.classList.add("btn");
+                    btn.classList.add("btn-outline-secondary");
+                    btn.innerText = "Select";
+                    btn.onclick = () => {
+                        PropertyEditor.PropertySelectors[key].Invoke(input);
+                    };
+                    btnDiv.appendChild(btn);
+                    inputGroup.appendChild(btnDiv);
+                }
+
+            } else {//readonly field
                 input = document.createElement("SPAN");
                 input.classList.add("form-control");
                 input.innerText = this.config[key];

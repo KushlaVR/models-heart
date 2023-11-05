@@ -303,3 +303,12 @@
     background-color: #808080a8;
     overflow: hidden;
 }
+
+
+table.files tbody tr {
+    cursor: pointer;
+}
+
+    table.files tbody tr:hover {
+        background-color: #808080a8;
+    }

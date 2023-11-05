@@ -158,4 +158,19 @@ class Utils {
 
     }
 
+    static str(dbl: number): string {
+        return (Math.round(dbl * 100) / 100).toFixed(2);
+    }
+
+    static formatBytes(v: number) {
+        if (v < 1024)
+            return v + " b";
+        else if (v < (1024 * 1024))
+            return Utils.str(v / 1024.0) + " Kb";
+        else if (v < (1024 * 1024 * 1024))
+            return Utils.str(v / 1024.0 / 1024.0) + " Mb";
+        else
+            return Utils.str(v / 1024.0 / 1024.0 / 1024.0) + " Gb";
+    };
+
 }
