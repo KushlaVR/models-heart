@@ -29,7 +29,7 @@ protected:
 public:
 	Print *console = nullptr;
 	bool debug = false;
-	bool repeat = true;
+	int repeat = -1;
 	int startupState = 0;
 	Blinker(String name);
 	~Blinker();

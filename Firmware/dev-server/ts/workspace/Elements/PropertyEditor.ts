@@ -53,7 +53,10 @@
                 input = document.createElement("INPUT");
                 input.classList.add("form-control");
                 input.setAttribute("Name", key);
-                input.setAttribute("type", "text");
+                if (key == "color")
+                    input.setAttribute("type", "color");
+                else
+                    input.setAttribute("type", "text");
                 input.setAttribute("value", this.config[key]);
                 inputGroup.appendChild(input);
                 if (PropertyEditor.PropertySelectors[key]) {
@@ -100,6 +103,9 @@
         }
         Utils.ApplyDimentionsProperties(this.element, this.config);
         Utils.ApplyTextProperty(this.element, this.config);
+        if (this.config.type == "progress") {
+            Utils.ApplyProgressProperties(this.element, <any>this.config);
+        }
         this.frame.UpdateLayout();
         //console.log("save");
         (<any>$(this.PropertyWindow)).modal('hide');

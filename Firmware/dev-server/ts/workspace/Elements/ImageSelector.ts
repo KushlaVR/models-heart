@@ -34,8 +34,8 @@ class ImageSelector extends PropertySelector {
             <thead>
                 <tr>
                     <th></th>
-                    <th>Назва</th>
-                    <th>Розмір</th>
+                    <th>Name</th>
+                    <th>Size</th>
                 </tr>
             </thead>
             <tbody class="files-list"></tbody>
@@ -80,7 +80,14 @@ class ImageSelector extends PropertySelector {
     private RendeFileList(files: Array<FileRecord>) {
         let s = "";
         $.each(files, function (index, value) {
-            s += "<tr><td><div class='";
+            let c = "";
+            if (value.dir == false) {
+                c = "file-row"
+            }
+            else {
+                c = "dir-row"
+            }
+            s += "<tr class='" + c + "' data-name='" + value.Name + "'><td class='";
             if (value.dir == false) {
                 s += "file";
                 s += "'>&#128463;</td><td class='fname'>";
@@ -98,7 +105,7 @@ class ImageSelector extends PropertySelector {
             s += "</tr>";
         });
         this.FileList.html(s);
-        $("td.fname").on("click", (e) => { this.FileNameClicked(e, e.target); })
+        $("tr.file-row").on("click", (e) => { this.FileNameClicked(e, e.delegateTarget); })
 
     }
 
@@ -119,7 +126,9 @@ class ImageSelector extends PropertySelector {
     }
 
     private FileNameClicked(e: JQuery.Event, el: HTMLElement) {
-        this.selectedFile = this.curPath + el.innerText;
+        $("tr.active").removeClass("active");
+        el.classList.add("active");
+        this.selectedFile = this.curPath + el.getAttribute("data-name");
         this.spanFile.text(this.selectedFile);
     }
 }

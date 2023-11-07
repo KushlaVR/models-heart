@@ -154,7 +154,6 @@
     <TypeScriptCompile Include="ts\workspace\Elements\ImageSelector.ts" />
     <TypeScriptCompile Include="ts\workspace\Elements\PropertyEditor.ts" />
     <TypeScriptCompile Include="ts\workspace\Interfaces\FileRecord.ts" />
-    <TypeScriptCompile Include="ts\workspace\PropertySelector.ts" />
     <TypeScriptCompile Include="ts\workspace\Elements\Toggle.ts" />
     <TypeScriptCompile Include="ts\workspace\Interfaces\ElementWithPropertySelector.ts" />
     <TypeScriptCompile Include="ts\workspace\Interfaces\ToggleConfig.ts" />

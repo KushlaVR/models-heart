@@ -141,7 +141,8 @@ var WorkSpace = (function () {
                 x: 0,
                 y: 0,
                 w: 40,
-                h: 4
+                h: 4,
+                color: "#AABBCC"
             });
         }
         else if (command === "add-image") {
@@ -296,6 +297,8 @@ var WorkSpace = (function () {
         Utils.ApplyDimentionsProperties(div, el);
         var progressBar = document.createElement("DIV");
         progressBar.classList.add("progress-bar");
+        if (el.color)
+            progressBar.style.backgroundColor = "".concat(el.color);
         progressBar.style.width = "50%";
         div.appendChild(progressBar);
         this.form.appendChild(div);
@@ -760,7 +763,7 @@ var ComponentFrame = (function () {
         this.snapSize_vw = new Point(0.5, 0.5);
         this.snapSize_px = new Point();
         this.frameMinimumSize_px = new Point();
-        this.frameMinimumSize_vw = new Point(3, 3);
+        this.frameMinimumSize_vw = new Point(2, 2);
         this.element = element;
         var div = document.createElement("DIV");
         div.classList.add("component-frame");
@@ -1095,7 +1098,10 @@ var PropertyEditor = (function () {
                 input = document.createElement("INPUT");
                 input.classList.add("form-control");
                 input.setAttribute("Name", key);
-                input.setAttribute("type", "text");
+                if (key == "color")
+                    input.setAttribute("type", "color");
+                else
+                    input.setAttribute("type", "text");
                 input.setAttribute("value", this_2.config[key]);
                 inputGroup.appendChild(input);
                 if (PropertyEditor.PropertySelectors[key]) {
@@ -1142,6 +1148,9 @@ var PropertyEditor = (function () {
         }
         Utils.ApplyDimentionsProperties(this.element, this.config);
         Utils.ApplyTextProperty(this.element, this.config);
+        if (this.config.type == "progress") {
+            Utils.ApplyProgressProperties(this.element, this.config);
+        }
         this.frame.UpdateLayout();
         $(this.PropertyWindow).modal('hide');
     };
@@ -1473,6 +1482,16 @@ var Utils = (function () {
         if (source.h)
             div.style.height = "".concat(source.h, "vw");
     };
+    Utils.ApplyProgressProperties = function (div, source) {
+        var itms = div.getElementsByClassName("progress-bar");
+        if (itms.length > 0) {
+            var el = (itms[0]);
+            if (source.color)
+                el.style.backgroundColor = source.color;
+            else
+                el.style.backgroundColor = "";
+        }
+    };
     Utils.ApplyTextProperty = function (div, source) {
         if (source.type == "image") {
             div.setAttribute("src", source.src);
@@ -1616,7 +1635,7 @@ var ImageSelector = (function (_super) {
     ImageSelector.prototype.InitializeDialogWindow = function () {
         var _this = this;
         this.dialogContent = document.createElement("DIV");
-        this.dialogContent.innerHTML = "\n        <p>Selected file: <span class=\"selected-file\"></span></p>\n        <table class=\"files table table-striped table-borderless\" style=\"table-layout: fixed;\">\n            <colgroup>\n                <col id=\"files-col1\">\n                <col id=\"files-col2\">\n                <col id=\"files-col3\">\n            </colgroup>\n            <thead>\n                <tr>\n                    <th></th>\n                    <th>\u041D\u0430\u0437\u0432\u0430</th>\n                    <th>\u0420\u043E\u0437\u043C\u0456\u0440</th>\n                </tr>\n            </thead>\n            <tbody class=\"files-list\"></tbody>\n        </table>";
+        this.dialogContent.innerHTML = "\n        <p>Selected file: <span class=\"selected-file\"></span></p>\n        <table class=\"files table table-striped table-borderless\" style=\"table-layout: fixed;\">\n            <colgroup>\n                <col id=\"files-col1\">\n                <col id=\"files-col2\">\n                <col id=\"files-col3\">\n            </colgroup>\n            <thead>\n                <tr>\n                    <th></th>\n                    <th>Name</th>\n                    <th>Size</th>\n                </tr>\n            </thead>\n            <tbody class=\"files-list\"></tbody>\n        </table>";
         this.dialog = Utils.CreateModalDialog("Select file", this.dialogContent, function () { _this.Save(); });
         this.FileList = $(".files-list");
         this.Title = $(".modal-header h5");
@@ -1650,7 +1669,14 @@ var ImageSelector = (function (_super) {
         var _this = this;
         var s = "";
         $.each(files, function (index, value) {
-            s += "<tr><td><div class='";
+            var c = "";
+            if (value.dir == false) {
+                c = "file-row";
+            }
+            else {
+                c = "dir-row";
+            }
+            s += "<tr class='" + c + "' data-name='" + value.Name + "'><td class='";
             if (value.dir == false) {
                 s += "file";
                 s += "'>&#128463;</td><td class='fname'>";
@@ -1668,7 +1694,7 @@ var ImageSelector = (function (_super) {
             s += "</tr>";
         });
         this.FileList.html(s);
-        $("td.fname").on("click", function (e) { _this.FileNameClicked(e, e.target); });
+        $("tr.file-row").on("click", function (e) { _this.FileNameClicked(e, e.delegateTarget); });
     };
     ImageSelector.prototype.LoadDir = function (path) {
         var _this = this;
@@ -1687,7 +1713,9 @@ var ImageSelector = (function (_super) {
         });
     };
     ImageSelector.prototype.FileNameClicked = function (e, el) {
-        this.selectedFile = this.curPath + el.innerText;
+        $("tr.active").removeClass("active");
+        el.classList.add("active");
+        this.selectedFile = this.curPath + el.getAttribute("data-name");
         this.spanFile.text(this.selectedFile);
     };
     return ImageSelector;

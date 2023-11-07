@@ -119,7 +119,7 @@ class ComponentFrame {
     private snapSize_vw = new Point(0.5, 0.5);
     private snapSize_px = new Point();
     private frameMinimumSize_px = new Point();
-    private frameMinimumSize_vw = new Point(3, 3);
+    private frameMinimumSize_vw = new Point(2, 2);
 
     private beginEdit() {
         //console.log("beginEdit");

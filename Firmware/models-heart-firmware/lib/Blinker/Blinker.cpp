@@ -17,24 +17,27 @@ void Blinker::loop()
 		return;
 	unsigned long offset = millis() - startTime; //
 	if (current == nullptr)
-		return; // 
+		return; //
 	while (true)
 	{
 		BlinkerItem *item = current;
 		if (offset < item->offset)
-			return;					   // 
-		write(item->pin, item->value); // 
+			return;					   //
+		write(item->pin, item->value); //
 		if (debug)
 		{
 			console->print(name);
 			console->printf(": %i->%i\n", item->pin, item->value);
 		}
-		current = item->next; // 
+		current = item->next; //
 
-		if (current == nullptr) // 
+		if (current == nullptr) //end reached
 		{
-			if (repeat)
-			{ // 
+			if (repeat > 0)
+				repeat--;
+
+			if (repeat != 0)
+			{ //
 				current = first;
 				startTime = millis();
 				if (debug)

@@ -141,7 +141,8 @@ var WorkSpace = (function () {
                 x: 0,
                 y: 0,
                 w: 40,
-                h: 4
+                h: 4,
+                color: "#AABBCC"
             });
         }
         else if (command === "add-image") {
@@ -296,6 +297,8 @@ var WorkSpace = (function () {
         Utils.ApplyDimentionsProperties(div, el);
         var progressBar = document.createElement("DIV");
         progressBar.classList.add("progress-bar");
+        if (el.color)
+            progressBar.style.backgroundColor = "".concat(el.color);
         progressBar.style.width = "50%";
         div.appendChild(progressBar);
         this.form.appendChild(div);
@@ -736,283 +739,6 @@ var Button = (function (_super) {
     };
     return Button;
 }(Input));
-var Output = (function () {
-    function Output(element) {
-        this.audio = null;
-        this.element = element;
-        this.jElement = $(element);
-        this.name = this.jElement.data("input");
-        console.log(this.name);
-        var sound = this.jElement.data("sound");
-        if (sound) {
-            this.audio = new Audio(sound);
-            this.audio.load();
-            this.sound_duration = this.jElement.data("sound-duration");
-        }
-    }
-    Output.prototype.loadValue = function () {
-        if (this.name === undefined)
-            return;
-        if (!(this.workSpace.values[this.name] == undefined)) {
-            var newValue = this.workSpace.values[this.name];
-            if (this.element.tagName.toUpperCase() == "INPUT") {
-                this.jElement.val(newValue);
-            }
-            if (this.element.tagName.toUpperCase() == "IMG") {
-                if (newValue == "0") {
-                    this.jElement.addClass("hidden");
-                }
-                else {
-                    this.jElement.removeClass("hidden");
-                }
-            }
-            if (this.element.classList.contains("progress")) {
-                $(".progress-bar", this.jElement).width((newValue) + "%");
-            }
-            else {
-                this.jElement.text(newValue);
-            }
-            if (this.value == "0" && !(newValue == "0")) {
-                this.playSound();
-            }
-            ;
-            this.value = newValue;
-        }
-    };
-    Output.prototype.initLayout = function () {
-    };
-    Output.prototype.playSound = function () {
-        var _this = this;
-        if (this.audio == null)
-            return;
-        if (!this.audio.paused)
-            return;
-        this.audio.currentTime = 0;
-        var playPromise = this.audio.play();
-        if (playPromise !== undefined && this.sound_duration !== undefined) {
-            playPromise.then(function (_) {
-                setTimeout(function () { _this.audio.pause(); }, _this.sound_duration);
-            });
-        }
-    };
-    return Output;
-}());
-var Slider = (function (_super) {
-    __extends(Slider, _super);
-    function Slider(element) {
-        var _this = _super.call(this, element) || this;
-        _this.pressed = false;
-        _this.handlePos = new Point();
-        _this.value = new Point();
-        _this.center = new Point();
-        _this.autoCenterX = false;
-        _this.autoCenterY = false;
-        _this.handle = $(".handle", element)[0];
-        var pot = $(".pot", element);
-        if (pot.length > 0) {
-            _this.pot = pot[0];
-        }
-        if ("ontouchstart" in document.documentElement) {
-            _this.element.addEventListener('touchstart', function (event) { return _this.onTouchStart(event); }, false);
-            _this.element.addEventListener('touchmove', function (event) { return _this.onTouchMove(event); }, false);
-            _this.element.addEventListener('touchend', function (event) { return _this.onTouchEnd(event); }, false);
-        }
-        else {
-            _this.element.addEventListener('mousedown', function (event) { return _this.onMouseDown(event); }, false);
-            _this.element.addEventListener('mousemove', function (event) { return _this.onMouseMove(event); }, false);
-            _this.element.addEventListener('mouseup', function (event) { return _this.onMouseUp(event); }, false);
-        }
-        _this.initLayout();
-        if ($(element).data("center")) {
-            _this.autoCenterX = true;
-            _this.autoCenterY = true;
-        }
-        else if ($(element).data("center-x")) {
-            _this.autoCenterX = true;
-        }
-        else if ($(element).data("center-y")) {
-            _this.autoCenterY = true;
-            _this.autoCenterY = true;
-        }
-        _this.refreshLayout(true);
-        return _this;
-    }
-    Slider.prototype.onTouchStart = function (event) {
-        this.pressed = true;
-        this.element.style.zIndex = "100";
-    };
-    Slider.prototype.onTouchMove = function (event) {
-        event.preventDefault();
-        if (this.pressed === true) {
-            this.handlePos = Slider.pointFromTouch(this.element, event.targetTouches[0]);
-            this.refreshLayout(false);
-            this.saveValue();
-        }
-    };
-    Slider.prototype.onTouchEnd = function (event) {
-        this.pressed = false;
-        if (this.autoCenterX)
-            this.handlePos.x = this.center.x;
-        if (this.autoCenterY)
-            this.handlePos.y = this.center.y;
-        this.refreshLayout(true);
-        this.saveValue();
-        this.element.style.zIndex = "0";
-    };
-    Slider.prototype.onMouseDown = function (event) {
-        this.pressed = true;
-        this.element.style.zIndex = "100";
-    };
-    Slider.prototype.onMouseMove = function (event) {
-        if (this.pressed === true) {
-            this.handlePos = Slider.pointFromMouseEvent(this.element, event);
-            this.refreshLayout(false);
-            this.saveValue();
-        }
-    };
-    Slider.prototype.onMouseUp = function (event) {
-        this.pressed = false;
-        if (this.autoCenterX)
-            this.handlePos.x = this.center.x;
-        if (this.autoCenterY)
-            this.handlePos.y = this.center.y;
-        this.refreshLayout(true);
-        this.saveValue();
-        var key_x = this.name + "_x";
-        var key_y = this.name + "_y";
-        this.workSpace.refreshInput(key_x, Slider.numToString(this.value.x));
-        this.workSpace.refreshInput(key_y, Slider.numToString(this.value.y));
-        this.element.style.zIndex = "0";
-    };
-    Slider.prototype.refreshLayout = function (clip) {
-        if (clip) {
-            if (this.handlePos.x < 0)
-                this.handlePos.x = 0;
-            if (this.handlePos.y < 0)
-                this.handlePos.y = 0;
-            if (this.handlePos.x > this.element.clientWidth)
-                this.handlePos.x = this.element.clientWidth;
-            if (this.handlePos.y > this.element.clientHeight)
-                this.handlePos.y = this.element.clientHeight;
-        }
-        this.handle.style.left = '' + (this.handlePos.x - (this.handle.clientWidth / 2)) + 'px';
-        this.handle.style.top = '' + (this.handlePos.y - (this.handle.clientHeight / 2)) + 'px';
-        var clipped = new Point();
-        clipped.x = this.handlePos.x;
-        clipped.y = this.handlePos.y;
-        if (clipped.x < 0)
-            clipped.x = 0;
-        if (clipped.y < 0)
-            clipped.y = 0;
-        if (clipped.x > this.element.clientWidth)
-            clipped.x = this.element.clientWidth;
-        if (clipped.y > this.element.clientHeight)
-            clipped.y = this.element.clientHeight;
-        var normalized = new Point();
-        normalized.x = (this.center.x - clipped.x) * 100.0 / (this.element.clientWidth / 2.0);
-        normalized.y = (this.center.y - clipped.y) * 100.0 / (this.element.clientHeight / 2.0);
-        this.value = normalized;
-        if (this.pot) {
-            this.pot.style.left = '' + (clipped.x - (this.pot.clientWidth / 2.0)) + 'px';
-            this.pot.style.top = '' + (clipped.y - (this.pot.clientHeight / 2.0)) + 'px';
-        }
-    };
-    Slider.prototype.saveValue = function () {
-        if (!this.workSpace)
-            return;
-        this.workSpace.beginTransaction();
-        var key_x = this.name + "_x";
-        this.workSpace.values[key_x] = Slider.numToString(this.value.x);
-        var key_y = this.name + "_y";
-        this.workSpace.values[key_y] = Slider.numToString(this.value.y);
-        this.workSpace.endTransaction();
-    };
-    Slider.prototype.loadValue = function (key, value) {
-        if (this.pressed == true)
-            return;
-        var key_x = this.name + "_x";
-        var key_y = this.name + "_y";
-        var refresh = false;
-        if (key == key_x) {
-            this.value.x = value;
-            refresh = true;
-        }
-        if (key == key_y) {
-            this.value.y = value;
-            refresh = true;
-        }
-        if (refresh == true) {
-            this.initLayout();
-        }
-    };
-    Slider.prototype.initLayout = function () {
-        this.center.x = this.element.clientWidth / 2;
-        this.center.y = this.element.clientHeight / 2;
-        var x = this.element.clientWidth / 2.0;
-        var y = this.element.clientHeight / 2.0;
-        this.handlePos.x = this.center.x - this.value.x * x / 100.0;
-        this.handlePos.y = this.center.y - this.value.y * y / 100.0;
-        this.handle.style.left = '' + (this.handlePos.x - (this.handle.clientWidth / 2)) + 'px';
-        this.handle.style.top = '' + (this.handlePos.y - (this.handle.clientHeight / 2)) + 'px';
-        if (this.pot) {
-            this.pot.style.left = '' + (this.handlePos.x - (this.pot.clientWidth / 2.0)) + 'px';
-            this.pot.style.top = '' + (this.handlePos.y - (this.pot.clientHeight / 2.0)) + 'px';
-        }
-    };
-    Slider.numToString = function (n) {
-        return (Math.round(n * 100.0) / 100.0).toString(10);
-    };
-    Slider.pointFromMouseEvent = function (container, e) {
-        var m_posx = 0, m_posy = 0, e_posx = 0, e_posy = 0;
-        if (!e) {
-            e = window.event;
-        }
-        if (e.pageX || e.pageY) {
-            m_posx = e.pageX;
-            m_posy = e.pageY;
-        }
-        else if (e.clientX || e.clientY) {
-            m_posx = e.clientX + document.body.scrollLeft
-                + document.documentElement.scrollLeft;
-            m_posy = e.clientY + document.body.scrollTop
-                + document.documentElement.scrollTop;
-        }
-        if (container.offsetParent) {
-            do {
-                e_posx += container.offsetLeft;
-                e_posy += container.offsetTop;
-            } while (container = container.offsetParent);
-        }
-        var pt = new Point();
-        pt.x = (m_posx - e_posx);
-        pt.y = (m_posy - e_posy);
-        return pt;
-    };
-    Slider.pointFromTouch = function (container, e) {
-        var m_posx = 0, m_posy = 0, e_posx = 0, e_posy = 0;
-        if (e.pageX || e.pageY) {
-            m_posx = e.pageX;
-            m_posy = e.pageY;
-        }
-        else if (e.clientX || e.clientY) {
-            m_posx = e.clientX + document.body.scrollLeft
-                + document.documentElement.scrollLeft;
-            m_posy = e.clientY + document.body.scrollTop
-                + document.documentElement.scrollTop;
-        }
-        if (container.offsetParent) {
-            do {
-                e_posx += container.offsetLeft;
-                e_posy += container.offsetTop;
-            } while (container = container.offsetParent);
-        }
-        var pt = new Point();
-        pt.x = (m_posx - e_posx);
-        pt.y = (m_posy - e_posy);
-        return pt;
-    };
-    return Slider;
-}(Input));
 var PositionsTypes;
 (function (PositionsTypes) {
     PositionsTypes["top"] = "top";
@@ -1037,7 +763,7 @@ var ComponentFrame = (function () {
         this.snapSize_vw = new Point(0.5, 0.5);
         this.snapSize_px = new Point();
         this.frameMinimumSize_px = new Point();
-        this.frameMinimumSize_vw = new Point(3, 3);
+        this.frameMinimumSize_vw = new Point(2, 2);
         this.element = element;
         var div = document.createElement("DIV");
         div.classList.add("component-frame");
@@ -1272,6 +998,459 @@ var ComponentFrame = (function () {
     ];
     return ComponentFrame;
 }());
+var Output = (function () {
+    function Output(element) {
+        this.audio = null;
+        this.element = element;
+        this.jElement = $(element);
+        this.name = this.jElement.data("input");
+        console.log(this.name);
+        var sound = this.jElement.data("sound");
+        if (sound) {
+            this.audio = new Audio(sound);
+            this.audio.load();
+            this.sound_duration = this.jElement.data("sound-duration");
+        }
+    }
+    Output.prototype.loadValue = function () {
+        if (this.name === undefined)
+            return;
+        if (!(this.workSpace.values[this.name] == undefined)) {
+            var newValue = this.workSpace.values[this.name];
+            if (this.element.tagName.toUpperCase() == "INPUT") {
+                this.jElement.val(newValue);
+            }
+            if (this.element.tagName.toUpperCase() == "IMG") {
+                if (newValue == "0") {
+                    this.jElement.addClass("hidden");
+                }
+                else {
+                    this.jElement.removeClass("hidden");
+                }
+            }
+            if (this.element.classList.contains("progress")) {
+                $(".progress-bar", this.jElement).width((newValue) + "%");
+            }
+            else {
+                this.jElement.text(newValue);
+            }
+            if (this.value == "0" && !(newValue == "0")) {
+                this.playSound();
+            }
+            ;
+            this.value = newValue;
+        }
+    };
+    Output.prototype.initLayout = function () {
+    };
+    Output.prototype.playSound = function () {
+        var _this = this;
+        if (this.audio == null)
+            return;
+        if (!this.audio.paused)
+            return;
+        this.audio.currentTime = 0;
+        var playPromise = this.audio.play();
+        if (playPromise !== undefined && this.sound_duration !== undefined) {
+            playPromise.then(function (_) {
+                setTimeout(function () { _this.audio.pause(); }, _this.sound_duration);
+            });
+        }
+    };
+    return Output;
+}());
+var PropertyEditor = (function () {
+    function PropertyEditor() {
+        this.frame = null;
+        this.fields = new Array();
+        this.PropertyWindow = null;
+        this.PropertyWinodwBody = null;
+    }
+    PropertyEditor.prototype.Show = function (frame) {
+        var _this = this;
+        if (this.frame != null) {
+            this.Hide();
+        }
+        if (this.PropertyWinodwBody == null) {
+            this.PropertyWinodwBody = document.createElement("div");
+            this.PropertyWindow = Utils.CreateModalDialog("Properties", this.PropertyWinodwBody, function () { _this.Save_Click(); });
+        }
+        this.frame = frame;
+        this.element = frame.element;
+        this.config = (this.element).Config;
+        console.log(this.config);
+        this.PropertyWinodwBody.innerHTML = "";
+        this.fields = new Array();
+        var _loop_2 = function () {
+            var inputGroup = document.createElement("DIV");
+            inputGroup.classList.add("input-group");
+            inputGroup.classList.add("my-2");
+            var preffix = document.createElement("DIV");
+            preffix.classList.add("input-group-prepend");
+            inputGroup.appendChild(preffix);
+            var span = document.createElement("SPAN");
+            span.classList.add("input-group-text");
+            span.style.width = "120px";
+            span.innerText = key;
+            preffix.appendChild(span);
+            var input;
+            if (PropertyEditor.readonlyProperties.indexOf(key) == -1) {
+                input = document.createElement("INPUT");
+                input.classList.add("form-control");
+                input.setAttribute("Name", key);
+                if (key == "color")
+                    input.setAttribute("type", "color");
+                else
+                    input.setAttribute("type", "text");
+                input.setAttribute("value", this_2.config[key]);
+                inputGroup.appendChild(input);
+                if (PropertyEditor.PropertySelectors[key]) {
+                    var btnDiv = document.createElement("DIV");
+                    btnDiv.classList.add("input-group-append");
+                    var btn = document.createElement("BUTTON");
+                    btn.classList.add("btn");
+                    btn.classList.add("btn-outline-secondary");
+                    btn.innerText = "Select";
+                    btn.onclick = function () {
+                        PropertyEditor.PropertySelectors[key].Invoke(input);
+                    };
+                    btnDiv.appendChild(btn);
+                    inputGroup.appendChild(btnDiv);
+                }
+            }
+            else {
+                input = document.createElement("SPAN");
+                input.classList.add("form-control");
+                input.innerText = this_2.config[key];
+                inputGroup.appendChild(input);
+                input = null;
+            }
+            this_2.PropertyWinodwBody.appendChild(inputGroup);
+            this_2.fields.push({
+                name: key,
+                context: this_2.config,
+                input: input
+            });
+        };
+        var this_2 = this;
+        for (var key in this.config) {
+            _loop_2();
+        }
+        $(this.PropertyWindow).modal({ backdrop: 'static' });
+    };
+    PropertyEditor.prototype.Save_Click = function () {
+        console.log(this.config);
+        for (var i = 0; i < this.fields.length; i++) {
+            var fld = this.fields[i];
+            if (fld.input != null) {
+                this.config[fld.name] = $(fld.input).val();
+            }
+        }
+        Utils.ApplyDimentionsProperties(this.element, this.config);
+        Utils.ApplyTextProperty(this.element, this.config);
+        if (this.config.type == "progress") {
+            Utils.ApplyProgressProperties(this.element, this.config);
+        }
+        this.frame.UpdateLayout();
+        $(this.PropertyWindow).modal('hide');
+    };
+    PropertyEditor.prototype.Hide = function () {
+        console.log("hide");
+    };
+    PropertyEditor.readonlyProperties = ["type"];
+    PropertyEditor.PropertySelectors = {
+        src: {
+            Invoke: function (element) {
+                ImageSelector.Show(element);
+            }
+        }
+    };
+    return PropertyEditor;
+}());
+var Slider = (function (_super) {
+    __extends(Slider, _super);
+    function Slider(element) {
+        var _this = _super.call(this, element) || this;
+        _this.pressed = false;
+        _this.handlePos = new Point();
+        _this.value = new Point();
+        _this.center = new Point();
+        _this.autoCenterX = false;
+        _this.autoCenterY = false;
+        _this.handle = $(".handle", element)[0];
+        var pot = $(".pot", element);
+        if (pot.length > 0) {
+            _this.pot = pot[0];
+        }
+        if ("ontouchstart" in document.documentElement) {
+            _this.element.addEventListener('touchstart', function (event) { return _this.onTouchStart(event); }, false);
+            _this.element.addEventListener('touchmove', function (event) { return _this.onTouchMove(event); }, false);
+            _this.element.addEventListener('touchend', function (event) { return _this.onTouchEnd(event); }, false);
+        }
+        else {
+            _this.element.addEventListener('mousedown', function (event) { return _this.onMouseDown(event); }, false);
+            _this.element.addEventListener('mousemove', function (event) { return _this.onMouseMove(event); }, false);
+            _this.element.addEventListener('mouseup', function (event) { return _this.onMouseUp(event); }, false);
+        }
+        _this.initLayout();
+        if ($(element).data("center")) {
+            _this.autoCenterX = true;
+            _this.autoCenterY = true;
+        }
+        else if ($(element).data("center-x")) {
+            _this.autoCenterX = true;
+        }
+        else if ($(element).data("center-y")) {
+            _this.autoCenterY = true;
+            _this.autoCenterY = true;
+        }
+        _this.refreshLayout(true);
+        return _this;
+    }
+    Slider.prototype.onTouchStart = function (event) {
+        this.pressed = true;
+        this.element.style.zIndex = "100";
+    };
+    Slider.prototype.onTouchMove = function (event) {
+        event.preventDefault();
+        if (this.pressed === true) {
+            this.handlePos = Slider.pointFromTouch(this.element, event.targetTouches[0]);
+            this.refreshLayout(false);
+            this.saveValue();
+        }
+    };
+    Slider.prototype.onTouchEnd = function (event) {
+        this.pressed = false;
+        if (this.autoCenterX)
+            this.handlePos.x = this.center.x;
+        if (this.autoCenterY)
+            this.handlePos.y = this.center.y;
+        this.refreshLayout(true);
+        this.saveValue();
+        this.element.style.zIndex = "0";
+    };
+    Slider.prototype.onMouseDown = function (event) {
+        this.pressed = true;
+        this.element.style.zIndex = "100";
+    };
+    Slider.prototype.onMouseMove = function (event) {
+        if (this.pressed === true) {
+            this.handlePos = Slider.pointFromMouseEvent(this.element, event);
+            this.refreshLayout(false);
+            this.saveValue();
+        }
+    };
+    Slider.prototype.onMouseUp = function (event) {
+        this.pressed = false;
+        if (this.autoCenterX)
+            this.handlePos.x = this.center.x;
+        if (this.autoCenterY)
+            this.handlePos.y = this.center.y;
+        this.refreshLayout(true);
+        this.saveValue();
+        var key_x = this.name + "_x";
+        var key_y = this.name + "_y";
+        this.workSpace.refreshInput(key_x, Slider.numToString(this.value.x));
+        this.workSpace.refreshInput(key_y, Slider.numToString(this.value.y));
+        this.element.style.zIndex = "0";
+    };
+    Slider.prototype.refreshLayout = function (clip) {
+        if (clip) {
+            if (this.handlePos.x < 0)
+                this.handlePos.x = 0;
+            if (this.handlePos.y < 0)
+                this.handlePos.y = 0;
+            if (this.handlePos.x > this.element.clientWidth)
+                this.handlePos.x = this.element.clientWidth;
+            if (this.handlePos.y > this.element.clientHeight)
+                this.handlePos.y = this.element.clientHeight;
+        }
+        this.handle.style.left = '' + (this.handlePos.x - (this.handle.clientWidth / 2)) + 'px';
+        this.handle.style.top = '' + (this.handlePos.y - (this.handle.clientHeight / 2)) + 'px';
+        var clipped = new Point();
+        clipped.x = this.handlePos.x;
+        clipped.y = this.handlePos.y;
+        if (clipped.x < 0)
+            clipped.x = 0;
+        if (clipped.y < 0)
+            clipped.y = 0;
+        if (clipped.x > this.element.clientWidth)
+            clipped.x = this.element.clientWidth;
+        if (clipped.y > this.element.clientHeight)
+            clipped.y = this.element.clientHeight;
+        var normalized = new Point();
+        normalized.x = (this.center.x - clipped.x) * 100.0 / (this.element.clientWidth / 2.0);
+        normalized.y = (this.center.y - clipped.y) * 100.0 / (this.element.clientHeight / 2.0);
+        this.value = normalized;
+        if (this.pot) {
+            this.pot.style.left = '' + (clipped.x - (this.pot.clientWidth / 2.0)) + 'px';
+            this.pot.style.top = '' + (clipped.y - (this.pot.clientHeight / 2.0)) + 'px';
+        }
+    };
+    Slider.prototype.saveValue = function () {
+        if (!this.workSpace)
+            return;
+        this.workSpace.beginTransaction();
+        var key_x = this.name + "_x";
+        this.workSpace.values[key_x] = Slider.numToString(this.value.x);
+        var key_y = this.name + "_y";
+        this.workSpace.values[key_y] = Slider.numToString(this.value.y);
+        this.workSpace.endTransaction();
+    };
+    Slider.prototype.loadValue = function (key, value) {
+        if (this.pressed == true)
+            return;
+        var key_x = this.name + "_x";
+        var key_y = this.name + "_y";
+        var refresh = false;
+        if (key == key_x) {
+            this.value.x = value;
+            refresh = true;
+        }
+        if (key == key_y) {
+            this.value.y = value;
+            refresh = true;
+        }
+        if (refresh == true) {
+            this.initLayout();
+        }
+    };
+    Slider.prototype.initLayout = function () {
+        this.center.x = this.element.clientWidth / 2;
+        this.center.y = this.element.clientHeight / 2;
+        var x = this.element.clientWidth / 2.0;
+        var y = this.element.clientHeight / 2.0;
+        this.handlePos.x = this.center.x - this.value.x * x / 100.0;
+        this.handlePos.y = this.center.y - this.value.y * y / 100.0;
+        this.handle.style.left = '' + (this.handlePos.x - (this.handle.clientWidth / 2)) + 'px';
+        this.handle.style.top = '' + (this.handlePos.y - (this.handle.clientHeight / 2)) + 'px';
+        if (this.pot) {
+            this.pot.style.left = '' + (this.handlePos.x - (this.pot.clientWidth / 2.0)) + 'px';
+            this.pot.style.top = '' + (this.handlePos.y - (this.pot.clientHeight / 2.0)) + 'px';
+        }
+    };
+    Slider.numToString = function (n) {
+        return (Math.round(n * 100.0) / 100.0).toString(10);
+    };
+    Slider.pointFromMouseEvent = function (container, e) {
+        var m_posx = 0, m_posy = 0, e_posx = 0, e_posy = 0;
+        if (!e) {
+            e = window.event;
+        }
+        if (e.pageX || e.pageY) {
+            m_posx = e.pageX;
+            m_posy = e.pageY;
+        }
+        else if (e.clientX || e.clientY) {
+            m_posx = e.clientX + document.body.scrollLeft
+                + document.documentElement.scrollLeft;
+            m_posy = e.clientY + document.body.scrollTop
+                + document.documentElement.scrollTop;
+        }
+        if (container.offsetParent) {
+            do {
+                e_posx += container.offsetLeft;
+                e_posy += container.offsetTop;
+            } while (container = container.offsetParent);
+        }
+        var pt = new Point();
+        pt.x = (m_posx - e_posx);
+        pt.y = (m_posy - e_posy);
+        return pt;
+    };
+    Slider.pointFromTouch = function (container, e) {
+        var m_posx = 0, m_posy = 0, e_posx = 0, e_posy = 0;
+        if (e.pageX || e.pageY) {
+            m_posx = e.pageX;
+            m_posy = e.pageY;
+        }
+        else if (e.clientX || e.clientY) {
+            m_posx = e.clientX + document.body.scrollLeft
+                + document.documentElement.scrollLeft;
+            m_posy = e.clientY + document.body.scrollTop
+                + document.documentElement.scrollTop;
+        }
+        if (container.offsetParent) {
+            do {
+                e_posx += container.offsetLeft;
+                e_posy += container.offsetTop;
+            } while (container = container.offsetParent);
+        }
+        var pt = new Point();
+        pt.x = (m_posx - e_posx);
+        pt.y = (m_posy - e_posy);
+        return pt;
+    };
+    return Slider;
+}(Input));
+var Toggle = (function (_super) {
+    __extends(Toggle, _super);
+    function Toggle(element) {
+        var _this = _super.call(this, element) || this;
+        _this.SetupEvents();
+        return _this;
+    }
+    Toggle.prototype.SetupEvents = function () {
+        var _this = this;
+        $(".btn", this.element).each(function (index, el) {
+            if ("ontouchstart" in document.documentElement) {
+                el.addEventListener('touchstart', function (event) { return _this.onTouchStart(el, event); }, false);
+                el.addEventListener('touchend', function (event) { return _this.onTouchEnd(el, event); }, false);
+            }
+            else {
+                el.addEventListener('mousedown', function (event) { return _this.onMouseDown(el, event); }, false);
+                el.addEventListener('mouseup', function (event) { return _this.onMouseUp(el, event); }, false);
+            }
+        });
+    };
+    Toggle.prototype.onTouchStart = function (el, event) {
+        console.log(el);
+        this.pressed = this.GetElementValue(el);
+        this.saveValue();
+        this.workSpace.refreshInput(this.name, this.pressed);
+        event.preventDefault();
+    };
+    Toggle.prototype.onTouchEnd = function (el, event) {
+        event.preventDefault();
+    };
+    Toggle.prototype.onMouseDown = function (el, event) {
+        console.log(el);
+        this.pressed = this.GetElementValue(el);
+        this.saveValue();
+        this.workSpace.refreshInput(this.name, this.pressed);
+        event.preventDefault();
+    };
+    Toggle.prototype.onMouseUp = function (el, event) {
+        event.preventDefault();
+    };
+    Toggle.prototype.saveValue = function () {
+        if (!this.workSpace)
+            return;
+        this.workSpace.beginTransaction();
+        var key = this.name;
+        this.workSpace.values[key] = this.pressed;
+        this.workSpace.endTransaction();
+    };
+    Toggle.prototype.loadValue = function (key, value) {
+        var _this = this;
+        var refresh = false;
+        if (key == this.name) {
+            $(".btn", this.element).each(function (index, el) {
+                if (_this.GetElementValue(el) == value) {
+                    el.classList.add("active");
+                }
+                else {
+                    el.classList.remove("active");
+                }
+            });
+        }
+    };
+    Toggle.prototype.GetElementValue = function (el) {
+        var input = $("input", el)[0];
+        return input.getAttribute("value");
+    };
+    return Toggle;
+}(Input));
 var Utils = (function () {
     function Utils() {
     }
@@ -1302,6 +1481,16 @@ var Utils = (function () {
             div.style.width = "".concat(source.w, "vw");
         if (source.h)
             div.style.height = "".concat(source.h, "vw");
+    };
+    Utils.ApplyProgressProperties = function (div, source) {
+        var itms = div.getElementsByClassName("progress-bar");
+        if (itms.length > 0) {
+            var el = (itms[0]);
+            if (source.color)
+                el.style.backgroundColor = source.color;
+            else
+                el.style.backgroundColor = "";
+        }
     };
     Utils.ApplyTextProperty = function (div, source) {
         if (source.type == "image") {
@@ -1411,151 +1600,123 @@ var Utils = (function () {
     };
     Utils.SetTougleValue = function (div, value) {
     };
+    Utils.str = function (dbl) {
+        return (Math.round(dbl * 100) / 100).toFixed(2);
+    };
+    Utils.formatBytes = function (v) {
+        if (v < 1024)
+            return v + " b";
+        else if (v < (1024 * 1024))
+            return Utils.str(v / 1024.0) + " Kb";
+        else if (v < (1024 * 1024 * 1024))
+            return Utils.str(v / 1024.0 / 1024.0) + " Mb";
+        else
+            return Utils.str(v / 1024.0 / 1024.0 / 1024.0) + " Gb";
+    };
+    ;
     return Utils;
 }());
-var PropertyEditor = (function () {
-    function PropertyEditor() {
-        this.frame = null;
-        this.fields = new Array();
-        this.PropertyWindow = null;
-        this.PropertyWinodwBody = null;
+var PropertySelector = (function () {
+    function PropertySelector() {
     }
-    PropertyEditor.prototype.Show = function (frame) {
-        var _this = this;
-        if (this.frame != null) {
-            this.Hide();
-        }
-        if (this.PropertyWinodwBody == null) {
-            this.PropertyWinodwBody = document.createElement("div");
-            this.PropertyWindow = Utils.CreateModalDialog("Properties", this.PropertyWinodwBody, function () { _this.Save_Click(); });
-        }
-        this.frame = frame;
-        this.element = frame.element;
-        this.config = (this.element).Config;
-        console.log(this.config);
-        this.PropertyWinodwBody.innerHTML = "";
-        this.fields = new Array();
-        for (var key in this.config) {
-            var inputGroup = document.createElement("DIV");
-            inputGroup.classList.add("input-group");
-            inputGroup.classList.add("my-2");
-            var preffix = document.createElement("DIV");
-            preffix.classList.add("input-group-prepend");
-            inputGroup.appendChild(preffix);
-            var span = document.createElement("SPAN");
-            span.classList.add("input-group-text");
-            span.style.width = "120px";
-            span.innerText = key;
-            preffix.appendChild(span);
-            var input = void 0;
-            if (PropertyEditor.readonlyProperties.indexOf(key) == -1) {
-                input = document.createElement("INPUT");
-                input.classList.add("form-control");
-                input.setAttribute("Name", key);
-                input.setAttribute("type", "text");
-                input.setAttribute("value", this.config[key]);
-                inputGroup.appendChild(input);
-            }
-            else {
-                input = document.createElement("SPAN");
-                input.classList.add("form-control");
-                input.innerText = this.config[key];
-                inputGroup.appendChild(input);
-                input = null;
-            }
-            this.PropertyWinodwBody.appendChild(inputGroup);
-            this.fields.push({
-                name: key,
-                context: this.config,
-                input: input
-            });
-        }
-        $(this.PropertyWindow).modal({ backdrop: 'static' });
-    };
-    PropertyEditor.prototype.Save_Click = function () {
-        console.log(this.config);
-        for (var i = 0; i < this.fields.length; i++) {
-            var fld = this.fields[i];
-            if (fld.input != null) {
-                this.config[fld.name] = $(fld.input).val();
-            }
-        }
-        Utils.ApplyDimentionsProperties(this.element, this.config);
-        Utils.ApplyTextProperty(this.element, this.config);
-        this.frame.UpdateLayout();
-        $(this.PropertyWindow).modal('hide');
-    };
-    PropertyEditor.prototype.Hide = function () {
-        console.log("hide");
-    };
-    PropertyEditor.readonlyProperties = ["type"];
-    return PropertyEditor;
+    return PropertySelector;
 }());
-var Toggle = (function (_super) {
-    __extends(Toggle, _super);
-    function Toggle(element) {
-        var _this = _super.call(this, element) || this;
-        _this.SetupEvents();
+var ImageSelector = (function (_super) {
+    __extends(ImageSelector, _super);
+    function ImageSelector(elenemt) {
+        var _this = _super.call(this) || this;
+        _this.selectedFile = "";
+        _this.elenemt = elenemt;
+        _this.jElenemt = $(_this.elenemt);
+        _this.selectedFile = _this.jElenemt.val().toString();
+        _this.InitializeDialogWindow();
         return _this;
     }
-    Toggle.prototype.SetupEvents = function () {
+    ImageSelector.prototype.InitializeDialogWindow = function () {
         var _this = this;
-        $(".btn", this.element).each(function (index, el) {
-            if ("ontouchstart" in document.documentElement) {
-                el.addEventListener('touchstart', function (event) { return _this.onTouchStart(el, event); }, false);
-                el.addEventListener('touchend', function (event) { return _this.onTouchEnd(el, event); }, false);
+        this.dialogContent = document.createElement("DIV");
+        this.dialogContent.innerHTML = "\n        <p>Selected file: <span class=\"selected-file\"></span></p>\n        <table class=\"files table table-striped table-borderless\" style=\"table-layout: fixed;\">\n            <colgroup>\n                <col id=\"files-col1\">\n                <col id=\"files-col2\">\n                <col id=\"files-col3\">\n            </colgroup>\n            <thead>\n                <tr>\n                    <th></th>\n                    <th>Name</th>\n                    <th>Size</th>\n                </tr>\n            </thead>\n            <tbody class=\"files-list\"></tbody>\n        </table>";
+        this.dialog = Utils.CreateModalDialog("Select file", this.dialogContent, function () { _this.Save(); });
+        this.FileList = $(".files-list");
+        this.Title = $(".modal-header h5");
+        this.spanFile = $("span.selected-file");
+        this.spanFile.text(this.selectedFile);
+    };
+    ImageSelector.Show = function (element) {
+        var elWithSelector = element;
+        var PropertySelector = elWithSelector.selector;
+        if (PropertySelector === undefined) {
+            PropertySelector = new ImageSelector(element);
+            elWithSelector.selector = PropertySelector;
+        }
+        if (PropertySelector) {
+            PropertySelector.ShowSelector();
+        }
+    };
+    ImageSelector.prototype.ShowSelector = function () {
+        $(this.dialog).modal({ backdrop: 'static' });
+        this.LoadDir("/html/img/");
+    };
+    ImageSelector.prototype.Save = function () {
+        this.selectedFile = this.selectedFile.replace("/html/", "/");
+        this.jElenemt.val(this.selectedFile);
+        $(this.dialog).modal('hide');
+    };
+    ImageSelector.prototype.fileComparator = function (a, b) {
+        return (a.dir < b.dir) ? 1 : ((a.dir > b.dir) ? -1 : (a.Name < b.Name) ? -1 : ((a.Name > b.Name) ? 1 : 0));
+    };
+    ImageSelector.prototype.RendeFileList = function (files) {
+        var _this = this;
+        var s = "";
+        $.each(files, function (index, value) {
+            var c = "";
+            if (value.dir == false) {
+                c = "file-row";
             }
             else {
-                el.addEventListener('mousedown', function (event) { return _this.onMouseDown(el, event); }, false);
-                el.addEventListener('mouseup', function (event) { return _this.onMouseUp(el, event); }, false);
+                c = "dir-row";
+            }
+            s += "<tr class='" + c + "' data-name='" + value.Name + "'><td class='";
+            if (value.dir == false) {
+                s += "file";
+                s += "'>&#128463;</td><td class='fname'>";
+                s += value.Name;
+                s += "</td><td class='text-center'>";
+                s += Utils.formatBytes(value.Size);
+                s += "</td>";
+            }
+            else {
+                s += "dir";
+                s += "'>&#128193;</td><td class='fdir'>";
+                s += value.Name;
+                s += "</td><td></td>";
+            }
+            s += "</tr>";
+        });
+        this.FileList.html(s);
+        $("tr.file-row").on("click", function (e) { _this.FileNameClicked(e, e.delegateTarget); });
+    };
+    ImageSelector.prototype.LoadDir = function (path) {
+        var _this = this;
+        $.ajax({
+            url: '/api/dir?path=' + path,
+            success: function (result) {
+                _this.curPath = path;
+                var arr = result;
+                arr.sort(_this.fileComparator);
+                _this.RendeFileList(arr);
+                _this.Title.text(_this.curPath);
+            },
+            error: function (result) {
+                console.log(result);
             }
         });
     };
-    Toggle.prototype.onTouchStart = function (el, event) {
-        console.log(el);
-        this.pressed = this.GetElementValue(el);
-        this.saveValue();
-        this.workSpace.refreshInput(this.name, this.pressed);
-        event.preventDefault();
+    ImageSelector.prototype.FileNameClicked = function (e, el) {
+        $("tr.active").removeClass("active");
+        el.classList.add("active");
+        this.selectedFile = this.curPath + el.getAttribute("data-name");
+        this.spanFile.text(this.selectedFile);
     };
-    Toggle.prototype.onTouchEnd = function (el, event) {
-        event.preventDefault();
-    };
-    Toggle.prototype.onMouseDown = function (el, event) {
-        console.log(el);
-        this.pressed = this.GetElementValue(el);
-        this.saveValue();
-        this.workSpace.refreshInput(this.name, this.pressed);
-        event.preventDefault();
-    };
-    Toggle.prototype.onMouseUp = function (el, event) {
-        event.preventDefault();
-    };
-    Toggle.prototype.saveValue = function () {
-        if (!this.workSpace)
-            return;
-        this.workSpace.beginTransaction();
-        var key = this.name;
-        this.workSpace.values[key] = this.pressed;
-        this.workSpace.endTransaction();
-    };
-    Toggle.prototype.loadValue = function (key, value) {
-        var _this = this;
-        var refresh = false;
-        if (key == this.name) {
-            $(".btn", this.element).each(function (index, el) {
-                if (_this.GetElementValue(el) == value) {
-                    el.classList.add("active");
-                }
-                else {
-                    el.classList.remove("active");
-                }
-            });
-        }
-    };
-    Toggle.prototype.GetElementValue = function (el) {
-        var input = $("input", el)[0];
-        return input.getAttribute("value");
-    };
-    return Toggle;
-}(Input));
+    return ImageSelector;
+}(PropertySelector));

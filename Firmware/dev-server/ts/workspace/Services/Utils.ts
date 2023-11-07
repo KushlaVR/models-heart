@@ -28,6 +28,17 @@ class Utils {
         if (source.h) div.style.height = `${source.h}vw`;
     }
 
+    static ApplyProgressProperties(div: HTMLElement, source: ProgressConfig) {
+        let itms = div.getElementsByClassName("progress-bar");
+        if (itms.length > 0) {
+            let el = <HTMLElement><any>(itms[0]);
+            if (source.color)
+                el.style.backgroundColor = source.color;
+            else
+                el.style.backgroundColor = "";
+        }
+    }
+
     static ApplyTextProperty(div: HTMLElement, source: BaseConfig) {
         if (source.type == "image") {
             div.setAttribute("src", (<ImageConfig>source).src)

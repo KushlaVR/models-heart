@@ -1,1 +1,125 @@
-{"bg":"url('img/bg.jpg')","elements":[{"type":"toggle","x":31,"y":40.5,"w":42,"h":4,"text":"Max|Mid|Min|Off|Min|Mid|Max","cmd":"motor_x","values":"100|60|30|0|-30|-60|-100"},{"type":"slider","x":57.5,"y":17.5,"w":26.5,"h":6,"cmd":"motor","autocenter":"y"},{"type":"button","x":0,"y":10,"w":27,"h":4,"text":"Хвостовий маячок","cmd":"beacon"},{"type":"button","x":0,"y":15,"w":27,"h":4,"text":"Габаритні маяки","cmd":"strobe"},{"type":"button","x":0,"y":20,"w":27,"h":4,"text":"Габарити","cmd":"position"},{"type":"button","x":0,"y":25,"w":27,"h":4,"text":"Посадкові вогні","cmd":"navigation"},{"type":"button","x":0,"y":30,"w":27,"h":4,"text":"Двигуни","cmd":"ignition"},{"type":"text","x":31,"y":37.5,"w":18,"h":3,"text":"Forward speed","cmd":""},{"type":"text","x":59.5,"y":37.5,"w":13.5,"h":3,"text":"Reverse speed","cmd":""},{"text":"null","cmd":"motor_x","type":"image","x":45,"y":14.5,"w":10,"h":10,"src":"/img/yellow.png"},{"text":"null","cmd":"motor_x","type":"image","x":79,"y":2.5,"w":10,"h":10,"src":"/img/red.png"}]}
+{
+  "bg": "url('img/bg.jpg')",
+  "elements": [
+    {
+      "type": "toggle",
+      "x": 31,
+      "y": 39.5,
+      "w": 42,
+      "h": 4,
+      "text": "Max|Mid|Min|Off|Min|Mid|Max",
+      "cmd": "motor_x",
+      "values": "100|60|30|0|-30|-60|-100"
+    },
+    {
+      "type": "slider",
+      "x": 57.5,
+      "y": 17.5,
+      "w": 26.5,
+      "h": 6,
+      "cmd": "motor",
+      "autocenter": "y"
+    },
+    {
+      "type": "button",
+      "x": 1,
+      "y": 10,
+      "w": 25.5,
+      "h": 4,
+      "text": "Хвостовий маячок",
+      "cmd": "beacon"
+    },
+    {
+      "type": "button",
+      "x": 1,
+      "y": 15,
+      "w": 25.5,
+      "h": 4,
+      "text": "Габаритні маяки",
+      "cmd": "strobe"
+    },
+    {
+      "type": "button",
+      "x": 1,
+      "y": 20,
+      "w": 25.5,
+      "h": 4,
+      "text": "Габарити",
+      "cmd": "position"
+    },
+    {
+      "type": "button",
+      "x": 1,
+      "y": 25,
+      "w": 25.5,
+      "h": 4,
+      "text": "Посадкові вогні",
+      "cmd": "navigation"
+    },
+    {
+      "type": "button",
+      "x": 1,
+      "y": 30,
+      "w": 25.5,
+      "h": 4,
+      "text": "Двигуни",
+      "cmd": "ignition"
+    },
+    {
+      "type": "text",
+      "x": 31.5,
+      "y": 36.5,
+      "w": 18,
+      "h": 3,
+      "text": "Forward speed",
+      "cmd": ""
+    },
+    {
+      "type": "text",
+      "x": 59.5,
+      "y": 36.5,
+      "w": 13.5,
+      "h": 3,
+      "text": "Reverse speed",
+      "cmd": ""
+    },
+    {
+      "type": "image",
+      "x": 47,
+      "y": 15,
+      "w": 10,
+      "h": 10,
+      "text": "null",
+      "cmd": "motor_x",
+      "src": "/img/yellow.png"
+    },
+    {
+      "type": "image",
+      "x": 78.5,
+      "y": 2.5,
+      "w": 10,
+      "h": 10,
+      "text": "null",
+      "cmd": "motor_x",
+      "src": "/img/yellow.png"
+    },
+    {
+      "type": "progress",
+      "x": 28,
+      "y": 1,
+      "w": 8,
+      "h": 2.5,
+      "cmd": "bat",
+      "color": "#e047ff"
+    },
+    {
+      "text": "bat",
+      "cmd": "bat",
+      "type": "text",
+      "x": 36.5,
+      "y": 0.5,
+      "w": 7,
+      "h": 3
+    }
+  ]
+}

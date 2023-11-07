@@ -1,4 +1,7 @@
-﻿
+﻿body {
+    user-select: none;
+}
+
 .main {
 }
 
@@ -310,5 +313,9 @@ table.files tbody tr {
 }
 
     table.files tbody tr:hover {
-        background-color: #808080a8;
+        background-color: rgba(0, 0, 0, 0.08);
+    }
+
+    table.files tbody tr.active {
+        background-color: rgba(0, 0, 0, 0.12);
     }

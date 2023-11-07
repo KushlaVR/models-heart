@@ -1,6 +1,60 @@
 {
   "elements": [
     {
+      "cmd":"start",
+      "type":"click",
+      "actions":[
+        {
+          "type":"blink",
+          "repeat": 5,
+          "points":[
+            {
+              "pin":"4",
+              "offset": "0",
+              "value": "0"
+            },
+            {
+              "pin":"4",
+              "offset": "200",
+              "value": "200"
+            },
+            {
+              "pin":"4",
+              "offset": "400",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cmd":"connected",
+      "type":"click",
+      "actions":[
+        {
+          "type":"blink",
+          "repeat": 2,
+          "points":[
+            {
+              "pin":"4",
+              "offset": "0",
+              "value": "0"
+            },
+            {
+              "pin":"4",
+              "offset": "400",
+              "value": "200"
+            },
+            {
+              "pin":"4",
+              "offset": "800",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "cmd": "beacon",
       "type": "toggle",
       "actions": [

@@ -131,7 +131,8 @@ class WorkSpace {
                 x: 0,
                 y: 0,
                 w: 40,
-                h: 4
+                h: 4,
+                color:"#AABBCC"
             });
         }
         else if (command === "add-image") {
@@ -296,7 +297,7 @@ class WorkSpace {
         return div;
     }
 
-    createProgressElement(el: BaseConfig): HTMLElement {
+    createProgressElement(el: ProgressConfig): HTMLElement {
 
         let div = document.createElement("DIV");
         div.classList.add("output");
@@ -308,7 +309,9 @@ class WorkSpace {
 
         let progressBar = document.createElement("DIV");
         progressBar.classList.add("progress-bar");
-        progressBar.style.width = "50%"
+        if (el.color)
+            progressBar.style.backgroundColor = `${el.color}`;
+        progressBar.style.width = "50%";
         div.appendChild(progressBar);
 
         this.form.appendChild(div);

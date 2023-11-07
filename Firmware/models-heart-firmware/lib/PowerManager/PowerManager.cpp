@@ -21,7 +21,7 @@ void PowerManager::begin()
     powerButton->isEnabled = true;
     powerButton->handle();
 
-    if (powerButton->isPressed()) this->powerButtonActivated = true;
+    if (!powerButton->isPressed()) this->powerButtonActivated = true;
 }
 
 void PowerManager::loop()

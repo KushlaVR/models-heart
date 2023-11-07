@@ -41,8 +41,6 @@ static void powerButton_Click(void *sender)
     testNumber++;
     if (testNumber == 10)
         testNumber = 0;
-    // Serial.print("Test number ");
-    // Serial.println(testNumber);
 }
 
 static void onPowerOff(void *sender)
@@ -196,6 +194,42 @@ void ui_Get()
     webServer.handleFileRead("/ui.json", false, false);
 }
 
+
+
+unsigned int startEvent;
+unsigned int stopEvent;
+unsigned int connectedEvent;
+unsigned int disconnectedEvent;
+unsigned int autoEventTimeout = 3000;
+
+
+void onConnected()
+{
+    Serial.println("onConnected()");
+    connectedEvent = millis();
+    engine.command("connected", 1);
+}
+
+void onDisconnected()
+{
+    Serial.println("onDisconnected()");
+    disconnectedEvent = millis();
+    engine.command("disconnected", 1);
+}
+
+void onStart()
+{
+    startEvent = millis();
+    engine.command("start", 1);
+}
+
+void onStop()
+{
+    stopEvent = millis();
+    engine.command("stop", 1);
+}
+
+
 void setup()
 {
     powerManager.begin();
@@ -226,16 +260,6 @@ void setup()
         }
     }
     LoadConfig();
-    // if (LittleFS.exists("/ui.json"))
-    // {
-    //     Serial.println("Parsing ui.json");
-    //     File f = LittleFS.open("/ui.json", "r");
-    //     ui.load(&f);
-    //     f.close();
-    //     // Serial.println("Print UI");
-    //     // ui.print(&Serial);
-    //     // Serial.println("");
-    // }
 
     if (LittleFS.exists("/scripts.json"))
     {
@@ -243,9 +267,6 @@ void setup()
         File f = LittleFS.open("/scripts.json", "r");
         scripts.load(&f);
         f.close();
-        // Serial.println("Print Scripts");
-        // scripts.print(&Serial);
-        // Serial.println("");
     }
 
     engine.build(&scripts);
@@ -279,9 +300,15 @@ void setup()
     fileServer.setup();
 
     webServer.on("/api/ui", HTTPMethod::HTTP_GET, ui_Get);
+
+    onStart();
 }
 
 double vBat = -1;
+double _VBAT_MIN = 800;
+double _VBAT_MAX = 1024;
+int clientCount = 0;
+
 void loop()
 {
     powerManager.loop();
@@ -296,7 +323,14 @@ void loop()
         {
             vBat = _vBat;
             Serial.println(vBat);
-            joypads.setValue("bat", vBat);
+            double bat = 0;
+            if (vBat >= _VBAT_MIN && vBat <= _VBAT_MAX)
+                bat = map(vBat, _VBAT_MIN, _VBAT_MAX, 0, 100.0);
+            else if (vBat > _VBAT_MAX)
+                bat = 100;
+            else
+                bat = 0;
+            joypads.setValue("bat", bat);
         }
         Joypadfield *jp = joypads.getFirstField();
         while (jp != nullptr)
@@ -308,5 +342,54 @@ void loop()
     else
     {
         // noone connected...
+    }
+
+    int clients = joypads.getCount();
+
+    if (clientCount > clients)
+    {
+        onDisconnected();
+    }
+    else if (clientCount < clients)
+    {
+        onConnected();
+    }
+
+    clientCount = clients;
+
+    if (connectedEvent != 0)
+    {
+        if (millis() - connectedEvent > autoEventTimeout)
+        {
+            engine.command("connected", 0);
+            connectedEvent = 0;
+        }
+    }
+
+    if (disconnectedEvent != 0)
+    {
+        if (millis() - disconnectedEvent > autoEventTimeout)
+        {
+            engine.command("disconnected", 0);
+            disconnectedEvent = 0;
+        }
+    }
+
+    if (startEvent != 0)
+    {
+        if (millis() - startEvent > autoEventTimeout)
+        {
+            engine.command("start", 0);
+            startEvent = 0;
+        }
+    }
+    
+    if (stopEvent != 0)
+    {
+        if (millis() - stopEvent > autoEventTimeout)
+        {
+            engine.command("stop", 0);
+            stopEvent = 0;
+        }
     }
 }

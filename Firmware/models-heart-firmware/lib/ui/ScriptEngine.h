@@ -64,6 +64,7 @@ public:
     ~BlinkActionElement() {}
 
     Blinker *blinker = nullptr;
+    int repeat = -1;
 
     void loop() override
     {
@@ -75,6 +76,9 @@ public:
     void build(JsonElement *src) override
     {
         blinker = new Blinker("Blinker" + String(src->Index));
+        JsonElementProperty *repeat = src->getPropertyByName("repeat");
+        if (repeat != nullptr)
+            this->repeat = repeat->value.toInt();
         JsonElementProperty *pts = src->getPropertyByName("points");
         Item *itm = pts->collection->getFirst();
         while (itm != nullptr)
@@ -95,7 +99,10 @@ public:
         if (state)
         {
             if (!blinker->isRunning())
+            {
+                blinker->repeat = this->repeat;
                 blinker->begin();
+            }
         }
         else
         {
