@@ -248,6 +248,7 @@
     <Content Include="img\rm-ctrl.svg" />
     <Content Include="design.html" />
     <Content Include="files.html" />
+    <Content Include="index-custom.html" />
     <Content Include="index - Copy.min.html">
       <DependentUpon>design.html</DependentUpon>
     </Content>

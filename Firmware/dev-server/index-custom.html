@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=800, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Control</title>
+    <script type="text/javascript" src="js/kvr_workspace.js"></script>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/kvr_setup.js"></script>
+    <link href="css/bootstrap.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <link href="css/kvr_workspace.css" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        body {
+            /*background: white;*/
+        }
+
+        div.main {
+           
+        }
+
+            div.main .screen {
+                background: none;
+            }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <form class="screen grid" style="background-image: url('img/bg.jpg'); background-size: cover;">
+
+            <div id="message" class="msg" style="position:absolute; left: 0; bottom:0; width: 85vw;">Server messages...</div>
+
+            <button onclick="WorkSpace.toggleFullScreen(); return false;" class="btn btn-outline-secondary full-screen">
+                Full screen
+            </button>
+
+            <a href="control.html" style="position: absolute; right: 5vw; bottom: 0;">Налаштувати</a>
+
+            <img class="output hidden" data-input="motor_x" src="/img/yellow.png" style="position: absolute; left: 47vw; top: 15vw; width: 10vw; height: 10vw;">
+            <img class="output hidden" data-input="motor_x" src="/img/yellow.png" style="position: absolute; left: 78.5vw; top: 2.5vw; width: 10vw; height: 10vw;">
+
+
+            <label class="output" style="position: absolute; left: 31.5vw; top: 36.5vw; width: 18vw; height: 3vw;">Forward speed</label>
+            <label class="output" style="position: absolute; left: 59.5vw; top: 36.5vw; width: 13.5vw; height: 3vw;">Reverse speed</label>
+
+            <div class="input toggle btn-group btn-group-toggle" name="motor_x" style="position: absolute; left: 31vw; top: 39.5vw; width: 42vw; height: 4vw;">
+                <label class="btn btn-outline-primary">
+                    <input type="radio" value="100">
+                    <span>Max</span>
+                </label>
+                <label class="btn btn-outline-primary">
+                    <input type="radio" value="60">
+                    <span>Mid</span>
+                </label>
+                <label class="btn btn-outline-primary">
+                    <input type="radio" value="30">
+                    <span>Min</span>
+                </label>
+                <label class="btn btn-outline-primary">
+                    <input type="radio" value="0"><span>Off</span>
+                </label>
+                <label class="btn btn-outline-primary">
+                    <input type="radio" value="-30"><span>Min</span>
+                </label>
+                <label class="btn btn-outline-primary">
+                    <input type="radio" value="-60"><span>Mid</span>
+                </label>
+                <label class="btn btn-outline-primary">
+                    <input type="radio" value="-100"><span>Max</span>
+                </label>
+            </div>
+
+
+            <button type="button" class="btn btn-primary input" name="beacon" style="position: absolute; left: 1vw; top: 10vw; width: 25.5vw; height: 4vw;">Хвостовий маячок</button>
+            <button type="button" class="btn btn-primary input" name="strobe" style="position: absolute; left: 1vw; top: 15vw; width: 25.5vw; height: 4vw;">Габаритні маяки</button>
+            <button type="button" class="btn btn-primary input" name="position" style="position: absolute; left: 1vw; top: 20vw; width: 25.5vw; height: 4vw;">Габарити</button>
+            <button type="button" class="btn btn-primary input" name="navigation" style="position: absolute; left: 1vw; top: 25vw; width: 25.5vw; height: 4vw;">Посадкові вогні</button>
+            <button type="button" class="btn btn-primary input" name="ignition" style="position: absolute; left: 1vw; top: 30vw; width: 25.5vw; height: 4vw;">Двигуни</button>
+
+            <div href="#" class="slider input" name="motor" data-center-y="1" style="position: absolute; left: 57.5vw; top: 17.5vw; width: 26.5vw; height: 6vw;">
+                <div class="pot" style="left: 61.5px; top: 1px;"></div>
+                <div class="handle" style="left: 60.5px; top: 0px;"></div>
+            </div>
+
+            <div class="output progress" data-input="bat" style="position: absolute; left: 28vw; top: 1vw; width: 8vw; height: 2.5vw;">
+                <div class="progress-bar" style="background-color: rgb(224, 71, 255); width: 0%;">
+                </div>
+            </div>
+            <label class="output" data-input="bat" style="position: absolute; left: 36.5vw; top: 0.5vw; width: 7vw; height: 3vw;">0</label>
+
+        </form>
+    </div>
+
+    <script>
+        WorkSpace.init($("form"));
+    </script>
+</body>
+</html>
