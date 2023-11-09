@@ -19,6 +19,7 @@ void PowerManager::begin()
     powerButton->tag = this;
     powerButton->condition = LOW;
     powerButton->isEnabled = true;
+    powerButton->InitState();
     powerButton->handle();
 
     if (!powerButton->isPressed()) this->powerButtonActivated = true;
@@ -32,6 +33,7 @@ void PowerManager::loop()
     {
         battery_adc_value = analogRead(batterySensePin);
         lastVoltageRead = m;
+        //Serial.printf("battery_adc_value %i\n", battery_adc_value);
     }
 }
 

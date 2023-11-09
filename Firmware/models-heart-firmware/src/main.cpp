@@ -194,14 +194,11 @@ void ui_Get()
     webServer.handleFileRead("/ui.json", false, false);
 }
 
-
-
 unsigned int startEvent;
 unsigned int stopEvent;
 unsigned int connectedEvent;
 unsigned int disconnectedEvent;
 unsigned int autoEventTimeout = 3000;
-
 
 void onConnected()
 {
@@ -228,7 +225,6 @@ void onStop()
     stopEvent = millis();
     engine.command("stop", 1);
 }
-
 
 void setup()
 {
@@ -304,9 +300,9 @@ void setup()
     onStart();
 }
 
-double vBat = -1;
-double _VBAT_MIN = 800;
-double _VBAT_MAX = 1024;
+int vBat = 0;
+double _VBAT_MIN = 700;
+double _VBAT_MAX = 1000;
 int clientCount = 0;
 
 void loop()
@@ -318,20 +314,17 @@ void loop()
     engine.loop();
     if (joypads.getCount() > 0)
     {
-        double _vBat = ((double)powerManager.getBatteryADC() * 100.0) / 1024.0;
-        if (vBat != _vBat)
-        {
-            vBat = _vBat;
-            Serial.println(vBat);
-            double bat = 0;
-            if (vBat >= _VBAT_MIN && vBat <= _VBAT_MAX)
-                bat = map(vBat, _VBAT_MIN, _VBAT_MAX, 0, 100.0);
-            else if (vBat > _VBAT_MAX)
-                bat = 100;
-            else
-                bat = 0;
-            joypads.setValue("bat", bat);
-        }
+        int _vBat = powerManager.getBatteryADC();
+        vBat = _vBat;
+        double bat = 0;
+        if (vBat >= _VBAT_MIN && vBat <= _VBAT_MAX)
+            bat = map(vBat, _VBAT_MIN, _VBAT_MAX, 0, 100.0);
+        else if (vBat > _VBAT_MAX)
+            bat = 100;
+        else
+            bat = 0;
+        joypads.setValue("bat", bat);
+
         Joypadfield *jp = joypads.getFirstField();
         while (jp != nullptr)
         {
@@ -383,7 +376,7 @@ void loop()
             startEvent = 0;
         }
     }
-    
+
     if (stopEvent != 0)
     {
         if (millis() - stopEvent > autoEventTimeout)

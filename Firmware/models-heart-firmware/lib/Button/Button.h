@@ -28,6 +28,7 @@ public:
 	virtual bool isPressed();
 	virtual bool isReleased();
 	virtual void handle();
+	virtual void InitState(); 
 };
 
 class Button : public ButtonBase

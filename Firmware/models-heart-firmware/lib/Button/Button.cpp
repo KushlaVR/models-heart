@@ -1,27 +1,28 @@
-// 
-// 
-// 
+//
+//
+//
 
 #include "Button.h"
 
-
-
 void ButtonBase::doPress()
 {
-	//Serial.printf("press;\n");
-	if (press != nullptr) press(this);
+	// Serial.printf("press;\n");
+	if (press != nullptr)
+		press(this);
 }
 
 void ButtonBase::doHold()
 {
-	//Serial.printf("hold;\n");
-	if (hold != nullptr) hold(this);
+	// Serial.printf("hold;\n");
+	if (hold != nullptr)
+		hold(this);
 }
 
 void ButtonBase::doRelease()
 {
-	//Serial.printf("release;\n");
-	if (release != nullptr) release(this);
+	// Serial.printf("release;\n");
+	if (release != nullptr)
+		release(this);
 }
 
 bool ButtonBase::isPressed()
@@ -36,18 +37,24 @@ bool ButtonBase::isReleased()
 
 void ButtonBase::handle()
 {
-	if (!isEnabled) return;
+	if (!isEnabled)
+		return;
 
-	if (pressedTime == 0 && (millis() - releasedTime) > bounce) {
-		if (isPressed()) {
+	if (pressedTime == 0 && (millis() - releasedTime) > bounce)
+	{
+		if (isPressed())
+		{
 			pressedTime = millis();
 			releasedTime = 0;
-			if (isToggleMode) {
-				if (isToggled) {
+			if (isToggleMode)
+			{
+				if (isToggled)
+				{
 					isToggled = false;
 					doRelease();
 				}
-				else {
+				else
+				{
 					isToggled = true;
 					doPress();
 				}
@@ -56,35 +63,47 @@ void ButtonBase::handle()
 				doPress();
 		}
 	}
-	else if (releasedTime == 0 && (millis() - pressedTime) > bounce) {
-		if ((millis() - pressedTime) > holdInterval) {
+	else if (releasedTime == 0 && (millis() - pressedTime) > bounce)
+	{
+		if ((millis() - pressedTime) > holdInterval)
+		{
 			pressedTime = millis();
-			if (!isToggleMode) doHold();
+			if (!isToggleMode)
+				doHold();
 		}
-		if (isReleased()) {
+		if (isReleased())
+		{
 			pressedTime = 0;
 			releasedTime = millis();
-			if (!isToggleMode) doRelease();
+			if (!isToggleMode)
+				doRelease();
 		}
 	}
-
 }
 
+void ButtonBase::InitState()
+{
+	if (isPressed())
+	{
+		pressedTime = millis();
+		releasedTime = 0;
+	}
+}
 
-Button::Button(int pin, void(*press)(void * sender))
+Button::Button(int pin, void (*press)(void *sender))
 {
 	this->pin = pin;
 	pinMode(pin, INPUT_PULLUP);
 	this->press = press;
 }
-Button::Button(int pin, void(*press)(void * sender), void(*hold)(void * sender))
+Button::Button(int pin, void (*press)(void *sender), void (*hold)(void *sender))
 {
 	this->pin = pin;
 	pinMode(pin, INPUT_PULLUP);
 	this->press = press;
 	this->hold = hold;
 }
-Button::Button(int pin, void(*press)(void * sender), void(*hold)(void * sender), void(*release)(void * sender))
+Button::Button(int pin, void (*press)(void *sender), void (*hold)(void *sender), void (*release)(void *sender))
 {
 	this->pin = pin;
 	pinMode(pin, INPUT_PULLUP);
@@ -103,21 +122,20 @@ bool Button::isReleased()
 	return !(digitalRead(pin) == condition);
 }
 
-
-VirtualButton::VirtualButton(void(*press)(void * sender))
+VirtualButton::VirtualButton(void (*press)(void *sender))
 {
 	this->bounce = 10;
 	this->press = press;
 }
 
-VirtualButton::VirtualButton(void(*press)(void * sender), void(*hold)(void * sender))
+VirtualButton::VirtualButton(void (*press)(void *sender), void (*hold)(void *sender))
 {
 	this->bounce = 10;
 	this->press = press;
 	this->hold = hold;
 }
 
-VirtualButton::VirtualButton(void(*press)(void * sender), void(*hold)(void * sender), void(*release)(void * sender))
+VirtualButton::VirtualButton(void (*press)(void *sender), void (*hold)(void *sender), void (*release)(void *sender))
 {
 	this->bounce = 10;
 	this->press = press;

@@ -104,6 +104,13 @@ bool Button::isReleased()
 }
 
 
+void ButtonBase::InitState()
+{
+	if (isPressed()){
+		
+	}
+}
+
 VirtualButton::VirtualButton(void(*press)(void * sender))
 {
 	this->bounce = 10;
@@ -147,3 +154,4 @@ void VirtualButton::reset()
 	isToggled = false;
 	doRelease();
 }
+
