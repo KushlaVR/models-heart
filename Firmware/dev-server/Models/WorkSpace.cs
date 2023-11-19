@@ -10,7 +10,7 @@ namespace WebUI.Models
     public class WorkSpace
     {
 
-        private readonly Dictionary<string, string> currentValues = new Dictionary<string, string>();
+        public readonly Dictionary<string, string> currentValues = new Dictionary<string, string>();
         //private readonly Dictionary<string, string> sendValues = new Dictionary<string, string>();
 
         // Перелік клієнтів

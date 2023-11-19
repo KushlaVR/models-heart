@@ -25,7 +25,7 @@ class Toggle extends Input {
     }
 
     private onTouchStart(el: HTMLElement, event: MouseEvent): void {
-        console.log(el);
+        //console.log(el);
         this.pressed = this.GetElementValue(el);
         this.saveValue();
         this.workSpace.refreshInput(this.name, this.pressed);
@@ -37,7 +37,7 @@ class Toggle extends Input {
     }
 
     private onMouseDown(el: HTMLElement, event: MouseEvent): void {
-        console.log(el);
+        //console.log(el);
         this.pressed = this.GetElementValue(el);
         this.saveValue();
         this.workSpace.refreshInput(this.name, this.pressed);

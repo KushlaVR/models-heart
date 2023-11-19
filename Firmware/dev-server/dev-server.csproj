@@ -153,6 +153,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <TypeScriptCompile Include="ts\workspace\Elements\ImageSelector.ts" />
     <TypeScriptCompile Include="ts\workspace\Elements\PropertyEditor.ts" />
+    <TypeScriptCompile Include="ts\workspace\Elements\Switch.ts" />
     <TypeScriptCompile Include="ts\workspace\Interfaces\FileRecord.ts" />
     <TypeScriptCompile Include="ts\workspace\Elements\Toggle.ts" />
     <TypeScriptCompile Include="ts\workspace\Interfaces\ElementWithPropertySelector.ts" />

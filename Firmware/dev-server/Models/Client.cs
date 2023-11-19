@@ -17,6 +17,7 @@ namespace WebUI.Models
 
         public WorkSpace ws;
         public List<String> format;
+        bool formatChanged = false;
         public Dictionary<string, string> received;
         public Dictionary<string, string> sent = new Dictionary<string, string>();
         //public string SessionID { get; set; }
@@ -29,6 +30,7 @@ namespace WebUI.Models
             if (v.fields != null)
             {
                 format = new List<string>(v.fields);
+                formatChanged = true;
                 return true;
             }
 
@@ -52,8 +54,8 @@ namespace WebUI.Models
             if (received != null)
             {
                 ws.updateValues(received);
+                formatChanged = false;
             }
-
             return true;
         }
 
@@ -75,7 +77,7 @@ namespace WebUI.Models
             try
             {
                 string ret = null;
-                ret = JsonConvert.SerializeObject(new Parcel() {tran = tran, values = v.ToArray() });
+                ret = JsonConvert.SerializeObject(new Parcel() { tran = tran, values = v.ToArray() });
                 if (await WeriteJson(ret))
                 {
                     foreach (string key in values.Keys)
@@ -85,6 +87,7 @@ namespace WebUI.Models
                         else
                             sent[key] = values[key];
                     }
+                    formatChanged = false;
                 }
                 return true;
             }
@@ -97,6 +100,7 @@ namespace WebUI.Models
         private bool changed(Dictionary<string, string> values)
         {
             if (sent == null) return true;
+            if (formatChanged) return true;
             foreach (string key in values.Keys)
             {
                 if (!sent.ContainsKey(key))
@@ -123,7 +127,7 @@ namespace WebUI.Models
         {
             return await Task<bool>.FromResult(true);
         }
-    
+
     }
 
     public class WebSocketClient : Client
@@ -154,7 +158,7 @@ namespace WebUI.Models
             }
             return false;
         }
-    
+
     }
 
     public class StreamClient : Client

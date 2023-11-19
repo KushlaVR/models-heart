@@ -56,6 +56,9 @@ class Utils {
         else if (source.type == "toggle") {
             Utils.InitToggleElement(div, <any>source);
         }
+        else if (source.type == "switch") {
+            return;
+        }
         else {
             div.innerText = source.text;
         }

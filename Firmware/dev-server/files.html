@@ -68,13 +68,20 @@
                     <form class="m2" enctype="multipart/form-data" onsubmit="return false;">
                         <h5>Завантажити файл</h5>
                         <div class="input-group">
+                            <label class="input-group-prepend">
+                                <span class="input-group-text" style="width:100px;">
+                                    Папка
+                                </span>
+                            </label>
+                            <input id="dir" type="text" class="form-control">
+                        </div>
+                        <div class="input-group">
                             <label class="input-group-btn">
-                                <span class="btn btn-primary">
-                                    Огляд&hellip; <input type="file" style="display: none;" id="file">
+                                <span class="btn btn-primary" style="width:100px;">
+                                    Файл&hellip; <input type="file" style="display: none;" id="file">
                                 </span>
                             </label>
                             <input id="fname" type="text" class="form-control" readonly>
-                            <input id="dir" type="hidden" class="form-control" readonly>
                         </div>
                         <span class="help-block">
                             Виберіть файли і натисніть кнопку "Завантажити"
@@ -123,6 +130,7 @@
                         url: '/api/dir?path=' + dir,
                         success: function (result) {
                             curPath = dir;
+                            $("#dir").val(curPath);
                             var arr = result;
                             arr.sort(fileComparator);
                             var s = "";
@@ -140,7 +148,7 @@
                                     s += "dir";
                                     s += "'>&#128193;</td><td class='fdir'>";
                                     s += value.Name;
-                                    s += "</td><td></td><td>";
+                                    s += "</td><td></td><td><button class='del' file='" + value.Name + "' >&#9003;</button>";
                                 }
                                 s += "</td></tr>";
                             });
@@ -226,7 +234,7 @@
                     var formData = new FormData();
                     formData.append('file', file);
                     $.ajax({
-                        url: '/api/dir?path=' + curPath,
+                        url: '/api/dir?path=' + $("#dir").val(),
                         type: 'POST',
                         data: formData,
                         processData: false,  // tell jQuery not to process the data
@@ -248,7 +256,8 @@
                                 );
                             }
                         }
-                    })
+                    });
+                    ShowAlert("Завантаження файлу", "Файл завантажується...", null, null);
                 });
 
                 function fileDelete(el, file) {
@@ -280,9 +289,8 @@
 
                     let btnYes = $("#modalDialog .btn-yes");
                     btnYes.off("click");
-                    btnYes.on("click", Hide_Click);
                     if (yes) btnYes.on("click", yes); else btnYes.on("click", Hide_Click);
-                    if (yesText) btnYes.html(yesText); else btnYes.html("Так");
+                    if (yesText) { btnYes.html(yesText); btnYes.show(); } else btnYes.hide();
 
                     let btnNo = $("#modalDialog .btn-no");
                     btnNo.off("click");

@@ -120,7 +120,11 @@ void Post()
             return;
         }
         webServer.Ok();
-        if (j->processParcel(&json))
+        if (j->processFieldsFormat(&json))
+        {
+            joypads.populateValuesTo(j);
+        }
+        else if (j->processParcel(&json))
         {
             joypads.updateValuesFrom(j);
         }
@@ -128,6 +132,43 @@ void Post()
     else
     {
         webServer.Ok();
+    }
+}
+
+void LoadValues()
+{
+    if (webServer.hasArg("client"))
+    {
+        String s = webServer.arg("client");
+        int id = s.toInt();
+        Joypad *j = joypads.getById(id);
+        if (j == nullptr)
+        {
+            Serial.printf("Unauthorized client %i\n", id);
+            webServer.handleNotFound();
+            return;
+        }
+        JsonString ret = "";
+        ret.beginObject();
+        ret.AddValue("tran", String(1));
+        ret.beginArray("values");
+        if (j->fields != nullptr)
+        {
+            Joypadfield *f = (Joypadfield *)(j->fields->getFirst());
+            while (f != nullptr)
+            {
+                ret.appendComa();
+                int v = f->value;
+                ret += "\"" + String(v) + "\"";
+                f->sent = f->value;
+                f = (Joypadfield *)(f->next);
+            }
+        };
+        ret.endArray();
+        ret.endObject();
+        Serial.print("LoadValues: ");
+        Serial.println(ret);
+        webServer.jsonOk(&ret);
     }
 }
 
@@ -268,6 +309,29 @@ void setup()
     engine.build(&scripts);
     engine.LoadState("/state.json");
 
+    Item *itm = engine.elements->getFirst();
+    while (itm != nullptr)
+    {
+        ScriptElement *el = ((ScriptElement *)itm);
+        if (el->type == ScriptElementTypes::click)
+        {
+            joypads.setValue(el->cmd, el->state);
+        }
+        itm = itm->next;
+    }
+
+    Joypadfield *fld = joypads.getFirstField();
+    JsonString json = "";
+    json.beginObject();
+    while (fld != nullptr)
+    {
+        json.AddValue(fld->name, String(fld->value));
+        fld = (Joypadfield *)(fld->next);
+    }
+    json.endObject();
+
+    Serial.print(json);
+
     WiFi.begin();
     WiFi.disconnect();
     WiFi.mode(WIFI_AP);
@@ -287,6 +351,7 @@ void setup()
     webServer.on("/api/EventSourceName", EventSourceName);
     webServer.on("/api/events", Events);
     webServer.on("/api/post", HTTPMethod::HTTP_POST, Post);
+    webServer.on("/api/loadValues", HTTPMethod::HTTP_GET, LoadValues);
 
     setupController.buildConfig = setupController_buildConfig;
     setupController.saveParameter = setupController_saveParameter;

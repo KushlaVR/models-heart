@@ -7,9 +7,8 @@ void FileServer::setup()
     webServer.on("/api/dir", HTTPMethod::HTTP_GET, File_Get);
     webServer.on(
         "/api/dir", HTTP_POST, // if the client posts to the upload page
-        []()
-        { webServer.send(200); }, // Send status 200 (OK) to tell the client we are ready to receive
-        File_Upload               // Receive and save the file
+        File_UploadRequest,    // Send status 200 (OK) to tell the client we are ready to receive
+        File_Upload            // Receive and save the file
     );
     webServer.on("/api/dir", HTTPMethod::HTTP_DELETE, File_Delete);
 }
@@ -60,27 +59,63 @@ void FileServer::File_Upload()
     HTTPUpload &upload = webServer.upload();
     if (upload.status == UPLOAD_FILE_START)
     {
-        String path = "/";
-        if (webServer.hasArg("path"))
+        // upload.totalSize
+        FSInfo info;
+        if (LittleFS.info(info))
         {
-            path = webServer.arg("path");
-            Serial.print("Dir Name: ");
-            Serial.println(path);
+            int freeSpace = (info.totalBytes - info.usedBytes);
+            if (upload.contentLength > freeSpace)
+            {
+                Serial.println("500: Out of memory");
+                webServer.send(500, "text/plain", "500: Out of memory");
+                return;
+            }
+            else
+            {
+                String path = "/";
+                if (webServer.hasArg("path"))
+                {
+                    path = webServer.arg("path");
+                    Serial.print("Dir Name: ");
+                    Serial.println(path);
+                }
+                String filename = path + upload.filename;
+                if (!filename.startsWith("/"))
+                    filename = "/" + filename;
+                Serial.print("handleFileUpload Name: ");
+                Serial.println(filename);
+                fsUploadFile = LittleFS.open(filename, "w"); // Open the file for writing in SPIFFS (create if it doesn't exist)
+                filename = String();
+            }
         }
-        String filename = path + upload.filename;
-        if (!filename.startsWith("/"))
-            filename = "/" + filename;
-        Serial.print("handleFileUpload Name: ");
-        Serial.println(filename);
-        fsUploadFile = LittleFS.open(filename, "w"); // Open the file for writing in SPIFFS (create if it doesn't exist)
-        filename = String();
     }
     else if (upload.status == UPLOAD_FILE_WRITE)
     {
         Serial.print("handleFileUpload write: ");
         Serial.println(upload.currentSize);
         if (fsUploadFile)
-            fsUploadFile.write(upload.buf, upload.currentSize); // Write the received bytes to the file
+        {
+            FSInfo info;
+            if (LittleFS.info(info))
+            {
+                int freeSpace = (info.totalBytes - info.usedBytes);
+                if (upload.currentSize > freeSpace)
+                {
+                    fsUploadFile.close();
+                    Serial.println("500: Out of memory");
+                    webServer.send(500, "text/plain", "500: Out of memory");
+                }
+                else
+                {
+                    size_t sz = fsUploadFile.write(upload.buf, upload.currentSize); // Write the received bytes to the file
+                    if (upload.currentSize != sz)
+                    {
+                        Serial.println("500: couldn't create file");
+                        webServer.send(500, "text/plain", "500: couldn't create file");
+                    }
+                }
+            }
+        }
     }
     else if (upload.status == UPLOAD_FILE_END)
     {
@@ -96,6 +131,26 @@ void FileServer::File_Upload()
             webServer.send(500, "text/plain", "500: couldn't create file");
         }
     }
+}
+
+void FileServer::File_UploadRequest()
+{
+    if (fsUploadFile){
+        fsUploadFile.close();
+    }
+    HTTPUpload &upload = webServer.upload();
+    FSInfo info;
+    if (LittleFS.info(info) && (&upload != nullptr))
+    {
+        int freeSpace = (info.totalBytes - info.usedBytes);
+        if (upload.currentSize > freeSpace)
+        {
+            Serial.println("500: Out of memory");
+            webServer.send(500, "text/plain", "500: Out of memory");
+        }
+        return;
+    }
+    webServer.send(200);
 }
 
 void FileServer::File_Delete()

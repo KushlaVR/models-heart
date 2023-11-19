@@ -33,6 +33,7 @@ public:
 
 	bool keepAlive();
 
+	bool processFieldsFormat(JsonString *json);
 	bool processParcel(JsonString *json);
 	bool sendValues();
 
@@ -53,6 +54,7 @@ public:
 
 	Joypad *getById(int id);
 	void updateValuesFrom(Joypad *source);
+	void populateValuesTo(Joypad *source);
 	void setValue(String name, double value);
 	double getValue(String name);
 	bool setValue(Collection *fields, String name, double value);

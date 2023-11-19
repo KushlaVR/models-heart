@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.SqlServer.Server;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Security.Policy;
 using System.Threading;
 using System.Web;
@@ -96,6 +99,28 @@ namespace WebUI.Controllers
             {
                 client.processParcel(m);
             }
+        }
+
+        [HttpGet()]
+        public ActionResult loadValues(string client)
+        {
+            Client c = ws.ClientByID(client);
+            if (c != null)
+            {
+                var v = new List<String>();
+                for (int i = 0; i < c.format.Count; i++)
+                {
+                    string key = c.format[i];
+                    if (ws.currentValues.ContainsKey(key))
+                        v.Add(ws.currentValues[key]);
+                    else
+                        v.Add("");
+                }
+                string ret = null;
+                ret = JsonConvert.SerializeObject(new Parcel() { tran = 1, values = v.ToArray() });
+                return new ContentResult() { ContentType = "application/json", Content = ret };
+            }
+            return new ContentResult() { ContentType = "application/json", Content = "" };
         }
 
         private static Models.Config.Config config;
@@ -236,6 +261,7 @@ namespace WebUI.Controllers
                 }
                 postedFile.SaveAs(filePath + Path.GetFileName(postedFile.FileName));
                 Inif_FS(Server);
+                Thread.Sleep(5000);
                 return new ContentResult() { ContentType = "application/json", Content = "OK" };
             }
             return new ContentResult() { ContentType = "application/json", Content = "no file" };
@@ -250,6 +276,11 @@ namespace WebUI.Controllers
             if (System.IO.File.Exists(filePath))
             {
                 System.IO.File.Delete(filePath);
+                Inif_FS(Server);
+            }
+            else if (System.IO.Directory.Exists(filePath))
+            {
+                System.IO.Directory.Delete(filePath);
                 Inif_FS(Server);
             }
             return new ContentResult() { ContentType = "application/json", Content = "OK" };

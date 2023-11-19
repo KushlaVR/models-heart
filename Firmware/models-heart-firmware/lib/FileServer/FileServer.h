@@ -23,6 +23,7 @@ public:
 
     static void File_Get();
     static void File_Upload();
+    static void File_UploadRequest();
     static void File_Delete();
 };
 

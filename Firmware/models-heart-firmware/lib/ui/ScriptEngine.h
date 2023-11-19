@@ -238,6 +238,7 @@ public:
 
     int state = 0;
     String cmd = "";
+    bool saveState = false;
     ScriptElementTypes type = ScriptElementTypes::none;
     Collection *actions = nullptr;
 
@@ -261,6 +262,8 @@ public:
             return;
         JsonElement *el = src->object;
         cmd = el->getValue("cmd");
+        String s = el->getValue("save");
+        this->saveState = s.toInt() > 0;
         String tp = el->getValue("type");
         if (tp.length() > 0)
             type = TypeNameToInt(tp);
@@ -405,6 +408,7 @@ public:
             if (btn == nullptr)
                 CreateButton();
             btn->isToggled = (state != 0);
+            this->state = state;
         }
         else if (type == ScriptElementTypes::click)
         {
@@ -414,6 +418,7 @@ public:
                 btn->setValue(0);
             else
                 btn->setValue(state);
+            this->state = state;
         }
         else
             this->state = state;
@@ -513,7 +518,8 @@ public:
         while (itm != nullptr)
         {
             ScriptElement *el = ((ScriptElement *)itm);
-            state.AddValue(el->cmd, String(el->GetState()));
+            if (el->saveState)
+                state.AddValue(el->cmd, String(el->GetState()));
             itm = itm->next;
         }
         state.endObject();
@@ -537,8 +543,11 @@ public:
             while (itm != nullptr)
             {
                 ScriptElement *el = ((ScriptElement *)itm);
-                int state = json.getInt((char *)el->cmd.c_str());
-                el->loadState(state);
+                if (el->saveState)
+                {
+                    int state = json.getInt((char *)el->cmd.c_str());
+                    el->loadState(state);
+                }
                 itm = itm->next;
             }
         }

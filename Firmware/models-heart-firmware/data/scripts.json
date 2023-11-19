@@ -56,7 +56,8 @@
     },
     {
       "cmd": "beacon",
-      "type": "toggle",
+      "type": "click",
+      "save": "1",
       "actions": [
         {
           "type": "blink",
@@ -112,7 +113,8 @@
     },
     {
       "cmd": "strobe",
-      "type": "toggle",
+      "type": "click",
+      "save": "1",
       "actions": [
         {
           "type": "blink",
@@ -153,7 +155,7 @@
     },
     {
       "cmd": "position",
-      "type": "toggle",
+      "type": "click",
       "actions": [
         {
           "type": "blink",
@@ -179,7 +181,7 @@
     },
     {
       "cmd": "navigation",
-      "type": "toggle",
+      "type": "click",
       "actions": [
         {
           "type": "blink",
@@ -205,7 +207,9 @@
     },
     {
       "cmd": "ignition",
-      "type": "toggle",
+      "type": "click",
+      "save": "1",
+      "default": "1",
       "actions": [
         {
           "type":"motor",

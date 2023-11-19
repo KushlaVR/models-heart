@@ -31,6 +31,7 @@ var WorkSpace = (function () {
         var _this = this;
         this.inputs = new Array();
         this.outputs = new Array();
+        this.components = new Array();
         this.frames = new Array();
         this.values = new Dictionary();
         this.sent = new Dictionary();
@@ -51,17 +52,19 @@ var WorkSpace = (function () {
     }
     WorkSpace.init = function (form) {
         var workSpace = new WorkSpace((form[0]));
+        workSpace.showPreloader();
         workSpace.registerInputs();
         workSpace.registerOutputs();
         workSpace.ConnectAPI();
     };
     WorkSpace.build = function (form, elementSource) {
         var workSpace = new WorkSpace((form[0]));
+        workSpace.showPreloader();
         $.get(elementSource)
             .done(function (data) {
             workSpace.setupBg(data.bg);
             for (var el in data.elements) {
-                workSpace.createElement(data.elements[el]);
+                workSpace.components.push(workSpace.createElement(data.elements[el]));
             }
             workSpace.registerInputs();
             workSpace.registerOutputs();
@@ -79,13 +82,25 @@ var WorkSpace = (function () {
             workSpace.setupBg(data.bg);
             workSpace.createGrid(100, 45);
             for (var el in data.elements) {
-                workSpace.createElement(data.elements[el]);
+                workSpace.components.push(workSpace.createElement(data.elements[el]));
             }
             workSpace.createConmponentsFrames();
         })
             .fail(function () {
             console.log("error");
         });
+    };
+    WorkSpace.prototype.showPreloader = function () {
+        this.preloader = document.createElement("div");
+        this.preloader.classList.add("preloader");
+        this.preloader.innerHTML = "<div class=\"spinner\"><div class=\"spinner-border text-light\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>";
+        document.body.appendChild(this.preloader);
+    };
+    WorkSpace.prototype.hidePreloader = function () {
+        if (this.preloader == null)
+            return;
+        document.body.removeChild(this.preloader);
+        this.preloader = null;
     };
     WorkSpace.prototype.RegisterToolbox = function () {
         var _this = this;
@@ -169,6 +184,16 @@ var WorkSpace = (function () {
                 h: 4,
             });
         }
+        else if (command === "add-switch") {
+            element = this.createElement({
+                cmd: "switch",
+                type: "switch",
+                x: 0,
+                y: 0,
+                w: 8,
+                h: 4,
+            });
+        }
         else if (command === "delete") {
             this.DeleteCurrentElement();
             return;
@@ -185,6 +210,7 @@ var WorkSpace = (function () {
             console.log(command);
             return;
         }
+        this.components.push(element);
         var frame = new ComponentFrame(element);
         this.addConponentFrame(frame);
     };
@@ -221,6 +247,9 @@ var WorkSpace = (function () {
         }
         if (el.type == "toggle") {
             return this.createToggleElement(el);
+        }
+        if (el.type == "switch") {
+            return this.createSwitchElement(el);
         }
     };
     WorkSpace.prototype.createSliderElement = function (el) {
@@ -318,6 +347,22 @@ var WorkSpace = (function () {
         div.Config = el;
         return div;
     };
+    WorkSpace.prototype.createSwitchElement = function (el) {
+        var div = document.createElement("LABEL");
+        div.classList.add("switch");
+        var input = document.createElement("INPUT");
+        input.setAttribute("type", "checkbox");
+        input.setAttribute("name", el.cmd);
+        input.classList.add("input");
+        div.appendChild(input);
+        var sl = document.createElement("SPAN");
+        sl.classList.add("pin");
+        div.appendChild(sl);
+        Utils.ApplyDimentionsProperties(div, el);
+        this.form.appendChild(div);
+        div.Config = el;
+        return div;
+    };
     WorkSpace.prototype.ConnectAPI = function () {
         var _this = this;
         $.get("/api/EventSourceName")
@@ -329,12 +374,13 @@ var WorkSpace = (function () {
                 _this.client = parcel.client;
                 _this.eventSource = new EventSource(EventSourceName);
                 _this.eventSource.onopen = function (ev) {
+                    console.log("open");
                     _this.setFormat();
-                    _this.sendData();
                 };
                 _this.eventSource.onmessage = function (msg) {
                     $("#message").text(msg.data);
                     _this.receiveData(msg);
+                    _this.sendData();
                 };
                 _this.eventSource.onerror = function (event) {
                     $("#message").text("Error...");
@@ -351,15 +397,36 @@ var WorkSpace = (function () {
         $.each((this.values), function (name, value) {
             _this.fields.push(name);
         });
-        this.send(JSON.stringify({ client: this.client, fields: this.fields, readonlyFields: this.readonlyFields }));
+        this.send(JSON.stringify({ client: this.client, fields: this.fields, readonlyFields: this.readonlyFields }), function () { _this.loadCurrentValues(); });
+    };
+    WorkSpace.prototype.loadCurrentValues = function () {
+        var _this = this;
+        this._readyToSend = false;
+        $.get("/api/loadValues?client=".concat(this.client))
+            .done(function (e) {
+            console.log(e);
+            var parcel = e;
+            _this.receiveParcel(parcel);
+            setTimeout(function () {
+                console.log("tick");
+                _this.hidePreloader();
+                _this._readyToSend = true;
+                _this.sendData();
+            }, 500);
+        })
+            .fail(function () {
+            console.log("fail!");
+            _this._readyToSend = true;
+        });
     };
     WorkSpace.prototype.readyToSend = function () {
         if (this.eventSource)
             return this._readyToSend;
         return false;
     };
-    WorkSpace.prototype.send = function (value) {
+    WorkSpace.prototype.send = function (value, next) {
         var _this = this;
+        if (next === void 0) { next = null; }
         if (this.eventSource) {
             this._readyToSend = false;
             $.ajax({
@@ -368,10 +435,15 @@ var WorkSpace = (function () {
                 cache: false,
                 type: 'POST',
                 dataType: "json",
-                contentType: 'application/json; charset=utf-8'
-            }).done(function () {
-                console.log("done!");
-                _this._readyToSend = true;
+                contentType: 'application/json; charset=utf-8',
+                statusCode: {
+                    200: function () {
+                        console.log("done!");
+                        _this._readyToSend = true;
+                        if (next != null)
+                            next();
+                    }
+                }
             }).fail(function () {
                 console.log("fail!");
                 _this._readyToSend = true;
@@ -403,36 +475,40 @@ var WorkSpace = (function () {
             }, this.reportInterval);
         }
     };
+    WorkSpace.prototype.receiveParcel = function (parcel) {
+        if (this.tran < parcel.tran) {
+            this.tran = parseInt(parcel.tran, 10);
+            for (var i = 0; i < this.fields.length; i++) {
+                var key = this.fields[i];
+                var val = parcel.values[i];
+                if (this.sent[key] != val) {
+                    this.sent[key] = val;
+                    this.values[key] = val;
+                    this.refreshInput(key, val);
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < this.fields.length; i++) {
+                var key = this.fields[i];
+                var val = parcel.values[i];
+                for (var rIndex = 0; rIndex < this.readonlyFields.length; rIndex++) {
+                    if (key == this.readonlyFields[rIndex]) {
+                        this.sent[key] = val;
+                        this.values[key] = val;
+                        break;
+                    }
+                }
+            }
+        }
+        this.refreshOutput();
+    };
     WorkSpace.prototype.receiveData = function (msg) {
         if (msg.data) {
             var parcel = JSON.parse(msg.data);
-            if (this.tran < parcel.tran) {
-                this.tran = parseInt(parcel.tran, 10);
-                for (var i = 0; i < this.fields.length; i++) {
-                    var key = this.fields[i];
-                    var val = parcel.values[i];
-                    if (this.sent[key] != val) {
-                        this.sent[key] = val;
-                        this.values[key] = val;
-                        this.refreshInput(key, val);
-                    }
-                }
-            }
-            else {
-                for (var i = 0; i < this.fields.length; i++) {
-                    var key = this.fields[i];
-                    var val = parcel.values[i];
-                    for (var rIndex = 0; rIndex < this.readonlyFields.length; rIndex++) {
-                        if (key == this.readonlyFields[rIndex]) {
-                            this.sent[key] = val;
-                            this.values[key] = val;
-                            break;
-                        }
-                    }
-                }
-            }
-            this.refreshOutput();
+            this.receiveParcel(parcel);
         }
+        this.sendData();
     };
     WorkSpace.toggleFullScreen = function () {
         var doc = window.document;
@@ -471,6 +547,9 @@ var WorkSpace = (function () {
             }
             else if ($(element).hasClass("btn")) {
                 input = new Button(element);
+            }
+            else if ($(element).attr("type") == "checkbox") {
+                input = new Switch(element);
             }
             else {
                 input = new Input(element);
@@ -525,13 +604,7 @@ var WorkSpace = (function () {
     WorkSpace.prototype.createConmponentsFrames = function () {
         var _this = this;
         var inputs = $(".input", this.form);
-        inputs.each(function (index, val) {
-            var element = val;
-            var frame = new ComponentFrame(element);
-            _this.addConponentFrame(frame);
-        });
-        var outputs = $(".output", this.form);
-        outputs.each(function (index, val) {
+        this.components.forEach(function (val) {
             var element = val;
             var frame = new ComponentFrame(element);
             _this.addConponentFrame(frame);
@@ -559,6 +632,8 @@ var WorkSpace = (function () {
             this.frames.splice(index, 1);
             this.form.removeChild(this.currentFrame.frameDiv);
             this.form.removeChild(div);
+            this.components.splice(this.components.indexOf(div), 1);
+            console.log(this.components);
             this.currentFrame = null;
         }
     };
@@ -601,13 +676,7 @@ var WorkSpace = (function () {
     };
     WorkSpace.prototype.SerializeWorkspace = function () {
         var elements = new Array();
-        var inputs = $(".input", this.form);
-        inputs.each(function (index, val) {
-            var element = val;
-            elements.push(Utils.GetConfig(element));
-        });
-        var outputs = $(".output", this.form);
-        outputs.each(function (index, val) {
+        this.components.forEach(function (val) {
             var element = val;
             elements.push(Utils.GetConfig(element));
         });
@@ -735,6 +804,7 @@ var Button = (function (_super) {
         else {
             this.workSpace.values[key] = "0";
         }
+        this.workSpace.refreshInput(key, this.workSpace.values[key]);
         this.workSpace.endTransaction();
     };
     return Button;
@@ -998,6 +1068,110 @@ var ComponentFrame = (function () {
     ];
     return ComponentFrame;
 }());
+var PropertySelector = (function () {
+    function PropertySelector() {
+    }
+    return PropertySelector;
+}());
+var ImageSelector = (function (_super) {
+    __extends(ImageSelector, _super);
+    function ImageSelector(elenemt) {
+        var _this = _super.call(this) || this;
+        _this.selectedFile = "";
+        _this.elenemt = elenemt;
+        _this.jElenemt = $(_this.elenemt);
+        _this.selectedFile = _this.jElenemt.val().toString();
+        _this.InitializeDialogWindow();
+        return _this;
+    }
+    ImageSelector.prototype.InitializeDialogWindow = function () {
+        var _this = this;
+        this.dialogContent = document.createElement("DIV");
+        this.dialogContent.innerHTML = "\n        <p>Selected file: <span class=\"selected-file\"></span></p>\n        <table class=\"files table table-striped table-borderless\" style=\"table-layout: fixed;\">\n            <colgroup>\n                <col id=\"files-col1\">\n                <col id=\"files-col2\">\n                <col id=\"files-col3\">\n            </colgroup>\n            <thead>\n                <tr>\n                    <th></th>\n                    <th>Name</th>\n                    <th>Size</th>\n                </tr>\n            </thead>\n            <tbody class=\"files-list\"></tbody>\n        </table>";
+        this.dialog = Utils.CreateModalDialog("Select file", this.dialogContent, function () { _this.Save(); });
+        this.FileList = $(".files-list");
+        this.Title = $(".modal-header h5");
+        this.spanFile = $("span.selected-file");
+        this.spanFile.text(this.selectedFile);
+    };
+    ImageSelector.Show = function (element) {
+        var elWithSelector = element;
+        var PropertySelector = elWithSelector.selector;
+        if (PropertySelector === undefined) {
+            PropertySelector = new ImageSelector(element);
+            elWithSelector.selector = PropertySelector;
+        }
+        if (PropertySelector) {
+            PropertySelector.ShowSelector();
+        }
+    };
+    ImageSelector.prototype.ShowSelector = function () {
+        $(this.dialog).modal({ backdrop: 'static' });
+        this.LoadDir("/html/img/");
+    };
+    ImageSelector.prototype.Save = function () {
+        this.selectedFile = this.selectedFile.replace("/html/", "/");
+        this.jElenemt.val(this.selectedFile);
+        $(this.dialog).modal('hide');
+    };
+    ImageSelector.prototype.fileComparator = function (a, b) {
+        return (a.dir < b.dir) ? 1 : ((a.dir > b.dir) ? -1 : (a.Name < b.Name) ? -1 : ((a.Name > b.Name) ? 1 : 0));
+    };
+    ImageSelector.prototype.RendeFileList = function (files) {
+        var _this = this;
+        var s = "";
+        $.each(files, function (index, value) {
+            var c = "";
+            if (value.dir == false) {
+                c = "file-row";
+            }
+            else {
+                c = "dir-row";
+            }
+            s += "<tr class='" + c + "' data-name='" + value.Name + "'><td class='";
+            if (value.dir == false) {
+                s += "file";
+                s += "'>&#128463;</td><td class='fname'>";
+                s += value.Name;
+                s += "</td><td class='text-center'>";
+                s += Utils.formatBytes(value.Size);
+                s += "</td>";
+            }
+            else {
+                s += "dir";
+                s += "'>&#128193;</td><td class='fdir'>";
+                s += value.Name;
+                s += "</td><td></td>";
+            }
+            s += "</tr>";
+        });
+        this.FileList.html(s);
+        $("tr.file-row").on("click", function (e) { _this.FileNameClicked(e, e.delegateTarget); });
+    };
+    ImageSelector.prototype.LoadDir = function (path) {
+        var _this = this;
+        $.ajax({
+            url: '/api/dir?path=' + path,
+            success: function (result) {
+                _this.curPath = path;
+                var arr = result;
+                arr.sort(_this.fileComparator);
+                _this.RendeFileList(arr);
+                _this.Title.text(_this.curPath);
+            },
+            error: function (result) {
+                console.log(result);
+            }
+        });
+    };
+    ImageSelector.prototype.FileNameClicked = function (e, el) {
+        $("tr.active").removeClass("active");
+        el.classList.add("active");
+        this.selectedFile = this.curPath + el.getAttribute("data-name");
+        this.spanFile.text(this.selectedFile);
+    };
+    return ImageSelector;
+}(PropertySelector));
 var Output = (function () {
     function Output(element) {
         this.audio = null;
@@ -1404,7 +1578,6 @@ var Toggle = (function (_super) {
         });
     };
     Toggle.prototype.onTouchStart = function (el, event) {
-        console.log(el);
         this.pressed = this.GetElementValue(el);
         this.saveValue();
         this.workSpace.refreshInput(this.name, this.pressed);
@@ -1414,7 +1587,6 @@ var Toggle = (function (_super) {
         event.preventDefault();
     };
     Toggle.prototype.onMouseDown = function (el, event) {
-        console.log(el);
         this.pressed = this.GetElementValue(el);
         this.saveValue();
         this.workSpace.refreshInput(this.name, this.pressed);
@@ -1508,6 +1680,9 @@ var Utils = (function () {
         }
         else if (source.type == "toggle") {
             Utils.InitToggleElement(div, source);
+        }
+        else if (source.type == "switch") {
+            return;
         }
         else {
             div.innerText = source.text;
@@ -1616,107 +1791,54 @@ var Utils = (function () {
     ;
     return Utils;
 }());
-var PropertySelector = (function () {
-    function PropertySelector() {
-    }
-    return PropertySelector;
-}());
-var ImageSelector = (function (_super) {
-    __extends(ImageSelector, _super);
-    function ImageSelector(elenemt) {
-        var _this = _super.call(this) || this;
-        _this.selectedFile = "";
-        _this.elenemt = elenemt;
-        _this.jElenemt = $(_this.elenemt);
-        _this.selectedFile = _this.jElenemt.val().toString();
-        _this.InitializeDialogWindow();
+var Switch = (function (_super) {
+    __extends(Switch, _super);
+    function Switch(element) {
+        var _this = _super.call(this, element) || this;
+        _this.value = 0;
+        _this.SetupEvents();
         return _this;
     }
-    ImageSelector.prototype.InitializeDialogWindow = function () {
+    Switch.prototype.SetupEvents = function () {
         var _this = this;
-        this.dialogContent = document.createElement("DIV");
-        this.dialogContent.innerHTML = "\n        <p>Selected file: <span class=\"selected-file\"></span></p>\n        <table class=\"files table table-striped table-borderless\" style=\"table-layout: fixed;\">\n            <colgroup>\n                <col id=\"files-col1\">\n                <col id=\"files-col2\">\n                <col id=\"files-col3\">\n            </colgroup>\n            <thead>\n                <tr>\n                    <th></th>\n                    <th>Name</th>\n                    <th>Size</th>\n                </tr>\n            </thead>\n            <tbody class=\"files-list\"></tbody>\n        </table>";
-        this.dialog = Utils.CreateModalDialog("Select file", this.dialogContent, function () { _this.Save(); });
-        this.FileList = $(".files-list");
-        this.Title = $(".modal-header h5");
-        this.spanFile = $("span.selected-file");
-        this.spanFile.text(this.selectedFile);
+        var jEl = $(this.element);
+        var el = jEl[0];
+        el.addEventListener("change", function (event) { return _this.OnClick(); }, false);
     };
-    ImageSelector.Show = function (element) {
-        var elWithSelector = element;
-        var PropertySelector = elWithSelector.selector;
-        if (PropertySelector === undefined) {
-            PropertySelector = new ImageSelector(element);
-            elWithSelector.selector = PropertySelector;
+    Switch.prototype.OnClick = function () {
+        console.log(this.element);
+        var jEl = $(this.element);
+        var el = jEl[0];
+        var key = this.name;
+        if (el.checked) {
+            this.value = 1;
         }
-        if (PropertySelector) {
-            PropertySelector.ShowSelector();
+        else {
+            this.value = 0;
+        }
+        this.saveValue();
+    };
+    Switch.prototype.loadValue = function (key, value) {
+        var refresh = false;
+        if (key == this.name) {
+            this.value = value;
+            refresh = true;
+        }
+        if (refresh == true) {
+            this.initLayout();
         }
     };
-    ImageSelector.prototype.ShowSelector = function () {
-        $(this.dialog).modal({ backdrop: 'static' });
-        this.LoadDir("/html/img/");
+    Switch.prototype.saveValue = function () {
+        if (!this.workSpace)
+            return;
+        this.workSpace.beginTransaction();
+        var key = this.name;
+        this.workSpace.values[key] = Slider.numToString(this.value);
+        this.workSpace.endTransaction();
     };
-    ImageSelector.prototype.Save = function () {
-        this.selectedFile = this.selectedFile.replace("/html/", "/");
-        this.jElenemt.val(this.selectedFile);
-        $(this.dialog).modal('hide');
+    Switch.prototype.initLayout = function () {
+        var el = this.element;
+        el.checked = !(this.value == 0);
     };
-    ImageSelector.prototype.fileComparator = function (a, b) {
-        return (a.dir < b.dir) ? 1 : ((a.dir > b.dir) ? -1 : (a.Name < b.Name) ? -1 : ((a.Name > b.Name) ? 1 : 0));
-    };
-    ImageSelector.prototype.RendeFileList = function (files) {
-        var _this = this;
-        var s = "";
-        $.each(files, function (index, value) {
-            var c = "";
-            if (value.dir == false) {
-                c = "file-row";
-            }
-            else {
-                c = "dir-row";
-            }
-            s += "<tr class='" + c + "' data-name='" + value.Name + "'><td class='";
-            if (value.dir == false) {
-                s += "file";
-                s += "'>&#128463;</td><td class='fname'>";
-                s += value.Name;
-                s += "</td><td class='text-center'>";
-                s += Utils.formatBytes(value.Size);
-                s += "</td>";
-            }
-            else {
-                s += "dir";
-                s += "'>&#128193;</td><td class='fdir'>";
-                s += value.Name;
-                s += "</td><td></td>";
-            }
-            s += "</tr>";
-        });
-        this.FileList.html(s);
-        $("tr.file-row").on("click", function (e) { _this.FileNameClicked(e, e.delegateTarget); });
-    };
-    ImageSelector.prototype.LoadDir = function (path) {
-        var _this = this;
-        $.ajax({
-            url: '/api/dir?path=' + path,
-            success: function (result) {
-                _this.curPath = path;
-                var arr = result;
-                arr.sort(_this.fileComparator);
-                _this.RendeFileList(arr);
-                _this.Title.text(_this.curPath);
-            },
-            error: function (result) {
-                console.log(result);
-            }
-        });
-    };
-    ImageSelector.prototype.FileNameClicked = function (e, el) {
-        $("tr.active").removeClass("active");
-        el.classList.add("active");
-        this.selectedFile = this.curPath + el.getAttribute("data-name");
-        this.spanFile.text(this.selectedFile);
-    };
-    return ImageSelector;
-}(PropertySelector));
+    return Switch;
+}(Input));

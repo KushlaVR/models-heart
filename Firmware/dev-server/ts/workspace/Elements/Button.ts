@@ -81,6 +81,9 @@ class Button extends Input {
         else {
             this.workSpace.values[key] = "0";
         }
+
+        this.workSpace.refreshInput(key, this.workSpace.values[key]);
+
         this.workSpace.endTransaction();
     }
 }

@@ -27,14 +27,11 @@ bool Joypad::keepAlive()
 	}
 }
 
-bool Joypad::processParcel(JsonString* json)
+bool Joypad::processFieldsFormat(JsonString *json)
 {
-	//Serial.print("json=");	Serial.println(*json);
-
-	int _tran = json->getInt("tran");
+    int _tran = json->getInt("tran");
 	if (_tran >= tran) tran = _tran;
 	//Serial.print("tran=");	Serial.println(_tran);
-
 	int fieldsIndex = json->indexOf("fields");
 
 	if (fieldsIndex >= 0) {
@@ -56,6 +53,17 @@ bool Joypad::processParcel(JsonString* json)
 			return true;
 		}
 	}
+	return false;
+}
+
+bool Joypad::processParcel(JsonString *json)
+{
+	//Serial.print("json=");	Serial.println(*json);
+	int _tran = json->getInt("tran");
+	if (_tran >= tran) tran = _tran;
+	//Serial.print("tran=");	Serial.println(_tran);
+	int fieldsIndex = json->indexOf("fields");
+	
 	fieldsIndex = json->indexOf("values");
 	if (fieldsIndex >= 0) {
 		String str = json->substring(fieldsIndex + 8);
@@ -156,7 +164,17 @@ void JoypadCollection::updateValuesFrom(Joypad* source)
 	}
 }
 
-
+void JoypadCollection::populateValuesTo(Joypad *source)
+{
+	if (fields == nullptr) {
+		return;
+	}
+	Joypadfield* j = (Joypadfield*)(source->fields->getFirst());
+	while (j != nullptr) {
+		j->value = getValue(j->name);
+		j = (Joypadfield*)(j->next);
+	}
+}
 
 void JoypadCollection::setValue(String name, double value)
 {

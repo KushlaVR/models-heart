@@ -38,7 +38,7 @@
 
     .main .msg,
     .main label {
-        color: #e7e7e7;
+        color: #c6c6c6;
     }
 
     .main .msg {
@@ -319,3 +319,95 @@ table.files tbody tr {
     table.files tbody tr.active {
         background-color: rgba(0, 0, 0, 0.12);
     }
+
+.switch {
+    position: absolute;
+    display: block;
+    width: 8vw;
+    height: 4vw;
+}
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .switch .pin {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+        .switch .pin:before {
+            content: "";
+            position: absolute;
+            height: 3vw;
+            width: 3vw;
+            left: 0.5vw;
+            bottom: 0.5vw;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+    .switch input:checked + .pin {
+        background-color: #2196F3;
+    }
+
+    .switch input:focus + .pin {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    .switch input:checked + .pin:before {
+        content: "";
+        -webkit-transform: translateX(4vw);
+        -ms-transform: translateX(4vw);
+        transform: translateX(4vw);
+    }
+
+/* Rounded sliders */
+.pin.round {
+    border-radius: 50%;
+}
+
+    .pin.round:before {
+        border-radius: 50%;
+    }
+
+
+
+.preloader {
+    z-index: 999999;
+    position: absolute;
+    margin: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: #00000075;
+    text-align: center;
+    align-content: center;
+}
+
+    .preloader .spinner {
+        margin: 0;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
+        font-size: 5vw;
+    }
+
+        .preloader .spinner .spinner-border {
+            width: 10vw;
+            height: 10vw;
+        }

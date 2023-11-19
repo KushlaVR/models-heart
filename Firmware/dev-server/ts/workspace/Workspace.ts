@@ -12,6 +12,7 @@ class WorkSpace {
 
     private inputs: Array<Input> = new Array<Input>();
     private outputs: Array<Output> = new Array<Output>();
+    private components: Array<HTMLElement> = new Array<HTMLElement>();
     private frames: Array<ComponentFrame> = new Array<ComponentFrame>();
     values: Dictionary<String> = new Dictionary<String>();
     sent: Dictionary<String> = new Dictionary<String>();
@@ -22,6 +23,9 @@ class WorkSpace {
     readonlyFields: Array<string> = new Array<string>();
     tran: number = 0;
 
+
+    preloader: HTMLElement;
+
     constructor(form: HTMLFormElement) {
         this.form = form;
         window.addEventListener('resize', (event: any) => this.UpdateLayout(), false);
@@ -31,25 +35,25 @@ class WorkSpace {
 
     public static init(form: JQuery) {
         var workSpace: WorkSpace = new WorkSpace(<any>(form[0]));
+        workSpace.showPreloader();
         workSpace.registerInputs();
         workSpace.registerOutputs();
-        //workSpace.ConnectWS();
         workSpace.ConnectAPI();
     }
 
     public static build(form: JQuery, elementSource: string) {
 
         var workSpace: WorkSpace = new WorkSpace(<any>(form[0]));
+        workSpace.showPreloader();
 
         $.get(elementSource)
             .done(function (data) {
                 workSpace.setupBg(data.bg);
                 for (let el in data.elements) {
-                    workSpace.createElement(data.elements[el]);
+                    workSpace.components.push(workSpace.createElement(data.elements[el]));
                 }
                 workSpace.registerInputs();
                 workSpace.registerOutputs();
-                //workSpace.ConnectWS();
                 workSpace.ConnectAPI();
             })
             .fail(function () {
@@ -67,13 +71,26 @@ class WorkSpace {
                 workSpace.setupBg(data.bg);
                 workSpace.createGrid(100, 45);
                 for (let el in data.elements) {
-                    workSpace.createElement(data.elements[el]);
+                    workSpace.components.push(workSpace.createElement(data.elements[el]));
                 }
                 workSpace.createConmponentsFrames();
             })
             .fail(function () {
                 console.log("error");
             });
+    }
+
+    showPreloader() {
+        this.preloader = document.createElement("div");
+        this.preloader.classList.add("preloader");
+        this.preloader.innerHTML = `<div class="spinner"><div class="spinner-border text-light" role="status"><span class="sr-only">Loading...</span></div></div>`;
+        document.body.appendChild(this.preloader);
+    }
+
+    hidePreloader() {
+        if (this.preloader == null) return;
+        document.body.removeChild(this.preloader);
+        this.preloader = null;
     }
 
     RegisterToolbox() {
@@ -132,7 +149,7 @@ class WorkSpace {
                 y: 0,
                 w: 40,
                 h: 4,
-                color:"#AABBCC"
+                color: "#AABBCC"
             });
         }
         else if (command === "add-image") {
@@ -159,6 +176,16 @@ class WorkSpace {
                 h: 4,
             });
         }
+        else if (command === "add-switch") {
+            element = this.createElement(<ToggleConfig>{
+                cmd: "switch",
+                type: "switch",
+                x: 0,
+                y: 0,
+                w: 8,
+                h: 4,
+            });
+        }
         else if (command === "delete") {
             this.DeleteCurrentElement();
             return;
@@ -175,7 +202,7 @@ class WorkSpace {
             console.log(command);
             return;
         }
-
+        this.components.push(element);
         var frame: ComponentFrame = new ComponentFrame(element);
         this.addConponentFrame(frame);
 
@@ -220,6 +247,9 @@ class WorkSpace {
         }
         if (el.type == "toggle") {
             return this.createToggleElement(<any>el);
+        }
+        if (el.type == "switch") {
+            return this.createSwitchElement(<any>el);
         }
     }
 
@@ -343,7 +373,31 @@ class WorkSpace {
         Utils.ApplyDimentionsProperties(div, el);
 
         Utils.InitToggleElement(div, el);
-        
+
+        this.form.appendChild(div);
+        (<HTMLElementWithConfig><any>div).Config = el;
+        return div;
+
+    }
+
+    createSwitchElement(el: ToggleConfig): HTMLElement {
+        /**
+        <label class="switch">
+        <input type="checkbox">
+        <span class="slider"></span>
+        </label>
+         */
+        let div = document.createElement("LABEL");
+        div.classList.add("switch");
+        let input = document.createElement("INPUT");
+        input.setAttribute("type", "checkbox");
+        input.setAttribute("name", el.cmd);
+        input.classList.add("input");
+        div.appendChild(input);
+        let sl = document.createElement("SPAN");
+        sl.classList.add("pin");
+        div.appendChild(sl);
+        Utils.ApplyDimentionsProperties(div, el);
         this.form.appendChild(div);
         (<HTMLElementWithConfig><any>div).Config = el;
         return div;
@@ -360,12 +414,14 @@ class WorkSpace {
                     this.client = parcel.client;
                     this.eventSource = new EventSource(EventSourceName);
                     this.eventSource.onopen = (ev: Event) => {
+                        console.log("open");
                         this.setFormat();
-                        this.sendData();
+
                     }
                     this.eventSource.onmessage = (msg: MessageEvent) => {
                         $("#message").text(msg.data);
                         this.receiveData(msg);
+                        this.sendData();
                     };
                     this.eventSource.onerror = (event: Event) => {
                         $("#message").text("Error...");
@@ -386,7 +442,29 @@ class WorkSpace {
             this.fields.push(name);
         });
 
-        this.send(JSON.stringify({ client: this.client, fields: this.fields, readonlyFields: this.readonlyFields }));
+        this.send(JSON.stringify({ client: this.client, fields: this.fields, readonlyFields: this.readonlyFields }), () => { this.loadCurrentValues() });
+    }
+
+    private loadCurrentValues(): void {
+        this._readyToSend = false;
+        $.get(`/api/loadValues?client=${this.client}`)
+            .done((e) => {
+                console.log(e);
+                var parcel = e;
+                this.receiveParcel(parcel);
+                setTimeout(() => {
+                    console.log("tick");
+                    //this.setFormat();
+                    this.hidePreloader();
+                    this._readyToSend = true;
+                    this.sendData();
+                }, 500);
+            })
+            .fail(() => {
+                console.log("fail!");
+                this._readyToSend = true;
+            });
+
     }
 
     private _readyToSend: boolean = true;
@@ -396,7 +474,7 @@ class WorkSpace {
         return false;
     }
 
-    private send(value: string): void {
+    private send(value: string, next: any = null): void {
         if (this.eventSource) {
             this._readyToSend = false;
             $.ajax({
@@ -405,20 +483,19 @@ class WorkSpace {
                 cache: false,
                 type: 'POST',
                 dataType: "json",
-                contentType: 'application/json; charset=utf-8'
-            }).done(() => {
-                console.log("done!");
-                this._readyToSend = true;
+                contentType: 'application/json; charset=utf-8',
+                statusCode: {
+                    200: () => {
+                        console.log("done!");
+                        this._readyToSend = true;
+                        if (next != null) next();
+                    }
+                }
             }).fail(() => {
                 console.log("fail!");
                 this._readyToSend = true;
             });
-        } //else
-        //if (this.socket) {
-        //    this._readyToSend = false;
-        //    this.socket.send(value);
-        //    this._readyToSend = true;
-        //}
+        }
     }
 
     /**
@@ -450,6 +527,37 @@ class WorkSpace {
         }
     }
 
+
+    receiveParcel(parcel: any): void {
+        if (this.tran < parcel.tran) {
+            this.tran = parseInt(parcel.tran, 10);
+            for (let i: number = 0; i < this.fields.length; i++) {
+                let key = this.fields[i];
+                let val = parcel.values[i];
+                if (this.sent[key] != val) {
+                    this.sent[key] = val;
+                    this.values[key] = val;
+                    this.refreshInput(key, val);
+                }
+            }
+        } else {
+            //відповідь на нашу посилку
+            //Поновляємо всі readonly поля
+            for (let i: number = 0; i < this.fields.length; i++) {
+                let key = this.fields[i];
+                let val = parcel.values[i];
+                for (let rIndex: number = 0; rIndex < this.readonlyFields.length; rIndex++) {
+                    if (key == this.readonlyFields[rIndex]) {
+                        this.sent[key] = val;
+                        this.values[key] = val;
+                        break;
+                    }
+                }
+            }
+        }
+        this.refreshOutput();
+    }
+
     /**
      * Розбирає отримані по сокету дані
      * @param msg те що прийшло по сокету
@@ -457,34 +565,9 @@ class WorkSpace {
     private receiveData(msg: MessageEvent): void {
         if (msg.data) {
             var parcel = JSON.parse(msg.data);
-            if (this.tran < parcel.tran) {
-                this.tran = parseInt(parcel.tran, 10);
-                for (let i: number = 0; i < this.fields.length; i++) {
-                    let key = this.fields[i];
-                    let val = parcel.values[i];
-                    if (this.sent[key] != val) {
-                        this.sent[key] = val;
-                        this.values[key] = val;
-                        this.refreshInput(key, val);
-                    }
-                }
-            } else {
-                //відповідь на нашу посилку
-                //Поновляємо всі readonly поля
-                for (let i: number = 0; i < this.fields.length; i++) {
-                    let key = this.fields[i];
-                    let val = parcel.values[i];
-                    for (let rIndex: number = 0; rIndex < this.readonlyFields.length; rIndex++) {
-                        if (key == this.readonlyFields[rIndex]) {
-                            this.sent[key] = val;
-                            this.values[key] = val;
-                            break;
-                        }
-                    }
-                }
-            }
-            this.refreshOutput();
+            this.receiveParcel(parcel);
         }
+        this.sendData();
     }
 
     /**
@@ -535,6 +618,8 @@ class WorkSpace {
                 input = new Toggle(element);
             } else if ($(element).hasClass("btn")) {
                 input = new Button(element);
+            } else if ($(element).attr("type") == "checkbox") {
+                input = new Switch(element);
             } else {
                 input = new Input(element);
             }
@@ -617,20 +702,11 @@ class WorkSpace {
 
     private createConmponentsFrames(): void {
         var inputs = $(".input", this.form);
-
-        inputs.each((index: number, val: any) => {
+        this.components.forEach((val: HTMLElement) => {
             let element: HTMLElement = val;
             var frame: ComponentFrame = new ComponentFrame(element);
             this.addConponentFrame(frame);
-        })
-
-        var outputs = $(".output", this.form);
-
-        outputs.each((index: number, val: any) => {
-            let element: HTMLElement = val;
-            var frame: ComponentFrame = new ComponentFrame(element);
-            this.addConponentFrame(frame);
-        })
+        });
     }
 
     private addConponentFrame(frame: ComponentFrame): void {
@@ -658,6 +734,8 @@ class WorkSpace {
             this.frames.splice(index, 1);
             this.form.removeChild(this.currentFrame.frameDiv);
             this.form.removeChild(div);
+            this.components.splice(this.components.indexOf(div), 1);
+            console.log(this.components);
             this.currentFrame = null
         }
     }
@@ -704,23 +782,15 @@ class WorkSpace {
     SerializeWorkspace(): string {
         let elements = new Array<BaseConfig>();
 
-        var inputs = $(".input", this.form);
-        inputs.each((index: number, val: any) => {
+        this.components.forEach((val) => {
             let element: HTMLElement = val;
             elements.push(Utils.GetConfig(element));
-        })
-
-        var outputs = $(".output", this.form);
-        outputs.each((index: number, val: any) => {
-            let element: HTMLElement = val;
-            elements.push(Utils.GetConfig(element));
-        })
+        });
 
         let ret = {
             bg: Utils.GetBG(this.form),
             elements: elements
         }
-        //console.log(ret);
         return JSON.stringify(ret);
     }
 

@@ -183,7 +183,7 @@ class Slider extends Input {
 
     }
 
-    private static numToString(n: number): string {
+    public static numToString(n: number): string {
         return (Math.round(n * 100.0) / 100.0).toString(10);
     }
 
