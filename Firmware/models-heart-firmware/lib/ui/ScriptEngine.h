@@ -148,16 +148,27 @@ public:
         motor = new HBridge("motor", pinA, pinB, effect);
         motor->responder = &Serial;
         motor->isEnabled = true;
+        motor->setSpeed(0);
+        currentSpeed = 0;
+
         // weight
         v = src->getValue("weight");
         if (v.length() > 0)
             motor->setWeight(v.toInt());
+
         v = src->getValue("speed");
         if (v.length() > 0)
             speedCommand = v;
+
+        v = src->getValue("startup-speed");
+        if (v.length() > 0)
+            motor->startUpSpeed = v.toInt();
+
+        v = src->getValue("startup-duration");
+        if (v.length() > 0)
+            motor->startUpDuration = v.toInt();
+
         Serial.println(speedCommand);
-        motor->setSpeed(0);
-        currentSpeed = 0;
     }
 
     virtual void OnCommand(String cmd, int state)

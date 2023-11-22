@@ -31,7 +31,14 @@ private:
 	int delta = 0;
 	long weight = 10000;
 
+	unsigned long startup = 0;
+	
 public:
+	
+	int startUpSpeed = 100;
+	unsigned long startUpDuration = 0;
+
+
 	int controllerType = 0;
 	int factSpeed = 0;
 	Print *responder = nullptr;
@@ -80,4 +87,3 @@ public:
 
 	virtual void write(int newSpeed);
 };
-

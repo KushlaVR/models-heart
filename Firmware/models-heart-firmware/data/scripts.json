@@ -214,6 +214,8 @@
         {
           "type":"motor",
           "speed":"motor_x",
+          "startup-duration":"500",
+          "startup-speed": "120",
           "weight": "80000"
         }
       ]

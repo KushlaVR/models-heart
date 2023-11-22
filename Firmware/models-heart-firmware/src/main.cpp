@@ -269,6 +269,7 @@ void onStop()
 
 void setup()
 {
+    //analogWriteFreq(6000);
     powerManager.begin();
     powerManager.OnPowerPress = powerButton_Click;
     powerManager.OnPowerOff = onPowerOff;
