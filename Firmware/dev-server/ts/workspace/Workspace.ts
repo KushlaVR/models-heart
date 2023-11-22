@@ -7,7 +7,7 @@ class WorkSpace {
     private form: HTMLFormElement;
 
     client: string;
-
+    keepAlive: number = 0;
     eventSource: EventSource;
 
     private inputs: Array<Input> = new Array<Input>();
@@ -516,7 +516,16 @@ class WorkSpace {
                 }
                 if (changed == true) {
                     this.tran += 1;
+                    this.keepAlive = 50;
                     this.send(JSON.stringify({ client: this.client, tran: this.tran.toString(), values: v }));
+                } else {
+                    //Keep alive
+                    this.tran += 1;
+                    this.keepAlive -= 1;
+                    if (this.keepAlive <= 0) {
+                        this.keepAlive = 50;
+                        this.send(JSON.stringify({ client: this.client, tran: this.tran.toString(), values: [] }));
+                    }
                 }
             }
 

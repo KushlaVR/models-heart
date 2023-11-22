@@ -269,7 +269,7 @@ void onStop()
 
 void setup()
 {
-    //analogWriteFreq(6000);
+    // analogWriteFreq(6000);
     powerManager.begin();
     powerManager.OnPowerPress = powerButton_Click;
     powerManager.OnPowerOff = onPowerOff;
@@ -370,6 +370,7 @@ int vBat = 0;
 double _VBAT_MIN = 700;
 double _VBAT_MAX = 1000;
 int clientCount = 0;
+uint32_t runtime = 0;
 
 void loop()
 {
@@ -402,7 +403,12 @@ void loop()
     {
         // noone connected...
     }
-
+    uint32_t seconds = millis() / 1000;
+    if (seconds != runtime)
+    {
+        runtime = seconds;
+        joypads.setValue("runtime", runtime);
+    }
     int clients = joypads.getCount();
 
     if (clientCount > clients)

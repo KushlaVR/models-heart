@@ -12,13 +12,21 @@ Joypad::Joypad()
 
 bool Joypad::keepAlive()
 {
-	if (this->client.connected()) {
+	bool valid = this->client.connected();
+	if (((millis() - this->responce) > 30000))
+	{
+		Serial.printf_P(PSTR("Client Timeout\n"), id);
+		valid = false;
+	}
+	if (valid)
+	{
 		Serial.printf_P(PSTR("Client %i is still connected\n"), id);
-		this->client.println(F("event: event\ndata: { \"TYPE\":\"KEEP-ALIVE\" }\n"));   // Extra newline required by SSE standard
+		this->client.println(F("event: event\ndata: { \"TYPE\":\"KEEP-ALIVE\" }\n")); // Extra newline required by SSE standard
 		report = millis();
 		return true;
 	}
-	else {
+	else
+	{
 		Serial.printf_P(PSTR("Client %i diconnected;\n"), id);
 		this->client.flush();
 		this->client.stop();
@@ -29,22 +37,27 @@ bool Joypad::keepAlive()
 
 bool Joypad::processFieldsFormat(JsonString *json)
 {
-    int _tran = json->getInt("tran");
-	if (_tran >= tran) tran = _tran;
-	//Serial.print("tran=");	Serial.println(_tran);
+	int _tran = json->getInt("tran");
+	if (_tran >= tran)
+		tran = _tran;
+	// Serial.print("tran=");	Serial.println(_tran);
 	int fieldsIndex = json->indexOf("fields");
 
-	if (fieldsIndex >= 0) {
+	if (fieldsIndex >= 0)
+	{
+		this->responce = millis();
 		String str = json->substring(fieldsIndex + 8);
 		fields = new Collection();
 		fieldsIndex = str.indexOf("[");
-		if (fieldsIndex >= 0) {
+		if (fieldsIndex >= 0)
+		{
 			str = str.substring(fieldsIndex + 1);
 			fieldsIndex = str.indexOf("\"");
-			while (fieldsIndex >= 0) {
+			while (fieldsIndex >= 0)
+			{
 				fieldsIndex++;
 				int endIndex = str.indexOf("\"", fieldsIndex);
-				Joypadfield* f = new Joypadfield(str.substring(fieldsIndex, endIndex));
+				Joypadfield *f = new Joypadfield(str.substring(fieldsIndex, endIndex));
 				fields->add(f);
 				fieldsIndex = endIndex + 1;
 				fieldsIndex = str.indexOf("\"", endIndex + 1);
@@ -58,27 +71,33 @@ bool Joypad::processFieldsFormat(JsonString *json)
 
 bool Joypad::processParcel(JsonString *json)
 {
-	//Serial.print("json=");	Serial.println(*json);
+	// Serial.print("json=");	Serial.println(*json);
 	int _tran = json->getInt("tran");
-	if (_tran >= tran) tran = _tran;
-	//Serial.print("tran=");	Serial.println(_tran);
+	if (_tran >= tran)
+		tran = _tran;
+	// Serial.print("tran=");	Serial.println(_tran);
 	int fieldsIndex = json->indexOf("fields");
-	
+
 	fieldsIndex = json->indexOf("values");
-	if (fieldsIndex >= 0) {
+	if (fieldsIndex >= 0)
+	{
+		this->responce = millis();
 		String str = json->substring(fieldsIndex + 8);
 		fieldsIndex = str.indexOf("[");
-		if (fieldsIndex >= 0) {
+		if (fieldsIndex >= 0)
+		{
 			str = str.substring(fieldsIndex + 1);
 			fieldsIndex = str.indexOf("\"");
 			int i = 0;
-			while (fieldsIndex >= 0) {
+			while (fieldsIndex >= 0)
+			{
 				fieldsIndex++;
 				int endIndex = str.indexOf("\"", fieldsIndex);
-				Joypadfield* f = (Joypadfield*)(fields->get(i++));
-				if (f != nullptr) {
+				Joypadfield *f = (Joypadfield *)(fields->get(i++));
+				if (f != nullptr)
+				{
 					f->value = str.substring(fieldsIndex, endIndex).toFloat();
-					//f->sent = f->value;
+					// f->sent = f->value;
 				}
 				fieldsIndex = endIndex + 1;
 				fieldsIndex = str.indexOf("\"", endIndex + 1);
@@ -92,33 +111,37 @@ bool Joypad::processParcel(JsonString *json)
 bool Joypad::sendValues()
 {
 	unsigned long m;
-	//m = millis(); Serial.printf("*1 %i\n", m);
-	if (this->client.connected()) {
+	// m = millis(); Serial.printf("*1 %i\n", m);
+	if (this->client.connected())
+	{
 
 		JsonString ret = "event: event\n\ndata: ";
 		ret.beginObject();
 		ret.AddValue("tran", String(tran));
 		ret.beginArray("values");
-		if (fields == nullptr) return true;
-		Joypadfield* f = (Joypadfield*)(fields->getFirst());
-		while (f != nullptr) {
+		if (fields == nullptr)
+			return true;
+		Joypadfield *f = (Joypadfield *)(fields->getFirst());
+		while (f != nullptr)
+		{
 			ret.appendComa();
 			int v = f->value;
 			ret += "\"" + String(v) + "\"";
 			f->sent = f->value;
-			f = (Joypadfield*)(f->next);
+			f = (Joypadfield *)(f->next);
 		}
 		ret.endArray();
 		ret.endObject();
 		ret += "\n\n";
-		//m = millis(); Serial.printf("*2 %i\n", m);
-		//Serial.printf("Client %i send values\n", id);
+		// m = millis(); Serial.printf("*2 %i\n", m);
+		// Serial.printf("Client %i send values\n", id);
 		this->client.print(ret);
-		//m = millis(); Serial.printf("*3 %i\n", m);
+		// m = millis(); Serial.printf("*3 %i\n", m);
 		report = millis();
 		return true;
 	}
-	else {
+	else
+	{
 		Serial.printf_P(PSTR("Client %i diconnected;\n"), id);
 		this->client.flush();
 		this->client.stop();
@@ -129,11 +152,14 @@ bool Joypad::sendValues()
 
 bool Joypad::changed()
 {
-	if (fields == nullptr) return false;
-	Joypadfield* f = (Joypadfield*)(fields->getFirst());
-	while (f != nullptr) {
-		if (f->changed()) return true;
-		f = (Joypadfield*)(f->next);
+	if (fields == nullptr)
+		return false;
+	Joypadfield *f = (Joypadfield *)(fields->getFirst());
+	while (f != nullptr)
+	{
+		if (f->changed())
+			return true;
+		f = (Joypadfield *)(f->next);
 	}
 	return false;
 }
@@ -142,85 +168,100 @@ JoypadCollection::JoypadCollection()
 {
 }
 
-Joypad* JoypadCollection::getById(int id)
+Joypad *JoypadCollection::getById(int id)
 {
-	Joypad* j = (Joypad*)getFirst();
-	while (j != nullptr) {
-		if (j->id == id) return j;
-		j = (Joypad*)(j->next);
+	Joypad *j = (Joypad *)getFirst();
+	while (j != nullptr)
+	{
+		if (j->id == id)
+			return j;
+		j = (Joypad *)(j->next);
 	}
 	return nullptr;
 }
 
-void JoypadCollection::updateValuesFrom(Joypad* source)
+void JoypadCollection::updateValuesFrom(Joypad *source)
 {
-	if (fields == nullptr) {
+	if (fields == nullptr)
+	{
 		fields = new Collection();
 	}
-	Joypadfield* j = (Joypadfield*)(source->fields->getFirst());
-	while (j != nullptr) {
+	Joypadfield *j = (Joypadfield *)(source->fields->getFirst());
+	while (j != nullptr)
+	{
 		setValue(j->name, j->value);
-		j = (Joypadfield*)(j->next);
+		j = (Joypadfield *)(j->next);
 	}
 }
 
 void JoypadCollection::populateValuesTo(Joypad *source)
 {
-	if (fields == nullptr) {
+	if (fields == nullptr)
+	{
 		return;
 	}
-	Joypadfield* j = (Joypadfield*)(source->fields->getFirst());
-	while (j != nullptr) {
+	Joypadfield *j = (Joypadfield *)(source->fields->getFirst());
+	while (j != nullptr)
+	{
 		j->value = getValue(j->name);
-		j = (Joypadfield*)(j->next);
+		j = (Joypadfield *)(j->next);
 	}
 }
 
 void JoypadCollection::setValue(String name, double value)
 {
-	if (fields == nullptr) {
+	if (fields == nullptr)
+	{
 		fields = new Collection();
 	}
-	//Save value to global collection
-	if (!JoypadCollection::setValue(fields, name, value)) {
-		//if failed - field doesn't exists. Create one
-		Joypadfield* jf = new Joypadfield(name);
+	// Save value to global collection
+	if (!JoypadCollection::setValue(fields, name, value))
+	{
+		// if failed - field doesn't exists. Create one
+		Joypadfield *jf = new Joypadfield(name);
 		jf->value = value;
 		fields->add(jf);
 	};
 
-	//Populate value to all connected clients
-	Joypad* j = (Joypad*)getFirst();
-	while (j != nullptr) {
+	// Populate value to all connected clients
+	Joypad *j = (Joypad *)getFirst();
+	while (j != nullptr)
+	{
 		JoypadCollection::setValue(j->fields, name, value);
-		j = (Joypad*)(j->next);
+		j = (Joypad *)(j->next);
 	}
 }
 
 double JoypadCollection::getValue(String name)
 {
-	if (fields == nullptr) return 0;
-	Joypadfield* j = (Joypadfield*)(fields->getFirst());
-	while (j != nullptr) {
-		if (name == j->name) {//name found
+	if (fields == nullptr)
+		return 0;
+	Joypadfield *j = (Joypadfield *)(fields->getFirst());
+	while (j != nullptr)
+	{
+		if (name == j->name)
+		{ // name found
 			return j->value;
 		}
-		j = (Joypadfield*)(j->next);
+		j = (Joypadfield *)(j->next);
 	}
 	return 0;
 }
 
-bool JoypadCollection::setValue(Collection* fields, String name, double value)
+bool JoypadCollection::setValue(Collection *fields, String name, double value)
 {
-	if (fields == nullptr) return false;
+	if (fields == nullptr)
+		return false;
 
-	Joypadfield* j = (Joypadfield*)(fields->getFirst());
-	while (j != nullptr) {
-		if (name == j->name) {//name found
+	Joypadfield *j = (Joypadfield *)(fields->getFirst());
+	while (j != nullptr)
+	{
+		if (name == j->name)
+		{ // name found
 			j->value = value;
 			return true;
 		}
-		j = (Joypadfield*)(j->next);
+		j = (Joypadfield *)(j->next);
 	}
 	return false;
 }
@@ -229,48 +270,51 @@ void JoypadCollection::loop()
 {
 	unsigned long m = millis();
 
-	Joypad* j = (Joypad*)getFirst();
-	while (j != nullptr) {
-		if (j->changed()) {
-			if ((m - j->report) > reportAliveInterval) {
-
-				//Serial.print("id=");
-				//Serial.print(j->id);
-				//Serial.print("m=");
-				//Serial.println(m);
-
-				if (!j->sendValues()) {
-					//client disconnected
-					Joypad* next = (Joypad*)(j->next);
+	Joypad *j = (Joypad *)getFirst();
+	while (j != nullptr)
+	{
+		if (j->changed())
+		{
+			if ((m - j->report) > reportAliveInterval)
+			{
+				if (!j->sendValues())
+				{
+					// client disconnected
+					Joypad *next = (Joypad *)(j->next);
 					remove(j);
 					delete j;
 					j = next;
 				}
-				else {
-					j = (Joypad*)(j->next);
+				else
+				{
+					j = (Joypad *)(j->next);
 				}
 			}
-			else {
-				j = (Joypad*)(j->next);
+			else
+			{
+				j = (Joypad *)(j->next);
 			}
 		}
-		else if ((m - j->report) > keepAliveInterval) {
-			if (!j->keepAlive()) {
-				//client disconnected
-				Joypad* next = (Joypad*)(j->next);
+		else if ((m - j->report) > keepAliveInterval)
+		{
+			if (!j->keepAlive())
+			{
+				// client disconnected
+				Joypad *next = (Joypad *)(j->next);
 				remove(j);
 				delete j;
 				j = next;
 			}
-			else {
-				j = (Joypad*)(j->next);
+			else
+			{
+				j = (Joypad *)(j->next);
 			}
 		}
-		else {
-			j = (Joypad*)(j->next);
+		else
+		{
+			j = (Joypad *)(j->next);
 		}
 	}
-
 }
 
 Joypadfield::Joypadfield(String name)

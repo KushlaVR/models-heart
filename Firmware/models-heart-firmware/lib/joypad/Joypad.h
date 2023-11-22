@@ -28,6 +28,8 @@ public:
 	IPAddress clientIP;
 	WiFiClient client;
 	unsigned long report = 0;
+	unsigned long responce = 0;
+
 
 	Collection *fields = nullptr;
 

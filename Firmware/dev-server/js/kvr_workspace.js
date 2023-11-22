@@ -29,6 +29,7 @@ var Point = (function () {
 var WorkSpace = (function () {
     function WorkSpace(form) {
         var _this = this;
+        this.keepAlive = 0;
         this.inputs = new Array();
         this.outputs = new Array();
         this.components = new Array();
@@ -466,7 +467,16 @@ var WorkSpace = (function () {
                 }
                 if (changed == true) {
                     this.tran += 1;
+                    this.keepAlive = 50;
                     this.send(JSON.stringify({ client: this.client, tran: this.tran.toString(), values: v }));
+                }
+                else {
+                    this.tran += 1;
+                    this.keepAlive -= 1;
+                    if (this.keepAlive <= 0) {
+                        this.keepAlive = 50;
+                        this.send(JSON.stringify({ client: this.client, tran: this.tran.toString(), values: [] }));
+                    }
                 }
             }
             this.timer = setTimeout(function () {
@@ -1557,6 +1567,57 @@ var Slider = (function (_super) {
     };
     return Slider;
 }(Input));
+var Switch = (function (_super) {
+    __extends(Switch, _super);
+    function Switch(element) {
+        var _this = _super.call(this, element) || this;
+        _this.value = 0;
+        _this.SetupEvents();
+        return _this;
+    }
+    Switch.prototype.SetupEvents = function () {
+        var _this = this;
+        var jEl = $(this.element);
+        var el = jEl[0];
+        el.addEventListener("change", function (event) { return _this.OnClick(); }, false);
+    };
+    Switch.prototype.OnClick = function () {
+        console.log(this.element);
+        var jEl = $(this.element);
+        var el = jEl[0];
+        var key = this.name;
+        if (el.checked) {
+            this.value = 1;
+        }
+        else {
+            this.value = 0;
+        }
+        this.saveValue();
+    };
+    Switch.prototype.loadValue = function (key, value) {
+        var refresh = false;
+        if (key == this.name) {
+            this.value = value;
+            refresh = true;
+        }
+        if (refresh == true) {
+            this.initLayout();
+        }
+    };
+    Switch.prototype.saveValue = function () {
+        if (!this.workSpace)
+            return;
+        this.workSpace.beginTransaction();
+        var key = this.name;
+        this.workSpace.values[key] = Slider.numToString(this.value);
+        this.workSpace.endTransaction();
+    };
+    Switch.prototype.initLayout = function () {
+        var el = this.element;
+        el.checked = !(this.value == 0);
+    };
+    return Switch;
+}(Input));
 var Toggle = (function (_super) {
     __extends(Toggle, _super);
     function Toggle(element) {
@@ -1791,54 +1852,3 @@ var Utils = (function () {
     ;
     return Utils;
 }());
-var Switch = (function (_super) {
-    __extends(Switch, _super);
-    function Switch(element) {
-        var _this = _super.call(this, element) || this;
-        _this.value = 0;
-        _this.SetupEvents();
-        return _this;
-    }
-    Switch.prototype.SetupEvents = function () {
-        var _this = this;
-        var jEl = $(this.element);
-        var el = jEl[0];
-        el.addEventListener("change", function (event) { return _this.OnClick(); }, false);
-    };
-    Switch.prototype.OnClick = function () {
-        console.log(this.element);
-        var jEl = $(this.element);
-        var el = jEl[0];
-        var key = this.name;
-        if (el.checked) {
-            this.value = 1;
-        }
-        else {
-            this.value = 0;
-        }
-        this.saveValue();
-    };
-    Switch.prototype.loadValue = function (key, value) {
-        var refresh = false;
-        if (key == this.name) {
-            this.value = value;
-            refresh = true;
-        }
-        if (refresh == true) {
-            this.initLayout();
-        }
-    };
-    Switch.prototype.saveValue = function () {
-        if (!this.workSpace)
-            return;
-        this.workSpace.beginTransaction();
-        var key = this.name;
-        this.workSpace.values[key] = Slider.numToString(this.value);
-        this.workSpace.endTransaction();
-    };
-    Switch.prototype.initLayout = function () {
-        var el = this.element;
-        el.checked = !(this.value == 0);
-    };
-    return Switch;
-}(Input));
