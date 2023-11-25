@@ -273,6 +273,10 @@ void setup()
     powerManager.begin();
     powerManager.OnPowerPress = powerButton_Click;
     powerManager.OnPowerOff = onPowerOff;
+    powerManager.bat_percent_critical = 20;
+
+    powerManager.bat_adc_min = 1020;
+    powerManager.bat_adc_max = 1024;
     pinMode(PIN_POWER_SENSE, INPUT);
 
     Serial.begin(115200);
@@ -366,9 +370,6 @@ void setup()
     onStart();
 }
 
-int vBat = 0;
-double _VBAT_MIN = 700;
-double _VBAT_MAX = 1000;
 int clientCount = 0;
 uint32_t runtime = 0;
 
@@ -381,17 +382,6 @@ void loop()
     engine.loop();
     if (joypads.getCount() > 0)
     {
-        int _vBat = powerManager.getBatteryADC();
-        vBat = _vBat;
-        double bat = 0;
-        if (vBat >= _VBAT_MIN && vBat <= _VBAT_MAX)
-            bat = map(vBat, _VBAT_MIN, _VBAT_MAX, 0, 100.0);
-        else if (vBat > _VBAT_MAX)
-            bat = 100;
-        else
-            bat = 0;
-        joypads.setValue("bat", bat);
-
         Joypadfield *jp = joypads.getFirstField();
         while (jp != nullptr)
         {
@@ -403,6 +393,8 @@ void loop()
     {
         // noone connected...
     }
+    joypads.setValue("bat", powerManager.getBattaryPercent());
+
     uint32_t seconds = millis() / 1000;
     if (seconds != runtime)
     {

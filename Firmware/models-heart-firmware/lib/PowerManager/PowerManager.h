@@ -26,8 +26,10 @@ private:
     int batterySensePin;
 
     unsigned long lastVoltageRead = 0;
-    unsigned long voltageReadInterval = 1000;
+    unsigned long voltageReadInterval = 300;
     int battery_adc_value = 0;
+    double battery_percent = 0;
+
     bool powerButtonActivated = false;
 
     Button *powerButton = nullptr;
@@ -41,6 +43,10 @@ private:
     static void _powerButtonRelease(void *sender);
 
 public:
+    double bat_adc_min = 700;
+    double bat_adc_max = 1024;
+    double bat_percent_critical = 20;
+
     PowerManager(int powerHoldPin, int powerSensePin, int battarySensePin);
 
     ~PowerManager() {}
@@ -54,4 +60,6 @@ public:
     void powerOff();
 
     int getBatteryADC();
+
+    double getBattaryPercent();
 };

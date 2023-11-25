@@ -22,7 +22,8 @@ void PowerManager::begin()
     powerButton->InitState();
     powerButton->handle();
 
-    if (!powerButton->isPressed()) this->powerButtonActivated = true;
+    if (!powerButton->isPressed())
+        this->powerButtonActivated = true;
 }
 
 void PowerManager::loop()
@@ -32,8 +33,14 @@ void PowerManager::loop()
     if ((m - lastVoltageRead) > voltageReadInterval)
     {
         battery_adc_value = analogRead(batterySensePin);
+        battery_percent = map(battery_adc_value, bat_adc_min, bat_adc_max, 0.0, 100.0);
+        Serial.printf("battery_adc_value %i\n", battery_adc_value);
+        if (battery_percent <= bat_percent_critical)
+        {
+            Serial.printf("battery charge critical value! %f\nPower down...\n", battery_percent);
+            powerOff();
+        }
         lastVoltageRead = m;
-        //Serial.printf("battery_adc_value %i\n", battery_adc_value);
     }
 }
 
@@ -88,4 +95,9 @@ void PowerManager::_powerButtonHold(void *sender)
 void PowerManager::_powerButtonRelease(void *sender)
 {
     ((PowerManager *)(((Button *)sender)->tag))->powerButtonRelease();
+}
+
+double PowerManager::getBattaryPercent()
+{
+    return battery_percent;
 }
