@@ -275,7 +275,7 @@ void setup()
     powerManager.OnPowerOff = onPowerOff;
     powerManager.bat_percent_critical = 20;
 
-    powerManager.bat_adc_min = 1020;
+    powerManager.bat_adc_min = 800;
     powerManager.bat_adc_max = 1024;
     pinMode(PIN_POWER_SENSE, INPUT);
 
@@ -394,6 +394,7 @@ void loop()
         // noone connected...
     }
     joypads.setValue("bat", powerManager.getBattaryPercent());
+    joypads.setValue("adc", powerManager.getBatteryADC());
 
     uint32_t seconds = millis() / 1000;
     if (seconds != runtime)
